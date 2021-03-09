@@ -3,31 +3,26 @@
 return [
 
     'delete' => [
-
         'button' => [
-            'label' => 'Delete selected',
+            'label' => 'Verwijder geselecteerde',
         ],
 
         'modal' => [
-
             'buttons' => [
-
                 'cancel' => [
-                    'label' => 'Cancel',
+                    'label' => 'Annuleren',
                 ],
 
                 'delete' => [
-                    'label' => 'Delete selected',
+                    'label' => 'Verwijder geselecteerde',
                 ],
-
             ],
 
             'description' => 'Are you sure you would like to delete the selected records? This action cannot be undone.',
+            'description' => 'Weet je zeker dat je de geselecteerde resultaten wilt verwijderen? Deze actie kan niet ongedaan gemaakt worden.',
 
-            'heading' => 'Delete the selected records?',
-
+            'heading' => 'Verwijder geselecteerde resultaten?',
         ],
-
     ],
 
     'filter' => [
@@ -35,31 +30,25 @@ return [
     ],
 
     'messages' => [
-        'noRecords' => 'No records found',
+        'noRecords' => 'Geen resultaten gevonden',
     ],
 
     'pagination' => [
-
         'fields' => [
-
             'recordsPerPage' => [
-                'label' => 'per page',
+                'label' => 'per pagina',
             ],
-
         ],
-
     ],
 
     'record' => [
-
         'button' => [
-            'label' => 'Edit',
+            'label' => 'Bewerk',
         ],
-
     ],
 
     'search' => [
-        'placeholder' => 'Search',
+        'placeholder' => 'Zoeken',
     ],
 
 ];

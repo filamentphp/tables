@@ -5,7 +5,7 @@ return [
     'delete' => [
 
         'button' => [
-            'label' => 'Delete selected',
+            'label' => 'Elimina selezionati',
         ],
 
         'modal' => [
@@ -13,29 +13,29 @@ return [
             'buttons' => [
 
                 'cancel' => [
-                    'label' => 'Cancel',
+                    'label' => 'Annulla',
                 ],
 
                 'delete' => [
-                    'label' => 'Delete selected',
+                    'label' => 'Elimina selezionati',
                 ],
 
             ],
 
-            'description' => 'Are you sure you would like to delete the selected records? This action cannot be undone.',
+            'description' => 'Sei sicuro di voler eliminare i valori selezionati? Quest\'azione è irreversibile.',
 
-            'heading' => 'Delete the selected records?',
+            'heading' => 'Eliminare i valori selezionati?',
 
         ],
 
     ],
 
     'filter' => [
-        'placeholder' => 'Filter',
+        'placeholder' => 'Filtra',
     ],
 
     'messages' => [
-        'noRecords' => 'No records found',
+        'noRecords' => 'Nessun valore trovato',
     ],
 
     'pagination' => [
@@ -43,7 +43,7 @@ return [
         'fields' => [
 
             'recordsPerPage' => [
-                'label' => 'per page',
+                'label' => 'per pagina',
             ],
 
         ],
@@ -53,13 +53,13 @@ return [
     'record' => [
 
         'button' => [
-            'label' => 'Edit',
+            'label' => 'Modifica',
         ],
 
     ],
 
     'search' => [
-        'placeholder' => 'Search',
+        'placeholder' => 'Cerca',
     ],
 
 ];
