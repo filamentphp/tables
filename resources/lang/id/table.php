@@ -5,7 +5,7 @@ return [
     'delete' => [
 
         'button' => [
-            'label' => 'Delete selected',
+            'label' => 'Hapus yang dipilih',
         ],
 
         'modal' => [
@@ -13,18 +13,18 @@ return [
             'buttons' => [
 
                 'cancel' => [
-                    'label' => 'Cancel',
+                    'label' => 'Batalkan',
                 ],
 
                 'delete' => [
-                    'label' => 'Delete selected',
+                    'label' => 'Hapus yang terpilih',
                 ],
 
             ],
 
-            'description' => 'Are you sure you would like to delete the selected records? This action cannot be undone.',
+            'description' => 'Apakah anda yakin ingin menghapus data yang dipilih?  Aksi ini tidak bisa dibatalkan..',
 
-            'heading' => 'Delete the selected records?',
+            'heading' => 'Hapus data yang dipilih?',
 
         ],
 
@@ -35,7 +35,7 @@ return [
     ],
 
     'messages' => [
-        'noRecords' => 'No records found',
+        'noRecords' => 'Data tidak ditemukan',
     ],
 
     'pagination' => [
@@ -43,7 +43,7 @@ return [
         'fields' => [
 
             'recordsPerPage' => [
-                'label' => 'per page',
+                'label' => 'per halaman',
             ],
 
         ],
@@ -51,7 +51,7 @@ return [
     ],
 
     'search' => [
-        'placeholder' => 'Search',
+        'placeholder' => 'Cari',
     ],
 
 ];

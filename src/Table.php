@@ -12,11 +12,11 @@ class Table
 
     public $pagination = true;
 
-    public $recordAction;
+    public $primaryColumnAction;
 
-    public $recordButtonLabel = 'tables::table.record.button.label';
+    public $primaryColumnUrl;
 
-    public $recordUrl;
+    public $recordActions = [];
 
     public $searchable = true;
 
@@ -93,17 +93,6 @@ class Table
         return $this;
     }
 
-    public function getRecordUrl($record = null)
-    {
-        if (is_callable($this->recordUrl)) {
-            $callback = $this->recordUrl;
-
-            return $callback($record);
-        }
-
-        return $this->recordUrl;
-    }
-
     public function getVisibleColumns()
     {
         $columns = collect($this->columns)
@@ -153,43 +142,31 @@ class Table
         return $this;
     }
 
-    public function recordAction($action)
+    public function primaryRecordAction($action)
     {
-        $this->recordAction = $action;
-
         $this->columns = collect($this->columns)
-            ->map(function ($column) {
-                if ($column->primary && ! $column->action) {
-                    $column->action($this->recordAction);
-                }
-
-                return $column;
+            ->map(function ($column) use ($action) {
+                return $column->action($action);
             })
             ->toArray();
 
         return $this;
     }
 
-    public function recordButtonLabel($label)
+    public function primaryRecordUrl($url)
     {
-        $this->recordButtonLabel = $label;
+        $this->columns = collect($this->columns)
+            ->map(function ($column) use ($url) {
+                return $column->url($url);
+            })
+            ->toArray();
 
         return $this;
     }
 
-    public function recordUrl($url)
+    public function recordActions($actions)
     {
-        $this->recordUrl = $url;
-
-        $this->columns = collect($this->columns)
-            ->map(function ($column) {
-                if ($column->primary && ! $column->url) {
-                    $column->url($this->recordUrl);
-                }
-
-                return $column;
-            })
-            ->toArray();
+        $this->recordActions = $actions;
 
         return $this;
     }

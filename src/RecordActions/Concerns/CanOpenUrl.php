@@ -1,6 +1,6 @@
 <?php
 
-namespace Filament\Tables\Columns\Concerns;
+namespace Filament\Tables\RecordActions\Concerns;
 
 trait CanOpenUrl
 {
@@ -10,8 +10,6 @@ trait CanOpenUrl
 
     public function getUrl($record)
     {
-        if ($this->url === null) return null;
-
         if (is_callable($this->url)) {
             $callback = $this->url;
 
