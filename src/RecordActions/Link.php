@@ -9,25 +9,55 @@ class Link extends Action
     use Concerns\CanCallAction;
     use Concerns\CanOpenUrl;
 
-    public $label;
+    protected $icon;
 
-    public function label($label)
+    protected $label;
+
+    public function getIcon()
     {
-        $this->label = $label;
+        return $this->icon;
+    }
+
+    public function getLabel()
+    {
+        if ($this->label === null) {
+            return (string) Str::of($this->getName())
+                ->kebab()
+                ->replace(['-', '_', '.'], ' ')
+                ->ucfirst();
+        }
+
+        return $this->label;
+    }
+
+    public function getTitle()
+    {
+        if ($this->title === null) {
+            return $this->getLabel();
+        }
+
+        return parent::getTitle();
+    }
+
+    public function hasIcon()
+    {
+        return $this->icon !== null;
+    }
+
+    public function icon($icon)
+    {
+        $this->configure(function () use ($icon) {
+            $this->icon = $icon;
+        });
 
         return $this;
     }
 
-    public function name($name)
+    public function label($label)
     {
-        $this->name = $name;
-
-        $this->label(
-            (string) Str::of($this->name)
-                ->kebab()
-                ->replace(['-', '_', '.'], ' ')
-                ->ucfirst(),
-        );
+        $this->configure(function () use ($label) {
+            $this->label = $label;
+        });
 
         return $this;
     }
