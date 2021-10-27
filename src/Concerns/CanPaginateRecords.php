@@ -2,36 +2,27 @@
 
 namespace Filament\Tables\Concerns;
 
-use Livewire\WithPagination;
-
 trait CanPaginateRecords
 {
-    use WithPagination;
+    public $tableRecordsPerPage = 10;
 
-    public $hasPagination = true;
-
-    public $recordsPerPage = 25;
-
-    public function hasPagination()
+    public function getTableRecordsPerPage(): int
     {
-        return $this->hasPagination;
+        return intval($this->tableRecordsPerPage);
     }
 
-    public function setPage($page)
+    public function getTableRecordsPerPageSelectOptions(): array
     {
-        $this->page = $page;
-
-        $this->selected = [];
+        return [5, 10, 25, 50];
     }
 
-    public function updatedRecordsPerPage()
+    public function isTablePaginationEnabled(): bool
     {
-        $this->selected = [];
+        return true;
+    }
 
-        if (! $this->hasPagination()) {
-            return;
-        }
-
+    public function updatedTableRecordsPerPage(): void
+    {
         $this->resetPage();
     }
 }
