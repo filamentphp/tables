@@ -2,143 +2,66 @@
 
 namespace Filament\Tables\Concerns;
 
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Builder;
 
 trait CanSortRecords
 {
-    public $defaultSortColumn;
+    public $tableSortColumn = null;
 
-    public $defaultSortDirection;
+    public $tableSortDirection = null;
 
-    public $isSortable = true;
-
-    public $sortColumn;
-
-    public $sortDirection = 'asc';
-
-    public function getDefaultSort()
+    public function sortTable(?string $column = null): void
     {
-        return [$this->getDefaultSortColumn(), $this->getDefaultSortDirection()];
-    }
-
-    public function getDefaultSortColumn()
-    {
-        return $this->defaultSortColumn ?? $this->getTable()->getDefaultSortColumn();
-    }
-
-    public function getDefaultSortDirection()
-    {
-        return $this->defaultSortDirection ?? $this->getTable()->getDefaultSortDirection();
-    }
-
-    public function getSorts()
-    {
-        $sortColumn = $this->sortColumn;
-        $sortDirection = $this->sortDirection;
-
-        if (
-            ! $this->isSortable() ||
-            $sortColumn === '' ||
-            $sortColumn === null
-        ) {
-            if (! $this->hasDefaultSort()) {
-                return [];
-            }
-
-            return [
-                $this->getDefaultSort(),
-            ];
-        }
-
-        $column = collect($this->getTable()->getColumns())
-            ->filter(fn ($column) => $column->getName() === $sortColumn)
-            ->first();
-
-        if ($column === null) {
-            return [];
-        }
-
-        return collect($column->getSortColumns())
-            ->map(fn ($sortColumn) => [$sortColumn, $sortDirection])
-            ->toArray();
-    }
-
-    public function hasDefaultSort()
-    {
-        return $this->getDefaultSortColumn() !== null;
-    }
-
-    public function isSortable()
-    {
-        return $this->isSortable && collect($this->getTable()->getColumns())
-                ->filter(fn ($column) => $column->isSortable())
-                ->count();
-    }
-
-    public function sortBy($column)
-    {
-        if ($this->sortColumn === $column) {
-            switch ($this->sortDirection) {
-                case 'asc':
-                    $this->sortDirection = 'desc';
-
-                    break;
-                case 'desc':
-                    $this->sortColumn = null;
-                    $this->sortDirection = 'asc';
-
-                    break;
-            }
-
-            return;
-        }
-
-        $this->sortColumn = $column;
-        $this->sortDirection = 'asc';
-    }
-
-    protected function applyRelationshipSort($query, $sort)
-    {
-        [$sortColumn, $sortDirection] = $sort;
-
-        $parentModel = $query->getModel();
-        $relationshipName = (string) Str::of($sortColumn)->beforeLast('.');
-        $relationship = $parentModel->{$relationshipName}();
-        $relatedColumnName = (string) Str::of($sortColumn)->afterLast('.');
-        $relatedModel = $relationship->getModel();
-
-        return $query->orderBy(
-            $relatedModel
-                ->query()
-                ->select($relatedColumnName)
-                ->whereColumn(
-                    "{$relatedModel->getTable()}.{$relationship->getOwnerKeyName()}",
-                    "{$parentModel->getTable()}.{$relationship->getForeignKeyName()}",
-                ),
-            $sortDirection,
-        );
-    }
-
-    protected function applySorting($query)
-    {
-        foreach ($this->getSorts() as $sort) {
-            [$column, $direction] = $sort;
-
-            if ($this->isRelationshipSort($column)) {
-                $query = $this->applyRelationshipSort(
-                    $query,
-                    [$column, $direction],
-                );
+        if ($column === $this->tableSortColumn) {
+            if ($this->tableSortDirection === 'asc') {
+                $direction = 'desc';
+            } elseif ($this->tableSortDirection === 'desc') {
+                $column = null;
+                $direction = null;
             } else {
-                $query = $query->orderBy($column, $direction);
+                $direction = 'asc';
             }
+        } else {
+            $direction = 'asc';
         }
+
+        $this->tableSortColumn = $column;
+        $this->tableSortDirection = $direction;
+
+        $this->updatedTableSort();
+    }
+
+    public function getTableSortColumn(): ?string
+    {
+        return $this->tableSortColumn;
+    }
+
+    public function getTableSortDirection(): ?string
+    {
+        return $this->tableSortDirection;
+    }
+
+    public function updatedTableSort(): void
+    {
+        $this->resetPage();
+    }
+
+    protected function applySortingToTableQuery(Builder $query): Builder
+    {
+        $columnName = $this->tableSortColumn;
+
+        if (! $columnName) {
+            return $query;
+        }
+
+        $column = $this->getCachedTableColumn($columnName);
+
+        if (! $column) {
+            return $query;
+        }
+
+        $column->applySort($query, $this->tableSortDirection ?? 'asc');
 
         return $query;
-    }
-
-    protected function isRelationshipSort($column)
-    {
-        return Str::of($column)->contains('.');
     }
 }

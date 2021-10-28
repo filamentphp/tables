@@ -2,272 +2,229 @@
 
 namespace Filament\Tables;
 
+use Filament\Forms\ComponentContainer;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Contracts\HasTable;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Traits\Macroable;
 use Illuminate\Support\Traits\Tappable;
+use Illuminate\View\Component as ViewComponent;
 
-class Table
+class Table extends ViewComponent implements Htmlable
 {
+    use Concerns\BelongsToLivewire;
+    use Macroable;
     use Tappable;
 
-    protected $columns = [];
+    protected ?string $emptyStateDescription = null;
 
-    protected $defaultSortColumn;
+    protected ?string $emptyStateHeading = null;
 
-    protected $defaultSortDirection = 'asc';
+    protected ?string $emptyStateIcon = null;
 
-    protected $filters = [];
+    protected ?View $emptyStateView = null;
 
-    protected $livewire;
+    protected bool $isPaginationEnabled = true;
 
-    protected $primaryColumnAction;
+    protected array $meta = [];
 
-    protected $primaryColumnUrl;
+    protected ?array $recordsPerPageSelectOptions = null;
 
-    protected $recordActions = [];
-
-    protected $reorderUsing;
-
-    protected $shouldPrimaryColumnUrlOpenInNewTab = false;
-
-    public function columns($columns)
+    final public function __construct(HasTable $livewire)
     {
-        $this->columns = collect(value($columns))
-            ->map(function ($column) {
-                return $column->table($this);
-            })
-            ->toArray();
+        $this->livewire($livewire);
+    }
+
+    public static function make(HasTable $livewire): static
+    {
+        return new static($livewire);
+    }
+
+    public function emptyStateDescription(?string $description): static
+    {
+        $this->emptyStateDescription = $description;
 
         return $this;
     }
 
-    public function defaultSort($column, $direction = 'asc')
+    public function emptyStateHeading(?string $heading): static
     {
-        $this->defaultSortColumn($column);
-        $this->defaultSortDirection($direction);
+        $this->emptyStateHeading = $heading;
 
         return $this;
     }
 
-    public function defaultSortColumn($column)
+    public function emptyStateIcon(?string $icon): static
     {
-        $this->defaultSortColumn = $column;
+        $this->emptyStateIcon = $icon;
 
         return $this;
     }
 
-    public function defaultSortDirection($direction)
+    public function emptyStateView(?View $view): static
     {
-        $this->defaultSortDirection = $direction;
+        $this->emptyStateView = $view;
 
         return $this;
     }
 
-    public function filters($filters)
+    public function enablePagination(bool $condition = true): static
     {
-        $this->filters = collect(value($filters))
-            ->map(function ($filter) {
-                return $filter->table($this);
-            })
-            ->toArray();
+        $this->isPaginationEnabled = $condition;
 
         return $this;
     }
 
-    public static function for($livewire)
+    public function recordsPerPageSelectOptions(?array $options): static
     {
-        return (new static())->livewire($livewire);
-    }
-
-    public function getColumns()
-    {
-        return $this->columns;
-    }
-
-    public function getContext()
-    {
-        return get_class($this->getLivewire());
-    }
-
-    public function getDefaultSort()
-    {
-        return [$this->getDefaultSortColumn(), $this->getDefaultSortDirection()];
-    }
-
-    public function getDefaultSortColumn()
-    {
-        return $this->defaultSortColumn;
-    }
-
-    public function getDefaultSortDirection()
-    {
-        return $this->defaultSortDirection;
-    }
-
-    public function getFilters()
-    {
-        return $this->filters;
-    }
-
-    public function getLivewire()
-    {
-        return $this->livewire;
-    }
-
-    public function getPrimaryColumnAction($record = null)
-    {
-        $action = $this->primaryColumnAction;
-
-        if ($record && is_callable($action)) {
-            return $action($record);
-        }
-
-        return $action;
-    }
-
-    public function getPrimaryColumnUrl($record = null)
-    {
-        $url = $this->primaryColumnUrl;
-
-        if ($record && is_callable($url)) {
-            return $url($record);
-        }
-
-        return $url;
-    }
-
-    public function getRecordActions()
-    {
-        return $this->recordActions;
-    }
-
-    public function getVisibleColumns()
-    {
-        $columns = collect($this->getColumns())
-            ->filter(fn ($column) => ! $column->isHidden())
-            ->toArray();
-
-        return $columns;
-    }
-
-    public function getVisibleFilters()
-    {
-        $filters = collect($this->getFilters())
-            ->filter(fn ($filter) => ! $filter->isHidden())
-            ->toArray();
-
-        return $filters;
-    }
-
-    public function isReorderable()
-    {
-        return $this->reorderUsing !== null;
-    }
-
-    public function livewire($component)
-    {
-        $this->livewire = $component;
+        $this->recordsPerPageSelectOptions = $options;
 
         return $this;
     }
 
-    public function openPrimaryColumnUrlInNewTab()
+    public function areAllRecordsOnCurrentPageSelected(): bool
     {
-        $this->shouldPrimaryColumnUrlOpenInNewTab = true;
-
-        return $this;
+        return $this->getLivewire()->areAllTableRecordsOnCurrentPageSelected();
     }
 
-    public function pagination($enabled)
+    public function areAllRecordsSelected(): bool
     {
-        $this->pagination = $enabled;
-
-        return $this;
+        return $this->getLivewire()->areAllTableRecordsSelected();
     }
 
-    public function prependRecordActions($actions)
+    public function getActions(): array
     {
-        $this->recordActions = array_merge(
-            collect(value($actions))->map(fn ($action) => $action->table($this))->toArray(),
-            $this->recordActions,
-        );
-
-        return $this;
+        return $this->getLivewire()->getCachedTableActions();
     }
 
-    public function primaryColumnAction($action)
+    public function getAllRecordsCount(): int
     {
-        $this->primaryColumnAction = $action;
-
-        return $this;
+        return $this->getLivewire()->getAllTableRecordsCount();
     }
 
-    public function primaryColumnUrl($url, $shouldOpenInNewTab = false)
+    public function getBulkActions(): array
     {
-        $this->primaryColumnUrl = $url;
-
-        if ($shouldOpenInNewTab) {
-            $this->openPrimaryColumnUrlInNewTab();
-        }
-
-        return $this;
+        return $this->getLivewire()->getCachedTableBulkActions();
     }
 
-    public function pushRecordActions($actions)
+    public function getColumns(): array
     {
-        $this->recordActions = array_merge(
-            $this->recordActions,
-            collect(value($actions))->map(fn ($action) => $action->table($this))->toArray(),
-        );
-
-        return $this;
+        return $this->getLivewire()->getCachedTableColumns();
     }
 
-    public function recordActions($actions)
+    public function getEmptyStateDescription(): ?string
     {
-        $this->recordActions = collect(value($actions))
-            ->map(fn ($action) => $action->table($this))
-            ->toArray();
-
-        return $this;
+        return $this->emptyStateDescription;
     }
 
-    public function reorder($order)
+    public function getEmptyStateHeading(): string
     {
-        $callback = $this->reorderUsing;
-
-        return $callback($order, $this->getLivewire());
+        return $this->emptyStateHeading ?? __('tables::table.empty.heading');
     }
 
-    public function reorderOn($column)
+    public function getEmptyStateIcon(): string
     {
-        $this->reorderUsing(function ($order) use ($column) {
-            foreach ($order as $item) {
-                $record = $this->getLivewire()::getQuery()->find($item['value']);
-
-                if (! $record) {
-                    return;
-                }
-
-                $record->{$column} = $item['order'];
-                $record->save();
-            }
-        });
-
-        if ($this->getDefaultSortColumn() === null) {
-            $this->defaultSortColumn($column);
-        }
-
-        return $this;
+        return $this->emptyStateIcon ?? 'heroicon-o-x';
     }
 
-    public function reorderUsing($callback)
+    public function getEmptyStateView(): ?View
     {
-        $this->reorderUsing = $callback;
-
-        return $this;
+        return $this->emptyStateView;
     }
 
-    public function shouldPrimaryColumnUrlOpenInNewTab()
+    public function getFilters(): array
     {
-        return $this->shouldPrimaryColumnUrlOpenInNewTab;
+        return $this->getLivewire()->getCachedTableFilters();
+    }
+
+    public function getFiltersForm(): ComponentContainer
+    {
+        return $this->getLivewire()->getTableFiltersForm();
+    }
+
+    public function getMountedAction(): ?Action
+    {
+        return $this->getLivewire()->getMountedTableAction();
+    }
+
+    public function getMountedActionForm(): ComponentContainer
+    {
+        return $this->getLivewire()->getMountedTableActionForm();
+    }
+
+    public function getMountedBulkAction(): ?BulkAction
+    {
+        return $this->getLivewire()->getMountedTableBulkAction();
+    }
+
+    public function getMountedBulkActionForm(): ComponentContainer
+    {
+        return $this->getLivewire()->getMountedTableBulkActionForm();
+    }
+
+    public function getRecords(): Collection | LengthAwarePaginator
+    {
+        return $this->getLivewire()->getTableRecords();
+    }
+
+    public function getRecordsPerPageSelectOptions(): array
+    {
+        return $this->recordsPerPageSelectOptions ?? [5, 10, 25, 50];
+    }
+
+    public function getSelectedRecordCount(): int
+    {
+        return $this->getLivewire()->getSelectedTableRecordCount();
+    }
+
+    public function getSortColumn(): ?string
+    {
+        return $this->getLivewire()->getTableSortColumn();
+    }
+
+    public function getSortDirection(): ?string
+    {
+        return $this->getLivewire()->getTableSortDirection();
+    }
+
+    public function isFilterable(): bool
+    {
+        return $this->getLivewire()->isTableFilterable();
+    }
+
+    public function isPaginationEnabled(): bool
+    {
+        return $this->isPaginationEnabled;
+    }
+
+    public function isRecordSelected(string $record): bool
+    {
+        return $this->getLivewire()->isTableRecordSelected($record);
+    }
+
+    public function isSelectionEnabled(): bool
+    {
+        return $this->getLivewire()->isTableSelectionEnabled();
+    }
+
+    public function isSearchable(): bool
+    {
+        return $this->getLivewire()->isTableSearchable();
+    }
+
+    public function toHtml(): string
+    {
+        return $this->render()->render();
+    }
+
+    public function render(): View
+    {
+        return view('tables::index', array_merge($this->data(), [
+            'table' => $this,
+        ]));
     }
 }
