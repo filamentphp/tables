@@ -2,56 +2,95 @@
 
 return [
 
-    'delete' => [
+    'fields' => [
 
-        'button' => [
-            'label' => 'Delete selected',
+        'search_query' => [
+            'label' => 'Search',
+            'placeholder' => 'Search',
         ],
 
-        'modal' => [
-
-            'buttons' => [
-
-                'cancel' => [
-                    'label' => 'Cancel',
-                ],
-
-                'delete' => [
-                    'label' => 'Delete selected',
-                ],
-
-            ],
-
-            'description' => 'Are you sure you would like to delete the selected records? This action cannot be undone.',
-
-            'heading' => 'Delete the selected records?',
-
-        ],
-
-    ],
-
-    'filter' => [
-        'placeholder' => 'Filter',
-    ],
-
-    'messages' => [
-        'noRecords' => 'No records found',
     ],
 
     'pagination' => [
 
+        'label' => 'Pagination Navigation',
+
+        'overview' => 'Showing :first to :last of :total results',
+
         'fields' => [
 
-            'recordsPerPage' => [
+            'records_per_page' => [
                 'label' => 'per page',
             ],
 
         ],
 
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Go to page :page',
+            ],
+
+            'next' => [
+                'label' => 'Next',
+            ],
+
+            'previous' => [
+                'label' => 'Previous',
+            ],
+
+        ],
+
     ],
 
-    'search' => [
-        'placeholder' => 'Search',
+    'buttons' => [
+
+        'filter' => [
+            'label' => 'Filter',
+        ],
+
+        'open_actions' => [
+            'label' => 'Open actions',
+        ],
+
+    ],
+
+    'actions' => [
+
+        'modal' => [
+
+            'requires_confirmation_subheading' => 'Are you sure you would like to do this?',
+
+            'buttons' => [
+
+                'cancel' => [
+                    'label' => 'Submit',
+                ],
+
+                'confirm' => [
+                    'label' => 'Confirm',
+                ],
+
+                'submit' => [
+                    'label' => 'Submit',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'select_all' => [
+                'label' => 'Select all :count records',
+            ],
+
+        ],
+
+    ],
+
+    'empty' => [
+        'heading' => 'No records found',
     ],
 
 ];

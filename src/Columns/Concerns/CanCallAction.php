@@ -2,35 +2,35 @@
 
 namespace Filament\Tables\Columns\Concerns;
 
+use Closure;
+
 trait CanCallAction
 {
-    protected $action;
+    protected $action = null;
 
-    public function action($action)
+    public function action(string | callable | null $action): static
     {
-        $this->configure(function () use ($action) {
-            $this->action = $action;
-        });
+        $this->action = $action;
 
         return $this;
     }
 
-    public function getAction($record)
+    public function callAction()
     {
-        $action = $this->action;
+        $action = $this->getAction();
 
-        if (
-            $action === null &&
-            $this->isPrimary() &&
-            $this->getTable()->getPrimaryColumnAction()
-        ) {
-            $action = $this->getTable()->getPrimaryColumnAction();
+        if (! $action instanceof Closure) {
+            return;
         }
 
-        if (is_callable($action)) {
-            return $action($record);
-        }
+        return app()->call($action, [
+            'livewire' => $this->getLivewire(),
+            'record' => $this->getRecord(),
+        ]);
+    }
 
-        return $action;
+    public function getAction(): string | callable | null
+    {
+        return $this->action;
     }
 }
