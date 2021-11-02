@@ -2,102 +2,51 @@
 
 namespace Filament\Tables\Concerns;
 
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Builder;
 
 trait CanSearchRecords
 {
-    public $isSearchable = true;
+    public $tableSearchQuery = '';
 
-    public $search = '';
-
-    protected $hasSearchQueriesApplied = false;
-
-    public function getSearch()
+    public function isTableSearchable(): bool
     {
-        return Str::lower($this->search);
-    }
+        foreach ($this->getCachedTableColumns() as $column) {
+            if (! $column->isSearchable()) {
+                continue;
+            }
 
-    public function isSearchable()
-    {
-        return $this->isSearchable && collect($this->getTable()->getColumns())
-                ->filter(fn ($column) => $column->isSearchable())
-                ->count();
-    }
-
-    public function updatedSearch()
-    {
-        $this->selected = [];
-
-        if (! $this->hasPagination()) {
-            return;
+            return true;
         }
+
+        return false;
+    }
+
+    public function updatedTableSearchQuery(): void
+    {
+        $this->deselectAllTableRecords();
 
         $this->resetPage();
     }
 
-    protected function applyRelationshipSearch($query, $searchColumn)
+    protected function applySearchToTableQuery(Builder $query): Builder
     {
-        $relationshipName = (string) Str::of($searchColumn)->beforeLast('.');
-        $relatedColumnName = (string) Str::of($searchColumn)->afterLast('.');
+        $searchQuery = $this->getTableSearchQuery();
 
-        return $query->{$this->hasNoSearchQueriesApplied() ? 'whereHas' : 'orWhereHas'}(
-            $relationshipName,
-            fn ($query) => $query->where($relatedColumnName, $this->getSearchOperator(), "%{$this->getSearch()}%"),
-        );
-    }
-
-    protected function applySearch($query)
-    {
-        if (
-            ! $this->isSearchable() ||
-            $this->search === '' ||
-            $this->search === null
-        ) {
+        if ($searchQuery === '') {
             return $query;
         }
 
-        $query->where(function ($query) {
-            collect($this->getTable()->getColumns())
-                ->filter(fn ($column) => $column->isSearchable())
-                ->each(function ($column) use (&$query) {
-                    foreach ($column->getSearchColumns() as $searchColumn) {
-                        if ($this->isRelationshipSearch($searchColumn)) {
-                            $query = $this->applyRelationshipSearch($query, $searchColumn);
-                        } else {
-                            $query->{$this->hasNoSearchQueriesApplied() ? 'where' : 'orWhere'}(
-                                $searchColumn,
-                                $this->getSearchOperator(),
-                                "%{$this->getSearch()}%"
-                            );
-                        }
+        return $query->where(function (Builder $query) use ($searchQuery) {
+            $isFirst = true;
 
-                        $this->hasSearchQueriesApplied = true;
-                    }
-                });
+            foreach ($this->getCachedTableColumns() as $column) {
+                $column->applySearchConstraint($query, $searchQuery, $isFirst);
+            }
         });
-
-        return $query;
     }
 
-    protected function getSearchOperator()
+    protected function getTableSearchQuery(): string
     {
-        return [
-            'pgsql' => 'ilike',
-        ][$this->getQuery()->getConnection()->getDriverName()] ?? 'like';
-    }
-
-    protected function hasNoSearchQueriesApplied()
-    {
-        return ! $this->hasSearchQueriesApplied;
-    }
-
-    protected function hasSearchQueriesApplied()
-    {
-        return $this->hasSearchQueriesApplied;
-    }
-
-    protected function isRelationshipSearch($column)
-    {
-        return Str::of($column)->contains('.');
+        return strtolower($this->tableSearchQuery);
     }
 }
