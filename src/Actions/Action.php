@@ -5,7 +5,6 @@ namespace Filament\Tables\Actions;
 use Closure;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Traits\Conditionable;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Support\Traits\Tappable;
@@ -45,7 +44,7 @@ class Action extends Component implements Htmlable
     {
     }
 
-    public function call(Model $record, array $data = [])
+    public function call(array $data = [])
     {
         $action = $this->getAction();
 
@@ -56,7 +55,7 @@ class Action extends Component implements Htmlable
         return app()->call($action, [
             'data' => $data,
             'livewire' => $this->getLivewire(),
-            'record' => $record,
+            'record' => $this->getRecord(),
         ]);
     }
 
