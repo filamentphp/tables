@@ -17,6 +17,7 @@ class Action extends Component implements Htmlable
     use Concerns\CanOpenModal;
     use Concerns\CanOpenUrl;
     use Concerns\CanRequireConfirmation;
+    use Concerns\EvaluatesClosures;
     use Concerns\HasAction;
     use Concerns\HasColor;
     use Concerns\HasFormSchema;
@@ -29,7 +30,7 @@ class Action extends Component implements Htmlable
     use Macroable;
     use Tappable;
 
-    protected $isHidden = false;
+    protected bool | Closure $isHidden = false;
 
     final public function __construct(string $name)
     {
@@ -67,7 +68,7 @@ class Action extends Component implements Htmlable
         ]);
     }
 
-    public function hidden(bool | callable $condition = true): static
+    public function hidden(bool | Closure $condition = true): static
     {
         $this->isHidden = $condition;
 

@@ -3,9 +3,13 @@
 namespace Filament\Tables\Concerns;
 
 use Filament\Forms;
+use Filament\Forms\ComponentContainer;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @property ComponentContainer $tableFiltersForm
+ */
 trait HasFilters
 {
     protected array $cachedTableFilters;
@@ -15,12 +19,12 @@ trait HasFilters
     public function cacheTableFilters(): void
     {
         $this->cachedTableFilters = collect($this->getTableFilters())
-            ->filter(fn (Filter $filter): bool => ! $filter->isHidden())
             ->mapWithKeys(function (Filter $filter): array {
                 $filter->table($this->getCachedTable());
 
                 return [$filter->getName() => $filter];
             })
+            ->filter(fn (Filter $filter): bool => ! $filter->isHidden())
             ->toArray();
     }
 

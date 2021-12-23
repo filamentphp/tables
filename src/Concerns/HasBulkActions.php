@@ -5,6 +5,9 @@ namespace Filament\Tables\Concerns;
 use Filament\Forms\ComponentContainer;
 use Filament\Tables\Actions\BulkAction;
 
+/**
+ * @property ComponentContainer $mountedTableBulkActionForm
+ */
 trait HasBulkActions
 {
     public $mountedTableBulkAction = null;
@@ -16,12 +19,12 @@ trait HasBulkActions
     public function cacheTableBulkActions(): void
     {
         $this->cachedTableBulkActions = collect($this->getTableBulkActions())
-            ->filter(fn (BulkAction $action): bool => ! $action->isHidden())
             ->mapWithKeys(function (BulkAction $action): array {
                 $action->table($this->getCachedTable());
 
                 return [$action->getName() => $action];
             })
+            ->filter(fn (BulkAction $action): bool => ! $action->isHidden())
             ->toArray();
     }
 
