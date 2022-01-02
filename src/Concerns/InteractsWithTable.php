@@ -40,10 +40,7 @@ trait InteractsWithTable
         $this->cacheTableColumns();
 
         $this->cacheTableFilters();
-
-        if ($this->tableFilters === null) {
-            $this->getTableFiltersForm()->fill();
-        }
+        $this->getTableFiltersForm()->fill($this->tableFilters);
     }
 
     public function mountInteractsWithTable(): void
@@ -52,8 +49,8 @@ trait InteractsWithTable
             $this->tableRecordsPerPage = $this->getDefaultTableRecordsPerPageSelectOption();
         }
 
-        $this->tableSortColumn = $this->getDefaultTableSortColumn();
-        $this->tableSortDirection = $this->getDefaultTableSortDirection();
+        $this->tableSortColumn ??= $this->getDefaultTableSortColumn();
+        $this->tableSortDirection ??= $this->getDefaultTableSortDirection();
     }
 
     protected function getCachedTable(): Table
