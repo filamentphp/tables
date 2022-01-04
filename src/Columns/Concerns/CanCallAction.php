@@ -13,8 +13,12 @@ trait CanCallAction
     public function action(string | Closure | null $action): static
     {
         if (is_string($action)) {
-            $action = function (HasTable $livewire, Model $record) use ($action) {
-                return $livewire->{$action}($record);
+            $action = function (HasTable $livewire, ?Model $record) use ($action) {
+                if ($record) {
+                    return $livewire->{$action}($record);
+                }
+
+                return $livewire->{$action}();
             };
         }
 
@@ -25,16 +29,7 @@ trait CanCallAction
 
     public function callAction()
     {
-        $action = $this->getAction();
-
-        if (! $action) {
-            return;
-        }
-
-        return app()->call($action, [
-            'livewire' => $this->getLivewire(),
-            'record' => $this->getRecord(),
-        ]);
+        return $this->evaluate($this->getAction());
     }
 
     public function getAction(): ?Closure
