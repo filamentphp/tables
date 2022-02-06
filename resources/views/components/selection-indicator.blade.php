@@ -4,7 +4,7 @@
     'selectedRecordsCount',
 ])
 
-<tr x-cloak {{ $attributes->class(['bg-primary-500/10', 'filament-tables-selection-indicator']) }}>
+<tr x-cloak {{ $attributes->class(['bg-primary-500/10 filament-tables-selection-indicator']) }}>
     <td class="px-4 py-2 whitespace-nowrap text-sm" colspan="{{ $colspan }}">
         <div>
             <span x-show="isLoading">
@@ -13,7 +13,7 @@
                 </svg>
             </span>
 
-            <span x-text="
+            <span @class(['dark:text-white' => config('tables.dark_mode')]) x-text="
                 singularText = '{{ trans_choice('tables::table.selection_indicator.selected_count', 1, ['count' => 1]) }}'
                 pluralText = '{{ trans_choice('tables::table.selection_indicator.selected_count', 2, ['count' => 2]) }}'
 

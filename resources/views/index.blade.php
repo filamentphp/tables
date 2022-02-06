@@ -8,7 +8,8 @@
     $isSearchVisible = $isSearchable();
     $isFiltersDropdownVisible = $isFilterable();
 
-    $columnsCount = count($columns) + 1;
+    $columnsCount = count($columns);
+    if (count($actions)) $columnsCount++;
     if ($isSelectionEnabled()) $columnsCount++;
 
     $getHiddenClasses = function (\Filament\Tables\Columns\Column $column): ?string {
@@ -189,7 +190,10 @@
         </div>
 
         <div
-            class="overflow-y-auto relative"
+            @class([
+                'overflow-y-auto relative',
+                'dark:border-gray-700' => config('tables.dark_mode'),
+            ])
             x-bind:class="{
                 'rounded-t-xl': ! hasHeader,
                 'border-t': hasHeader,
@@ -231,7 +235,12 @@
                             </x-tables::header-cell>
                         @endforeach
 
-                        <th class="w-5"></th>
+                        @if (count($actions))
+                            <th @class([
+                                'w-5',
+                                'dark:bg-gray-800' => config('tables.dark_mode'),
+                            ])></th>
+                        @endif
                     </x-slot>
 
                     @if ($isSelectionEnabled())
@@ -280,7 +289,9 @@
                                 </x-tables::cell>
                             @endforeach
 
-                            <x-tables::actions-cell :actions="$actions" :record="$record" />
+                            @if (count($actions))
+                                <x-tables::actions-cell :actions="$actions" :record="$record" />
+                            @endif
                         </x-tables::row>
                     @endforeach
 
@@ -311,7 +322,10 @@
         </div>
 
         @if ($isPaginationEnabled())
-            <div class="p-2 border-t">
+            <div @class([
+                'p-2 border-t',
+                'dark:border-gray-700' => config('tables.dark_mode'),
+            ])>
                 <x-tables::pagination
                     :paginator="$records"
                     :records-per-page-select-options="$getRecordsPerPageSelectOptions()"
