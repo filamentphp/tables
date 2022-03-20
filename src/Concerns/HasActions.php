@@ -80,6 +80,8 @@ trait HasActions
             return $this->callMountedTableAction();
         }
 
+        $this->resetErrorBag();
+
         $this->dispatchBrowserEvent('open-modal', [
             'id' => static::class . '-action',
         ]);

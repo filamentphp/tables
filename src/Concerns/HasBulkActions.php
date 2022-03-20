@@ -79,6 +79,8 @@ trait HasBulkActions
             return $this->callMountedTableBulkAction();
         }
 
+        $this->resetErrorBag();
+
         $this->dispatchBrowserEvent('open-modal', [
             'id' => static::class . '-bulk-action',
         ]);
