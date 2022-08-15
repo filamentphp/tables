@@ -29,6 +29,7 @@ trait InteractsWithTable
     use HasHeader;
     use HasRecords;
     use HasRecordAction;
+    use HasRecordClasses;
     use HasRecordUrl;
     use Forms\Concerns\InteractsWithForms;
 
@@ -96,6 +97,7 @@ trait InteractsWithTable
     protected function getTable(): Table
     {
         return $this->makeTable()
+            ->actionsPosition($this->getTableActionsPosition())
             ->content($this->getTableContent())
             ->contentFooter($this->getTableContentFooter())
             ->description($this->getTableDescription())
@@ -106,7 +108,8 @@ trait InteractsWithTable
             ->enablePagination($this->isTablePaginationEnabled())
             ->filtersFormWidth($this->getTableFiltersFormWidth())
             ->filtersLayout($this->getTableFiltersLayout())
-            ->recordAction($this->getTableRecordAction())
+            ->getRecordActionUsing($this->getTableRecordActionUsing())
+            ->getRecordClassesUsing($this->getTableRecordClassesUsing())
             ->getRecordUrlUsing($this->getTableRecordUrlUsing())
             ->header($this->getTableHeader())
             ->heading($this->getTableHeading())
