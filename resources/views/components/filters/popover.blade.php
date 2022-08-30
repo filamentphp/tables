@@ -1,13 +1,14 @@
 @props([
     'form',
     'width' => 'sm',
+    'indicatorsCount' => null,
 ])
 
 <div
     x-data="{}"
     {{ $attributes->class(['filament-tables-filters relative inline-block']) }}
 >
-    <x-tables::filters.trigger />
+    <x-tables::filters.trigger :indicators-count="$indicatorsCount" />
 
     <div
         x-ref="popoverPanel"
