@@ -174,6 +174,28 @@ TextColumn::make('title')
     })
 ```
 
+##### Action modals
+
+You may open [action modals](actions#modals) by passing in an `Action` object to the `action()` method:
+
+```php
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\TextColumn;
+
+TextColumn::make('title')
+    ->action(
+        Action::make('select')
+            ->requiresConfirmation()
+            ->action(function (Post $record): void {
+                $this->dispatchBrowserEvent('select-post', [
+                    'post' => $record->getKey(),
+                ]);
+            }),
+    )
+```
+
+Action objects passed into the `action()` method must have a unique name to distinguish it from other actions within the table.
+
 #### Opening URLs
 
 To open a URL, you may use the `url()` method, passing a callback or static URL to open. Callbacks accept a `$record` parameter which you may use to customize the URL:
@@ -750,6 +772,98 @@ Instead of using an array, you may use a separated string by passing the separat
 use Filament\Tables\Columns\TagsColumn;
 
 TagsColumn::make('tags')->separator(',')
+```
+
+## Select column
+
+The select column allows you to render a select field inside the table, which can be used to update that database record without needing to open a new page or a modal.
+
+You must pass options to the column:
+
+```php
+use Filament\Tables\Columns\SelectColumn;
+
+SelectColumn::make('status')
+    ->options([
+        'draft' => 'Draft',
+        'reviewing' => 'Reviewing',
+        'published' => 'Published',
+    ])
+```
+
+You can validate the input by passing any [Laravel validation rules](https://laravel.com/docs/validation#available-validation-rules) in an array:
+
+```php
+use Filament\Tables\Columns\SelectColumn;
+
+SelectColumn::make('status')
+    ->options([
+        'draft' => 'Draft',
+        'reviewing' => 'Reviewing',
+        'published' => 'Published',
+    ])
+    ->rules(['required'])
+```
+
+You can prevent the placeholder from being selected using the `disablePlaceholderSelection()` method:
+
+```php
+use Filament\Tables\Columns\SelectColumn;
+
+SelectColumn::make('status')
+    ->options([
+        'draft' => 'Draft',
+        'reviewing' => 'Reviewing',
+        'published' => 'Published',
+    ])
+    ->disablePlaceholderSelection()
+```
+
+## Toggle column
+
+The toggle column allows you to render a toggle button inside the table, which can be used to update that database record without needing to open a new page or a modal:
+
+```php
+use Filament\Tables\Columns\ToggleColumn;
+
+ToggleColumn::make('is_admin')
+```
+
+## Text input column
+
+The text input column allows you to render a text input inside the table, which can be used to update that database record without needing to open a new page or a modal:
+
+```php
+use Filament\Tables\Columns\TextInputColumn;
+
+TextInputColumn::make('name')
+```
+
+You can validate the input by passing any [Laravel validation rules](https://laravel.com/docs/validation#available-validation-rules) in an array:
+
+```php
+use Filament\Tables\Columns\TextInputColumn;
+
+TextInputColumn::make('name')
+    ->rules(['required', 'max:255'])
+```
+
+You may use the `type()` method to pass a custom [HTML input type](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types):
+
+```php
+use Filament\Tables\Columns\TextInputColumn;
+
+TextInputColumn::make('background_color')->type('color')
+```
+
+## Checkbox column
+
+The checkbox column allows you to render a checkbox inside the table, which can be used to update that database record without needing to open a new page or a modal:
+
+```php
+use Filament\Tables\Columns\CheckboxColumn;
+
+CheckboxColumn::make('is_admin')
 ```
 
 ## View column
