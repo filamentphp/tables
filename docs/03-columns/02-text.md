@@ -133,6 +133,36 @@ TextColumn::make('status')->enum([
 ])
 ```
 
+## Displaying the row index
+
+You may want a column to contain the number of the current row in the table:
+
+```php
+use Filament\Tables\Columns\TextColumn;
+
+TextColumn::make('index')->getStateUsing(static function (stdClass $rowLoop): string {
+    return (string) $rowLoop->iteration;
+});
+```
+
+As `$rowLoop` is Laravel's Blade `$loop` object, you can reference all other `$loop` properties.
+
+As a shortcut, you may use the `rowIndex()` method:
+
+```php
+use Filament\Tables\Columns\TextColumn;
+
+TextColumn::make('index')->rowIndex()
+```
+
+To start counting from 0 instead of 1, use `isFromZero: true`:
+
+```php
+use Filament\Tables\Columns\TextColumn;
+
+TextColumn::make('index')->rowIndex(isFromZero: true)
+```
+
 ## Custom formatting
 
 You may instead pass a custom formatting callback to `formatStateUsing()`, which accepts the `$state` of the cell, and optionally its `$record`:
@@ -209,16 +239,15 @@ TextColumn::make('email')
     ->weight('bold')
 ```
 
-## Allowing the text to be copied to the transfer area
+## Allowing the text to be copied to the clipboard
 
-You can cause the text to copy, so that by clicking on the view, copies the value to the transfer area and, optionally, specify a custom confirmation message, milesecond duration and add a standard copy icon. This feature works only when SSL is activated for the application.
+You may make the text copyable, such that clicking on the cell copies the text to the clipboard, and optionally specify a custom confirmation message and duration in milliseconds. This feature only works when SSL is enabled for the app.
 
 ```php
 use Filament\Tables\Columns\TextColumn;
 
-TextColumn::make('title')
+TextColumn::make('email')
     ->copyable()
-    ->copyIcon()
-    ->copyMessage('Title copied')
+    ->copyMessage('Email address copied')
     ->copyMessageDuration(1500)
 ```

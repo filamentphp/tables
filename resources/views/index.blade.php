@@ -507,6 +507,7 @@
                                                         :components="$getColumnsLayout()"
                                                         :record="$record"
                                                         :record-key="$recordKey"
+                                                        :row-loop="$loop"
                                                     />
                                                 </a>
                                             @elseif ($recordAction)
@@ -530,6 +531,7 @@
                                                         :components="$getColumnsLayout()"
                                                         :record="$record"
                                                         :record-key="$recordKey"
+                                                        :row-loop="$loop"
                                                     />
                                                 </button>
                                             @else
@@ -538,6 +540,7 @@
                                                         :components="$getColumnsLayout()"
                                                         :record="$record"
                                                         :record-key="$recordKey"
+                                                        :row-loop="$loop"
                                                     />
                                                 </div>
                                             @endif
@@ -774,6 +777,7 @@
                                 @foreach ($columns as $column)
                                     @php
                                         $column->record($record);
+                                        $column->rowLoop($loop->parent);
                                     @endphp
 
                                     <x-tables::cell
@@ -883,6 +887,8 @@
             :width="$action?->getModalWidth()"
             :slide-over="$action?->isModalSlideOver()"
             display-classes="block"
+            x-init="this.livewire = $wire.__instance"
+            x-on:modal-closed="this.livewire.set('mountedTableAction', null)"
         >
             @if ($action)
                 @if ($action->isModalCentered())
@@ -940,6 +946,8 @@
             :width="$action?->getModalWidth()"
             :slide-over="$action?->isModalSlideOver()"
             display-classes="block"
+            x-init="this.livewire = $wire.__instance"
+            x-on:modal-closed="this.livewire.set('mountedTableBulkAction', null)"
         >
             @if ($action)
                 @if ($action->isModalCentered())
