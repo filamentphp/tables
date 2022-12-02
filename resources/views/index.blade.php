@@ -658,7 +658,7 @@
                                 :alignment="$column->getAlignment()"
                                 :sortable="$column->isSortable() && (! $isReordering)"
                                 :sort-direction="$getSortDirection()"
-                                :class="$getHiddenClasses($column)"
+                                class="filament-table-header-cell-{{ \Illuminate\Support\Str::of($column->getName())->camel()->kebab() }} {{ $getHiddenClasses($column) }}"
                             >
                                 {{ $column->getLabel() }}
                             </x-tables::header-cell>
@@ -690,7 +690,7 @@
                             @endif
 
                             @foreach ($columns as $column)
-                                <x-tables::cell class="px-4 py-1">
+                                <x-tables::cell class="filament-table-individual-search-cell-{{ \Illuminate\Support\Str::of($column->getName())->camel()->kebab() }} px-4 py-1">
                                     @if ($column->isIndividuallySearchable())
                                         <x-tables::search-input wire-model="tableColumnSearchQueries.{{ $column->getName() }}" />
                                     @endif
@@ -781,7 +781,7 @@
                                     @endphp
 
                                     <x-tables::cell
-                                        :class="$getHiddenClasses($column)"
+                                        class="filament-table-cell-{{ \Illuminate\Support\Str::of($column->getName())->camel()->kebab() }} {{ $getHiddenClasses($column) }}"
                                         wire:key="{{ $this->id }}.table.record.{{ $recordKey }}.column.{{ $column->getName() }}"
                                         wire:loading.remove.delay
                                         wire:target="{{ implode(',', \Filament\Tables\Table::LOADING_TARGETS) }}"
@@ -901,9 +901,11 @@
         >
             @if ($action)
                 @if ($action->isModalCentered())
-                    <x-slot name="heading">
-                        {{ $action->getModalHeading() }}
-                    </x-slot>
+                    @if ($heading = $action->getModalHeading())
+                        <x-slot name="heading">
+                            {{ $heading }}
+                        </x-slot>
+                    @endif
 
                     @if ($subheading = $action->getModalSubheading())
                         <x-slot name="subheading">
@@ -912,9 +914,11 @@
                     @endif
                 @else
                     <x-slot name="header">
-                        <x-tables::modal.heading>
-                            {{ $action->getModalHeading() }}
-                        </x-tables::modal.heading>
+                        @if ($heading = $action->getModalHeading())
+                            <x-tables::modal.heading>
+                                {{ $heading }}
+                            </x-tables::modal.heading>
+                        @endif
 
                         @if ($subheading = $action->getModalSubheading())
                             <x-tables::modal.subheading>
@@ -962,9 +966,11 @@
         >
             @if ($action)
                 @if ($action->isModalCentered())
-                    <x-slot name="heading">
-                        {{ $action->getModalHeading() }}
-                    </x-slot>
+                    @if ($heading = $action->getModalHeading())
+                        <x-slot name="heading">
+                            {{ $heading }}
+                        </x-slot>
+                    @endif
 
                     @if ($subheading = $action->getModalSubheading())
                         <x-slot name="subheading">
@@ -973,9 +979,11 @@
                     @endif
                 @else
                     <x-slot name="header">
-                        <x-tables::modal.heading>
-                            {{ $action->getModalHeading() }}
-                        </x-tables::modal.heading>
+                        @if ($heading = $action->getModalHeading())
+                            <x-tables::modal.heading>
+                                {{ $heading }}
+                            </x-tables::modal.heading>
+                        @endif
 
                         @if ($subheading = $action->getModalSubheading())
                             <x-tables::modal.subheading>
