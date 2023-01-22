@@ -4,7 +4,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Որոնել',
             'placeholder' => 'Որոնել',
         ],
@@ -49,7 +49,7 @@ return [
             'label' => 'Ֆիլտր',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Բացել գործողություններ',
         ],
 

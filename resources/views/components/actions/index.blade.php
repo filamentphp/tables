@@ -9,15 +9,21 @@
     'filament-tables-actions-container flex items-center gap-4',
     'flex-wrap' => $wrap,
     'md:flex-nowrap' => $wrap === '-md',
-    match ($alignment ?? config('tables.layout.action_alignment') ?? config('tables.layout.actions.cell.alignment')) {
+    match ($alignment) {
         'center' => 'justify-center',
-        'left' => 'justify-start',
-        'left md:right' => 'justify-start md:justify-end',
+        'start', 'left' => 'justify-start',
+        'start md:end', 'left md:right' => 'justify-start md:justify-end',
         default => 'justify-end',
     },
 ]) }}>
     @foreach ($actions as $action)
-        @if (! $action->record($record)->isHidden())
+        @php
+            if (! $action instanceof \Filament\Tables\Actions\BulkAction) {
+                $action->record($record);
+            }
+        @endphp
+
+        @if (! $action->isHidden())
             {{ $action }}
         @endif
     @endforeach

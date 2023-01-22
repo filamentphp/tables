@@ -4,7 +4,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'گەڕان',
             'placeholder' => 'گەڕان',
         ],
@@ -49,7 +49,7 @@ return [
             'label' => 'فیلتەر',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Open actions',
         ],
 

@@ -12,7 +12,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Procurar',
             'placeholder' => 'Procurar',
         ],
@@ -71,7 +71,7 @@ return [
             'label' => 'Filtrar',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Ações abertas',
         ],
 

@@ -7,10 +7,15 @@
     x-init="
         $watch('state', () => $refs.button.dispatchEvent(new Event('change')))
     "
-    {{ $attributes->merge($getExtraAttributes())->class([
+    {{ $attributes->merge($getExtraAttributes(), escape: false)->class([
         'filament-tables-toggle-column',
     ]) }}
 >
+    @php
+        $offColor = $getOffColor();
+        $onColor = $getOnColor();
+    @endphp
+
     <button
         role="switch"
         aria-checked="false"
@@ -24,26 +29,30 @@
             isLoading = false
         "
         x-tooltip="error"
-        x-bind:class="{
-            'opacity-70 pointer-events-none': isLoading,
-            '{{ match ($getOnColor()) {
-                'danger' => 'bg-danger-500',
-                'secondary' => 'bg-gray-500',
-                'success' => 'bg-success-500',
-                'warning' => 'bg-warning-500',
-                default => 'bg-primary-600',
-            } }}': state,
-            '{{ match ($getOffColor()) {
-                'danger' => 'bg-danger-500',
-                'primary' => 'bg-primary-500',
-                'success' => 'bg-success-500',
-                'warning' => 'bg-warning-500',
-                default => 'bg-gray-200',
-            } }} @if (config('forms.dark_mode')) dark:bg-white/10 @endif': ! state,
-        }"
-        {!! $isDisabled() ? 'disabled' : null !!}
+        x-bind:class="
+            (state ? '{{ match ($getOnColor()) {
+                'danger' => 'bg-danger-600',
+                'gray' => 'bg-gray-600',
+                'primary', null => 'bg-primary-600',
+                'secondary' => 'bg-secondary-600',
+                'success' => 'bg-success-600',
+                'warning' => 'bg-warning-600',
+                default => $onColor,
+            } }}' : '{{ match ($getOffColor()) {
+                'danger' => 'bg-danger-600',
+                'gray' => 'bg-gray-600',
+                'primary' => 'bg-primary-600',
+                'secondary' => 'bg-secondary-600',
+                'success' => 'bg-success-600',
+                'warning' => 'bg-warning-600',
+                null => 'bg-gray-200 dark:bg-gray-700',
+                default => $offColor,
+            } }}') +
+            (isLoading ? ' opacity-70 pointer-events-none' : '')
+        "
+        @disabled($isDisabled())
         type="button"
-        class="relative inline-flex shrink-0 ml-4 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary-500 disabled:opacity-70 disabled:cursor-not-allowed disabled:pointer-events-none"
+        class="relative inline-flex shrink-0 ml-4 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none disabled:opacity-70 disabled:pointer-events-none"
     >
         <span
             class="pointer-events-none relative inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 ease-in-out transition duration-200"
@@ -61,18 +70,20 @@
                 }"
             >
                 @if ($hasOffIcon())
-                    <x-dynamic-component
-                        :component="$getOffIcon()"
-                        :class="\Illuminate\Support\Arr::toCssClasses([
-                            'h-3 w-3',
-                            match ($getOffColor()) {
-                                'danger' => 'text-danger-500',
-                                'primary' => 'text-primary-500',
-                                'success' => 'text-success-500',
-                                'warning' => 'text-warning-500',
-                                default => 'text-gray-400',
-                            },
-                        ])"
+                    <x-filament::icon
+                        :name="$getOffIcon()"
+                        alias="filament-tables::columns.toggle.off"
+                        :color="match ($offColor) {
+                            'danger' => 'text-danger-600',
+                            'gray' => 'text-gray-600',
+                            'primary' => 'text-primary-600',
+                            'secondary' => 'text-secondary-600',
+                            'success' => 'text-success-600',
+                            'warning' => 'text-warning-600',
+                            null => 'text-gray-400 dark:text-gray-700',
+                            default => $offColor,
+                        }"
+                        size="h-3 w-3"
                     />
                 @endif
             </span>
@@ -86,19 +97,20 @@
                 }"
             >
                 @if ($hasOnIcon())
-                    <x-dynamic-component
-                        :component="$getOnIcon()"
-                        x-cloak
-                        :class="\Illuminate\Support\Arr::toCssClasses([
-                            'h-3 w-3',
-                            match ($getOnColor()) {
-                                'danger' => 'text-danger-500',
-                                'secondary' => 'text-gray-400',
-                                'success' => 'text-success-500',
-                                'warning' => 'text-warning-500',
-                                default => 'text-primary-500',
-                            },
-                        ])"
+                    <x-filament::icon
+                        :name="$getOnIcon()"
+                        alias="filament-tables::columns.toggle.on"
+                        :color="match ($onColor) {
+                            'danger' => 'text-danger-600',
+                            'gray' => 'text-gray-600',
+                            'primary', null => 'text-primary-600',
+                            'secondary' => 'text-secondary-600',
+                            'success' => 'text-success-600',
+                            'warning' => 'text-warning-600',
+                            default => $onColor,
+                        }"
+                        size="h-3 w-3"
+                        x-cloak=""
                     />
                 @endif
             </span>

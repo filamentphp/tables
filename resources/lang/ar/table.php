@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'بحث',
             'placeholder' => 'بحث',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'تصفية',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'فتح الإجراءات',
         ],
 

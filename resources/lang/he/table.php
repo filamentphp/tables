@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'חיפוש',
             'placeholder' => 'חיפוש',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'פילטר',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'פתח פעולות',
         ],
 

@@ -4,9 +4,10 @@ namespace Filament\Tables\Actions;
 
 use Closure;
 use Exception;
-use Filament\Forms\ComponentContainer;
+use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Forms\Components\Select;
-use Filament\Support\Actions\Concerns\CanCustomizeProcess;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -16,18 +17,20 @@ use Illuminate\Support\Arr;
 class AttachAction extends Action
 {
     use CanCustomizeProcess;
-    use Concerns\InteractsWithRelationship;
 
     protected ?Closure $modifyRecordSelectUsing = null;
 
     protected ?Closure $modifyRecordSelectOptionsQueryUsing = null;
 
-    protected bool | Closure $isAttachAnotherDisabled = false;
+    protected bool | Closure $canAttachAnother = true;
 
     protected bool | Closure $isRecordSelectPreloaded = false;
 
     protected string | Closure | null $recordTitleAttribute = null;
 
+    /**
+     * @var array<string> | Closure | null
+     */
     protected array | Closure | null $recordSelectSearchColumns = null;
 
     public static function getDefaultName(): ?string
@@ -39,33 +42,33 @@ class AttachAction extends Action
     {
         parent::setUp();
 
-        $this->label(__('filament-support::actions/attach.single.label'));
+        $this->label(__('filament-actions::attach.single.label'));
 
-        $this->modalHeading(fn (): string => __('filament-support::actions/attach.single.modal.heading', ['label' => $this->getModelLabel()]));
+        $this->modalHeading(fn (): string => __('filament-actions::attach.single.modal.heading', ['label' => $this->getModelLabel()]));
 
-        $this->modalButton(__('filament-support::actions/attach.single.modal.actions.attach.label'));
+        $this->modalButton(__('filament-actions::attach.single.modal.actions.attach.label'));
 
         $this->modalWidth('lg');
 
         $this->extraModalActions(function (): array {
-            return $this->isAttachAnotherDisabled() ? [] : [
+            return $this->canAttachAnother() ? [
                 $this->makeExtraModalAction('attachAnother', ['another' => true])
-                    ->label(__('filament-support::actions/attach.single.modal.actions.attach_another.label')),
-            ];
+                    ->label(__('filament-actions::attach.single.modal.actions.attach_another.label')),
+            ] : [];
         });
 
-        $this->successNotificationTitle(__('filament-support::actions/attach.single.messages.attached'));
+        $this->successNotificationTitle(__('filament-actions::attach.single.messages.attached'));
 
-        $this->color('secondary');
+        $this->color('gray');
 
         $this->button();
 
         $this->form(fn (): array => [$this->getRecordSelect()]);
 
-        $this->action(function (array $arguments, ComponentContainer $form): void {
-            $this->process(function (array $data) {
+        $this->action(function (array $arguments, Form $form): void {
+            $this->process(function (array $data, Table $table) {
                 /** @var BelongsToMany $relationship */
-                $relationship = $this->getRelationship();
+                $relationship = $table->getRelationship();
 
                 $record = $relationship->getRelated()->query()->find($data['recordId']);
 
@@ -111,9 +114,19 @@ class AttachAction extends Action
         return $this;
     }
 
+    public function attachAnother(bool | Closure $condition = true): static
+    {
+        $this->canAttachAnother = $condition;
+
+        return $this;
+    }
+
+    /**
+     * @deprecated Use `attachAnother()` instead.
+     */
     public function disableAttachAnother(bool | Closure $condition = true): static
     {
-        $this->isAttachAnotherDisabled = $condition;
+        $this->attachAnother(fn (AttachAction $action): bool => ! $action->evaluate($condition));
 
         return $this;
     }
@@ -125,14 +138,14 @@ class AttachAction extends Action
         return $this;
     }
 
-    public function isAttachAnotherDisabled(): bool
+    public function canAttachAnother(): bool
     {
-        return $this->evaluate($this->isAttachAnotherDisabled);
+        return (bool) $this->evaluate($this->canAttachAnother);
     }
 
     public function isRecordSelectPreloaded(): bool
     {
-        return $this->evaluate($this->isRecordSelectPreloaded);
+        return (bool) $this->evaluate($this->isRecordSelectPreloaded);
     }
 
     public function getRecordTitleAttribute(): string
@@ -146,6 +159,9 @@ class AttachAction extends Action
         return $attribute;
     }
 
+    /**
+     * @param  array<string> | Closure | null  $columns
+     */
     public function recordSelectSearchColumns(array | Closure | null $columns): static
     {
         $this->recordSelectSearchColumns = $columns;
@@ -153,6 +169,9 @@ class AttachAction extends Action
         return $this;
     }
 
+    /**
+     * @return array<string> | null
+     */
     public function getRecordSelectSearchColumns(): ?array
     {
         return $this->evaluate($this->recordSelectSearchColumns);
@@ -160,13 +179,15 @@ class AttachAction extends Action
 
     public function getRecordSelect(): Select
     {
-        $getOptions = function (?string $search = null, ?array $searchColumns = []): array {
+        $table = $this->getTable();
+
+        $getOptions = function (?string $search = null, ?array $searchColumns = []) use ($table): array {
             /** @var BelongsToMany $relationship */
-            $relationship = $this->getRelationship();
+            $relationship = $table->getRelationship();
 
-            $titleColumnName = $this->getRecordTitleAttribute();
+            $titleAttribute = $this->getRecordTitleAttribute();
 
-            $relationshipQuery = $relationship->getRelated()->query()->orderBy($titleColumnName);
+            $relationshipQuery = $relationship->getRelated()->query()->orderBy($titleAttribute);
 
             if ($this->modifyRecordSelectOptionsQueryUsing) {
                 $relationshipQuery = $this->evaluate($this->modifyRecordSelectOptionsQueryUsing, [
@@ -185,15 +206,15 @@ class AttachAction extends Action
                     default => 'like',
                 };
 
-                $searchColumns ??= [$titleColumnName];
+                $searchColumns ??= [$titleAttribute];
                 $isFirst = true;
 
                 $relationshipQuery->where(function (Builder $query) use ($isFirst, $searchColumns, $searchOperator, $search): Builder {
-                    foreach ($searchColumns as $searchColumnName) {
+                    foreach ($searchColumns as $searchColumn) {
                         $whereClause = $isFirst ? 'where' : 'orWhere';
 
                         $query->{"{$whereClause}Raw"}(
-                            "lower({$searchColumnName}) {$searchOperator} ?",
+                            "lower({$searchColumn}) {$searchOperator} ?",
                             "%{$search}%",
                         );
 
@@ -208,11 +229,11 @@ class AttachAction extends Action
 
             return $relationshipQuery
                 ->when(
-                    ! $this->getLivewire()->allowsDuplicates(),
+                    ! $table->allowsDuplicates(),
                     fn (Builder $query): Builder => $query->whereDoesntHave(
-                        $this->getInverseRelationshipName(),
-                        function (Builder $query): Builder {
-                            return $query->where($this->getRelationship()->getParent()->getQualifiedKeyName(), $this->getRelationship()->getParent()->getKey());
+                        $table->getInverseRelationship(),
+                        function (Builder $query) use ($table): Builder {
+                            return $query->where($table->getRelationship()->getParent()->getQualifiedKeyName(), $table->getRelationship()->getParent()->getKey());
                         },
                     ),
                 )
@@ -222,13 +243,13 @@ class AttachAction extends Action
         };
 
         $select = Select::make('recordId')
-            ->label(__('filament-support::actions/attach.single.modal.fields.record_id.label'))
+            ->label(__('filament-actions::attach.single.modal.fields.record_id.label'))
             ->required()
             ->searchable($this->getRecordSelectSearchColumns() ?? true)
             ->getSearchResultsUsing(static fn (Select $component, string $search): array => $getOptions(search: $search, searchColumns: $component->getSearchColumns()))
-            ->getOptionLabelUsing(fn ($value): string => $this->getRecordTitle($this->getRelationship()->getRelated()->query()->find($value)))
+            ->getOptionLabelUsing(fn ($value): string => $this->getRecordTitle($table->getRelationship()->getRelated()->query()->find($value)))
             ->options(fn (): array => $this->isRecordSelectPreloaded() ? $getOptions() : [])
-            ->disableLabel();
+            ->hiddenLabel();
 
         if ($this->modifyRecordSelectUsing) {
             $select = $this->evaluate($this->modifyRecordSelectUsing, [

@@ -109,6 +109,12 @@ namespace Livewire\Testing {
 
         public function assertTableColumnStateNotSet(string $name, $value, $record): static {}
 
+        public function assertTableColumnSummarizerExists(string $columnName, string $summarizerId): static {}
+
+        public function assertTableColumnSummarySet(string $columnName, string $summarizerId, $state, bool $isCurrentPaginationPageOnly = false): static {}
+
+        public function assertTableColumnSummaryNotSet(string $columnName, string $summarizerId, $state, bool $isCurrentPaginationPageOnly = false): static {}
+
         public function assertTableColumnFormattedStateSet(string $name, $value, $record): static {}
 
         public function assertTableColumnFormattedStateNotSet(string $name, $value, $record): static {}
@@ -121,9 +127,9 @@ namespace Livewire\Testing {
 
         public function assertTableColumnDoesNotHaveDescription(string $name, $description, $record, $position = 'below'): static {}
 
-        public function assertSelectColumnHasOptions(string $name, array $options, $record): static {}
+        public function assertTableSelectColumnHasOptions(string $name, array $options, $record): static {}
 
-        public function assertSelectColumnDoesNotHaveOptions(string $name, array $options, $record): static {}
+        public function assertTableSelectColumnDoesNotHaveOptions(string $name, array $options, $record): static {}
 
         public function sortTable(?string $name = null, ?string $direction = null): static {}
 
@@ -143,5 +149,5 @@ namespace Livewire\Testing {
 
         public function assertCountTableRecords(int $count): static {}
     }
-
+    
 }

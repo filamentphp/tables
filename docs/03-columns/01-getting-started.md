@@ -2,23 +2,12 @@
 title: Getting started
 ---
 
-Column classes can be found in the `Filament\Tables\Columns` namespace.
-
-If you're using the columns in a Livewire component, you can put them in the `getTableColumns()` method:
+Column classes can be found in the `Filament\Tables\Columns` namespace. You can put them inside the `$table->columns()` method:
 
 ```php
-protected function getTableColumns(): array
-{
-    return [
-        // ...
-    ];
-}
-```
+use Filament\Tables\Table;
 
-If you're using them in admin panel resources or relation managers, you must put them in the `$table->columns()` method:
-
-```php
-public static function table(Table $table): Table
+public function table(Table $table): Table
 {
     return $table
         ->columns([
@@ -27,7 +16,7 @@ public static function table(Table $table): Table
 }
 ```
 
-Columns may be created using the static `make()` method, passing its name. The name of the column should correspond to a column or accessor on your model. You may use "dot syntax" to access columns within relationships.
+Columns may be created using the static `make()` method, passing its name. The name of the column should correspond to a column or accessor on your model. You may use "dot notation" to access columns within relationships.
 
 ```php
 use Filament\Tables\Columns\TextColumn;
@@ -48,6 +37,7 @@ Static columns display data to the user:
 - [Image column](image)
 - [Badge column](badge)
 - [Tags column](tags)
+- [List column](list)
 - [Color column](color)
 
 Editable columns allow the user to update data in the database without leaving the table:
@@ -109,17 +99,20 @@ TextColumn::make('full_name')
     })
 ```
 
-If a column is `sortable()`, you may choose to sort it by default using the `getDefaultTableSortColumn()` and `getDefaultTableSortDirection()` methods:
+## Sorting by default
+
+You may choose to sort a table by default if no other sort is applied. You can use the `defaultSort()` method for this:
 
 ```php
-protected function getDefaultTableSortColumn(): ?string
-{
-    return 'full_name';
-}
+use Filament\Tables\Table;
 
-protected function getDefaultTableSortDirection(): ?string
+public function table(Table $table): Table
 {
-    return 'asc';
+    return $table
+        ->columns([
+            // ...
+        ])
+        ->defaultSort('stock', 'desc');
 }
 ```
 
@@ -180,27 +173,29 @@ You may optionally persist the searches in the query string:
 ```php
 protected $queryString = [
     // ...
-    'tableColumnSearchQueries',
+    'tableColumnSearches',
 ];
 ```
 
 ### Persist search in session
 
-To persist the table or individual column search in the user's session, override the `shouldPersistTableSearchInSession()` or `shouldPersistTableColumnSearchInSession()` method on the Livewire component:
+To persist the table or individual column search in the user's session, use the `persistSearchInSession()` or `persistColumnSearchInSession()` method:
 
 ```php
-protected function shouldPersistTableSearchInSession(): bool
-{
-    return true;
-}
+use Filament\Tables\Table;
 
-protected function shouldPersistTableColumnSearchInSession(): bool
+public function table(Table $table): Table
 {
-    return true;
+    return $table
+        ->columns([
+            // ...
+        ])
+        ->persistSearchInSession()
+        ->persistColumnSearchInSession();
 }
 ```
 
-## Cell actions and URLs
+## Column actions and URLs
 
 When a cell is clicked, you may run an "action", or open a URL.
 
@@ -317,7 +312,7 @@ Tables\Columns\TextColumn::make('amount_including_vat')
 
 ## Tooltips
 
-> If you want to use tooltips outside of the admin panel, make sure you have [`@ryangjchandler/alpine-tooltip` installed](https://github.com/ryangjchandler/alpine-tooltip#installation) in your app, including [`tippy.css`](https://atomiks.github.io/tippyjs/v6/getting-started/#1-package-manager). You'll also need to install [`tippy.css`](https://atomiks.github.io/tippyjs/v6/getting-started/#1-package-manager) if you're using a [custom admin theme](/docs/admin/appearance#building-themes).
+> If you want to use tooltips outside of the app framework, make sure you have [`@ryangjchandler/alpine-tooltip` installed](https://github.com/ryangjchandler/alpine-tooltip#installation) in your app, including [`tippy.css`](https://atomiks.github.io/tippyjs/v6/getting-started/#1-package-manager). You'll also need to install [`tippy.css`](https://atomiks.github.io/tippyjs/v6/getting-started/#1-package-manager) if you're using a [custom app framework theme](../../app/themes).
 
 You may specify a tooltip to display when you hover over a cell:
 

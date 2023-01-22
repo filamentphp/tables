@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Cari',
             'placeholder' => 'Carian',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'Penapis',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Tindakan terbuka',
         ],
 

@@ -11,7 +11,10 @@ use Throwable;
 
 class ImageColumn extends Column
 {
-    protected string $view = 'tables::columns.image-column';
+    /**
+     * @var view-string
+     */
+    protected string $view = 'filament-tables::columns.image-column';
 
     protected string | Closure | null $disk = null;
 
@@ -25,13 +28,16 @@ class ImageColumn extends Column
 
     protected int | string | Closure | null $width = null;
 
+    /**
+     * @var array<mixed> | Closure
+     */
     protected array | Closure $extraImgAttributes = [];
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->disk(config('tables.default_filesystem_disk'));
+        $this->disk(config('filament-tables.default_filesystem_disk'));
     }
 
     public function disk(string | Closure | null $disk): static
@@ -99,7 +105,7 @@ class ImageColumn extends Column
 
     public function getDiskName(): string
     {
-        return $this->evaluate($this->disk) ?? config('tables.default_filesystem_disk');
+        return $this->evaluate($this->disk) ?? config('filament-tables.default_filesystem_disk');
     }
 
     public function getHeight(): ?string
@@ -172,7 +178,7 @@ class ImageColumn extends Column
 
     public function isCircular(): bool
     {
-        return $this->evaluate($this->isCircular);
+        return (bool) $this->evaluate($this->isCircular);
     }
 
     /**
@@ -185,9 +191,12 @@ class ImageColumn extends Column
 
     public function isSquare(): bool
     {
-        return $this->evaluate($this->isSquare);
+        return (bool) $this->evaluate($this->isSquare);
     }
 
+    /**
+     * @param  array<mixed> | Closure  $attributes
+     */
     public function extraImgAttributes(array | Closure $attributes): static
     {
         $this->extraImgAttributes = $attributes;
@@ -195,6 +204,9 @@ class ImageColumn extends Column
         return $this;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getExtraImgAttributes(): array
     {
         return $this->evaluate($this->extraImgAttributes);

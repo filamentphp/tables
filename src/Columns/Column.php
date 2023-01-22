@@ -17,11 +17,13 @@ class Column extends ViewComponent
     use Concerns\CanBeInline;
     use Concerns\CanBeSearchable;
     use Concerns\CanBeSortable;
+    use Concerns\CanBeSummarized;
     use Concerns\CanBeToggled;
     use Concerns\CanCallAction;
     use Concerns\CanGrow;
     use Concerns\CanOpenUrl;
     use Concerns\CanSpanColumns;
+    use Concerns\CanWrapHeader;
     use Concerns\HasAlignment;
     use Concerns\HasExtraHeaderAttributes;
     use Concerns\HasLabel;
@@ -51,12 +53,22 @@ class Column extends ViewComponent
         return $static;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function getDefaultEvaluationParameters(): array
     {
+        $record = $this->getRecord();
+
         return array_merge(parent::getDefaultEvaluationParameters(), [
             'livewire' => $this->getLivewire(),
-            'record' => $this->getRecord(),
+            'record' => $record,
             'rowLoop' => $this->getRowLoop(),
+            'state' => $this->resolveEvaluationParameter(
+                'state',
+                fn () => $this->getState(),
+            ),
+            'table' => $this->getTable(),
         ]);
     }
 }

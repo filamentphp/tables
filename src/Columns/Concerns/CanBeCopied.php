@@ -35,7 +35,7 @@ trait CanBeCopied
 
     public function getCopyMessage(): string
     {
-        return $this->evaluate($this->copyMessage) ?? __('tables::table.columns.messages.copied');
+        return $this->evaluate($this->copyMessage) ?? __('filament-tables::table.columns.messages.copied');
     }
 
     public function getCopyMessageDuration(): int
@@ -45,7 +45,7 @@ trait CanBeCopied
 
     public function isCopyable(): bool
     {
-        return $this->evaluate($this->isCopyable);
+        return (bool) $this->evaluate($this->isCopyable);
     }
 
     public function isClickDisabled(): bool

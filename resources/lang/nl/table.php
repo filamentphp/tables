@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Zoeken',
             'placeholder' => 'Zoeken',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'Filteren',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Acties openen',
         ],
 

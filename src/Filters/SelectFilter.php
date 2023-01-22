@@ -29,8 +29,8 @@ class SelectFilter extends BaseFilter
 
         $this->placeholder(
             fn (SelectFilter $filter): string => $filter->isMultiple() ?
-                __('tables::table.filters.multi_select.placeholder') :
-                __('tables::table.filters.select.placeholder'),
+                __('filament-tables::table.filters.multi_select.placeholder') :
+                __('filament-tables::table.filters.select.placeholder'),
         );
 
         $this->indicateUsing(function (SelectFilter $filter, array $state): array {
@@ -62,8 +62,13 @@ class SelectFilter extends BaseFilter
 
             return ["{$this->getIndicator()}: {$label}"];
         });
+
+        $this->resetState(['value' => null]);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function apply(Builder $query, array $data = []): Builder
     {
         if ($this->evaluate($this->isStatic)) {
@@ -162,15 +167,7 @@ class SelectFilter extends BaseFilter
         return $this->getAttribute();
     }
 
-    protected function getFormField(): Select
-    {
-        return $this->getFormSelectComponent();
-    }
-
-    /**
-     * @deprecated Overwrite `getFormField()` instead.
-     */
-    protected function getFormSelectComponent(): Select
+    public function getFormField(): Select
     {
         $field = Select::make($this->isMultiple() ? 'values' : 'value')
             ->multiple($this->isMultiple())

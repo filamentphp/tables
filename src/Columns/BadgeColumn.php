@@ -4,9 +4,8 @@ namespace Filament\Tables\Columns;
 
 class BadgeColumn extends TextColumn
 {
-    use Concerns\CanFormatState;
-    use Concerns\HasColors;
-    use Concerns\HasIcons;
-
-    protected string $view = 'tables::columns.badge-column';
+    /**
+     * @var view-string
+     */
+    protected string $view = 'filament-tables::columns.badge-column';
 }

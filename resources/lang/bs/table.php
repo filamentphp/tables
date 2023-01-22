@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Pretraga',
             'placeholder' => 'Tražite',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'Filter',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Otvorene akcije',
         ],
 

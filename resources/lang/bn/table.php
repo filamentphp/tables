@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'খুঁজুন',
             'placeholder' => 'খুঁজুন',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'অনুসন্ধান করুন',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'কার্যক্রম গুলো দেখুন',
         ],
 

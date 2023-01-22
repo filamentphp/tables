@@ -6,7 +6,7 @@ use Akaunting\Money;
 use Closure;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Contracts\Support\Arrayable;
+use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -25,7 +25,7 @@ trait CanFormatState
 
     public function date(?string $format = null, ?string $timezone = null): static
     {
-        $format ??= config('tables.date_format');
+        $format ??= Table::$defaultDateDisplayFormat;
 
         $this->formatStateUsing(static function (Column $column, $state) use ($format, $timezone): ?string {
             /** @var TextColumn $column */
@@ -43,7 +43,7 @@ trait CanFormatState
 
     public function dateTime(?string $format = null, ?string $timezone = null): static
     {
-        $format ??= config('tables.date_time_format');
+        $format ??= Table::$defaultDateTimeDisplayFormat;
 
         $this->date($format, $timezone);
 
@@ -66,18 +66,11 @@ trait CanFormatState
         return $this;
     }
 
-    public function enum(array | Arrayable $options, $default = null): static
-    {
-        $this->formatStateUsing(static fn ($state): ?string => $options[$state] ?? ($default ?? $state));
-
-        return $this;
-    }
-
     public function limit(int $length = 100, string $end = '...'): static
     {
         $this->limit = $length;
 
-        $this->formatStateUsing(static function ($state) use ($length, $end): ?string {
+        $this->formatStateUsing(static function ($state) use ($end, $length): ?string {
             if (blank($state)) {
                 return null;
             }
@@ -117,7 +110,7 @@ trait CanFormatState
 
     public function html(): static
     {
-        return $this->formatStateUsing(static fn ($state): HtmlString => $state instanceof HtmlString ? $state : Str::of($state)->sanitizeHtml()->toHtmlString());
+        return $this->formatStateUsing(static fn ($state): HtmlString => $state instanceof HtmlString ? $state : str($state)->sanitizeHtml()->toHtmlString());
     }
 
     public function formatStateUsing(?Closure $callback): static
@@ -127,7 +120,7 @@ trait CanFormatState
         return $this;
     }
 
-    public function money(string | Closure | null $currency = null, bool $shouldConvert = false): static
+    public function money(string | Closure | null $currency = null, bool $shouldConvert = true): static
     {
         $this->formatStateUsing(static function (Column $column, $state) use ($currency, $shouldConvert): ?string {
             if (blank($state)) {
@@ -148,15 +141,33 @@ trait CanFormatState
         return $this;
     }
 
-    public function getFormattedState()
+    public function numeric(int | Closure $decimalPlaces = 0, string | Closure | null $decimalSeparator = '.', string | Closure | null $thousandsSeparator = ','): static
     {
-        $state = $this->getState();
+        $this->formatStateUsing(static function (Column $column, $state) use ($decimalPlaces, $decimalSeparator, $thousandsSeparator): ?string {
+            if (blank($state)) {
+                return null;
+            }
 
-        if ($this->formatStateUsing) {
-            $state = $this->evaluate($this->formatStateUsing, [
-                'state' => $state,
-            ]);
-        }
+            if (! is_numeric($state)) {
+                return $state;
+            }
+
+            return number_format(
+                $state,
+                $column->evaluate($decimalPlaces),
+                $column->evaluate($decimalSeparator),
+                $column->evaluate($thousandsSeparator),
+            );
+        });
+
+        return $this;
+    }
+
+    public function formatState(mixed $state): mixed
+    {
+        $state = $this->evaluate($this->formatStateUsing ?? $state, [
+            'state' => $state,
+        ]);
 
         if ($this->prefix) {
             $state = $this->evaluate($this->prefix) . $state;
@@ -176,7 +187,7 @@ trait CanFormatState
 
     public function time(?string $format = null, ?string $timezone = null): static
     {
-        $format ??= config('tables.time_format');
+        $format ??= Table::$defaultTimeDisplayFormat;
 
         $this->date($format, $timezone);
 

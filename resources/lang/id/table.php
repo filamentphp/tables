@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Cari',
             'placeholder' => 'Cari',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'Filter',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Tindakan',
         ],
 

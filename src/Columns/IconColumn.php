@@ -7,14 +7,20 @@ use Illuminate\Contracts\Support\Arrayable;
 
 class IconColumn extends Column
 {
-    use Concerns\HasColors {
-        getStateColor as getBaseStateColor;
+    use Concerns\HasColor {
+        getColor as getBaseColor;
+    }
+    use Concerns\HasIcon {
+        getIcon as getBaseIcon;
     }
     use Concerns\HasSize;
 
-    protected string $view = 'tables::columns.icon-column';
+    /**
+     * @var view-string
+     */
+    protected string $view = 'filament-tables::columns.icon-column';
 
-    protected array | Arrayable | Closure $options = [];
+    protected ?string $enum = null;
 
     protected bool | Closure $isBoolean = false;
 
@@ -26,16 +32,16 @@ class IconColumn extends Column
 
     protected string | Closure | null $trueIcon = null;
 
-    public function options(array | Arrayable | Closure $options): static
+    public function boolean(bool | Closure $condition = true): static
     {
-        $this->options = $options;
+        $this->isBoolean = $condition;
 
         return $this;
     }
 
-    public function boolean(bool | Closure $condition = true): static
+    public function enum(?string $enum): static
     {
-        $this->isBoolean = $condition;
+        $this->enum = $enum;
 
         return $this;
     }
@@ -88,57 +94,54 @@ class IconColumn extends Column
         return $this;
     }
 
-    public function getStateIcon(): ?string
+    /**
+     * @deprecated Use `icons()` instead.
+     *
+     * @param  array<mixed> | Arrayable | Closure  $options
+     */
+    public function options(array | Arrayable | Closure $options): static
     {
+        $this->icons($options);
+
+        return $this;
+    }
+
+    public function getIcon(): ?string
+    {
+        if (filled($icon = $this->getBaseIcon())) {
+            return $icon;
+        }
+
+        if (! $this->isBoolean()) {
+            return null;
+        }
+
         $state = $this->getState();
 
-        if ($this->isBoolean()) {
-            if ($state === null) {
-                return null;
-            }
-
-            return $state ? $this->getTrueIcon() : $this->getFalseIcon();
+        if ($state === null) {
+            return null;
         }
 
-        $stateIcon = null;
-
-        foreach ($this->getOptions() as $icon => $condition) {
-            if (is_numeric($icon)) {
-                $stateIcon = $condition;
-            } elseif ($condition instanceof Closure && $condition($state)) {
-                $stateIcon = $icon;
-            } elseif ($condition === $state) {
-                $stateIcon = $icon;
-            }
-        }
-
-        return $stateIcon;
+        return $state ? $this->getTrueIcon() : $this->getFalseIcon();
     }
 
-    public function getStateColor(): ?string
+    public function getColor(): ?string
     {
-        if ($this->isBoolean()) {
-            $state = $this->getState();
-
-            if ($state === null) {
-                return null;
-            }
-
-            return $state ? $this->getTrueColor() : $this->getFalseColor();
+        if (filled($color = $this->getBaseColor())) {
+            return $color;
         }
 
-        return $this->getBaseStateColor();
-    }
-
-    public function getOptions(): array
-    {
-        $options = $this->evaluate($this->options);
-
-        if ($options instanceof Arrayable) {
-            $options = $options->toArray();
+        if (! $this->isBoolean()) {
+            return null;
         }
 
-        return $options;
+        $state = $this->getState();
+
+        if ($state === null) {
+            return null;
+        }
+
+        return $state ? $this->getTrueColor() : $this->getFalseColor();
     }
 
     public function getFalseColor(): string

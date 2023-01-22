@@ -3,8 +3,8 @@
 namespace Filament\Tables\Actions;
 
 use Closure;
-use Filament\Forms\ComponentContainer;
-use Filament\Support\Actions\Concerns\CanCustomizeProcess;
+use Filament\Actions\Concerns\CanCustomizeProcess;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Arr;
@@ -12,7 +12,6 @@ use Illuminate\Support\Arr;
 class EditAction extends Action
 {
     use CanCustomizeProcess;
-    use Concerns\InteractsWithRelationship;
 
     protected ?Closure $mutateRecordDataUsing = null;
 
@@ -25,29 +24,29 @@ class EditAction extends Action
     {
         parent::setUp();
 
-        $this->label(__('filament-support::actions/edit.single.label'));
+        $this->label(__('filament-actions::edit.single.label'));
 
-        $this->modalHeading(fn (): string => __('filament-support::actions/edit.single.modal.heading', ['label' => $this->getRecordTitle()]));
+        $this->modalHeading(fn (): string => __('filament-actions::edit.single.modal.heading', ['label' => $this->getRecordTitle()]));
 
-        $this->modalButton(__('filament-support::actions/edit.single.modal.actions.save.label'));
+        $this->modalButton(__('filament-actions::edit.single.modal.actions.save.label'));
 
-        $this->successNotificationTitle(__('filament-support::actions/edit.single.messages.saved'));
+        $this->successNotificationTitle(__('filament-actions::edit.single.messages.saved'));
 
-        $this->icon('heroicon-s-pencil');
+        $this->icon('heroicon-m-pencil');
 
-        $this->mountUsing(function (ComponentContainer $form, Model $record): void {
+        $this->fillForm(function (Model $record): array {
             $data = $record->attributesToArray();
 
             if ($this->mutateRecordDataUsing) {
                 $data = $this->evaluate($this->mutateRecordDataUsing, ['data' => $data]);
             }
 
-            $form->fill($data);
+            return $data;
         });
 
         $this->action(function (): void {
-            $this->process(function (array $data, Model $record) {
-                $relationship = $this->getRelationship();
+            $this->process(function (array $data, Model $record, Table $table) {
+                $relationship = $table->getRelationship();
 
                 if ($relationship instanceof BelongsToMany) {
                     $pivotColumns = $relationship->getPivotColumns();

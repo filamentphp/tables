@@ -3,19 +3,30 @@
 namespace Filament\Tables\Actions;
 
 use Closure;
-use Filament\Support\Actions\Action as BaseAction;
-use Filament\Tables\Actions\Modal\Actions\Action as ModalAction;
+use Filament\Actions\MountableAction;
 use Illuminate\Database\Eloquent\Collection;
 
-class BulkAction extends BaseAction
+class BulkAction extends MountableAction
 {
     use Concerns\BelongsToTable;
     use Concerns\CanDeselectRecordsAfterCompletion;
     use Concerns\InteractsWithRecords;
 
-    protected string $view = 'tables::actions.bulk-action';
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-    public function call(array $parameters = [])
+        $this->grouped();
+
+        $this->extraAttributes([
+            'x-bind:disabled' => '! selectedRecords.length',
+        ]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $parameters
+     */
+    public function call(array $parameters = []): mixed
     {
         try {
             return $this->evaluate($this->getAction(), $parameters);
@@ -37,24 +48,19 @@ class BulkAction extends BaseAction
         return $action;
     }
 
-    protected function getLivewireCallActionName(): string
+    public function getLivewireCallActionName(): string
     {
         return 'callMountedTableBulkAction';
     }
 
-    protected static function getModalActionClass(): string
+    public function getAlpineMountAction(): ?string
     {
-        return ModalAction::class;
+        return "mountBulkAction('{$this->getName()}')";
     }
 
-    public static function makeModalAction(string $name): ModalAction
-    {
-        /** @var ModalAction $action */
-        $action = parent::makeModalAction($name);
-
-        return $action;
-    }
-
+    /**
+     * @return array<string, mixed>
+     */
     protected function getDefaultEvaluationParameters(): array
     {
         return array_merge(parent::getDefaultEvaluationParameters(), [
@@ -62,12 +68,17 @@ class BulkAction extends BaseAction
                 'records',
                 fn (): ?Collection => $this->getRecords(),
             ),
+            'table' => $this->getTable(),
         ]);
     }
 
+    /**
+     * @param  array<mixed>  $arguments
+     * @return array<mixed>
+     */
     protected function parseAuthorizationArguments(array $arguments): array
     {
-        array_unshift($arguments, $this->getLivewire()->getTableModel());
+        array_unshift($arguments, $this->getTable()->getModel());
 
         return $arguments;
     }

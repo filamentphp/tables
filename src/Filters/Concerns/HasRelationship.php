@@ -4,19 +4,15 @@ namespace Filament\Tables\Filters\Concerns;
 
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Str;
 
 trait HasRelationship
 {
     protected ?Closure $modifyRelationshipQueryUsing = null;
 
-    public function relationship(string $relationshipName, string $titleColumnName = null, Closure $callback = null): static
+    public function relationship(string $relationshipName, string $titleAttribute = null, Closure $callback = null): static
     {
-        $this->attribute("{$relationshipName}.{$titleColumnName}");
+        $this->attribute("{$relationshipName}.{$titleAttribute}");
 
         $this->modifyRelationshipQueryUsing = $callback;
 
@@ -25,27 +21,17 @@ trait HasRelationship
 
     public function getRelationshipKey(): string
     {
-        $relationship = $this->getRelationship();
-
-        if ($relationship instanceof BelongsToMany) {
-            $keyColumn = $relationship->getQualifiedRelatedKeyName();
-        } elseif ($relationship instanceof HasOneThrough) {
-            $keyColumn = $relationship->getQualifiedForeignKeyName();
-        } elseif ($relationship instanceof \Znck\Eloquent\Relations\BelongsToThrough) {
-            $keyColumn = $relationship->getRelated()->getQualifiedKeyName();
-        } else {
-            /** @var BelongsTo $relationship */
-            $keyColumn = $relationship->getQualifiedOwnerKeyName();
-        }
-
-        return $keyColumn;
+        return $this->getRelationship()->getRelated()->getQualifiedKeyName();
     }
 
+    /**
+     * @return array<scalar, string>
+     */
     protected function getRelationshipOptions(): array
     {
         $relationship = $this->getRelationship();
 
-        $titleColumnName = $this->getRelationshipTitleColumnName();
+        $titleAttribute = $this->getRelationshipTitleAttribute();
 
         $relationshipQuery = $relationship->getRelated()->query();
 
@@ -56,33 +42,46 @@ trait HasRelationship
         }
 
         if (empty($relationshipQuery->getQuery()->orders)) {
-            $relationshipQuery->orderBy($titleColumnName);
+            $relationshipQuery->orderBy($titleAttribute);
         }
 
         return $relationshipQuery
-            ->pluck($titleColumnName, $this->getRelationshipKey())
+            ->pluck($titleAttribute, $this->getRelationshipKey())
             ->toArray();
     }
 
     public function queriesRelationships(): bool
     {
-        return Str::of($this->getAttribute())->contains('.');
+        return str($this->getAttribute())->contains('.');
     }
 
     protected function getRelationship(): Relation | Builder
     {
-        $model = app($this->getTable()->getModel());
+        $record = app($this->getTable()->getModel());
 
-        return $model->{$this->getRelationshipName()}();
+        $relationship = null;
+
+        foreach (explode('.', $this->getRelationshipName()) as $nestedRelationshipName) {
+            if (! $record->isRelation($nestedRelationshipName)) {
+                $relationship = null;
+
+                break;
+            }
+
+            $relationship = $record->{$nestedRelationshipName}();
+            $record = $relationship->getRelated();
+        }
+
+        return $relationship;
     }
 
     protected function getRelationshipName(): string
     {
-        return (string) Str::of($this->getAttribute())->beforeLast('.');
+        return (string) str($this->getAttribute())->beforeLast('.');
     }
 
-    protected function getRelationshipTitleColumnName(): string
+    protected function getRelationshipTitleAttribute(): string
     {
-        return (string) Str::of($this->getAttribute())->afterLast('.');
+        return (string) str($this->getAttribute())->afterLast('.');
     }
 }

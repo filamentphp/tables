@@ -2,9 +2,10 @@
     'enabled' => false,
 ])
 
-<x-tables::icon-button
+<x-filament::icon-button
     wire:click="toggleTableReordering"
-    :icon="$enabled ? 'heroicon-o-check' : 'heroicon-o-selector'"
-    :label="$enabled ? __('tables::table.buttons.disable_reordering.label') : __('tables::table.buttons.enable_reordering.label')"
+    :icon="$enabled ? 'heroicon-o-check' : 'heroicon-o-chevron-up-down'"
+    icon-alias="tables::reordering.trigger"
+    :label="$enabled ? __('filament-tables::table.buttons.disable_reordering.label') : __('filament-tables::table.buttons.enable_reordering.label')"
     {{ $attributes->class(['filament-tables-reordering-trigger']) }}
 />

@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'جستجو',
             'placeholder' => 'جستجو',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'فیلتر',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'بازکردن عملیات',
         ],
 

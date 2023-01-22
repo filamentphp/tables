@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Search',
             'placeholder' => 'Search',
         ],
@@ -61,6 +61,34 @@ return [
 
     ],
 
+    'summary' => [
+
+        'heading' => 'Summary',
+
+        'subheadings' => [
+            'all' => 'All :label',
+            'group' => ':group summary',
+            'page' => 'This page',
+        ],
+
+        'summarizers' => [
+
+            'average' => [
+                'label' => 'Average',
+            ],
+
+            'count' => [
+                'label' => 'Count',
+            ],
+
+            'sum' => [
+                'label' => 'Sum',
+            ],
+
+        ],
+
+    ],
+
     'buttons' => [
 
         'disable_reordering' => [
@@ -75,8 +103,12 @@ return [
             'label' => 'Filter',
         ],
 
-        'open_actions' => [
-            'label' => 'Open actions',
+        'group' => [
+            'label' => 'Group',
+        ],
+
+        'open_bulk_actions' => [
+            'label' => 'Bulk actions',
         ],
 
         'toggle_columns' => [
@@ -127,6 +159,30 @@ return [
             'with_trashed' => 'With deleted records',
 
             'without_trashed' => 'Without deleted records',
+
+        ],
+
+    ],
+
+    'grouping' => [
+
+        'fields' => [
+
+            'group' => [
+                'label' => 'Group by',
+                'placeholder' => 'Group by',
+            ],
+
+            'direction' => [
+
+                'label' => 'Group direction',
+
+                'options' => [
+                    'asc' => 'Ascending',
+                    'desc' => 'Descending',
+                ],
+
+            ],
 
         ],
 

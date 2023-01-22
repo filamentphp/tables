@@ -12,7 +12,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Ara',
             'placeholder' => 'Ara',
         ],
@@ -57,7 +57,7 @@ return [
             'label' => 'Filtrele',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Eylemleri aç',
         ],
 

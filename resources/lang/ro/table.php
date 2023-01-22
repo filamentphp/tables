@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Căutare',
             'placeholder' => 'Căutare',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'Filtru',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Desdere operațiuni',
         ],
 

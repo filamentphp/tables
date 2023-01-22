@@ -3,7 +3,7 @@
 namespace Filament\Tables\Testing;
 
 use Closure;
-use Filament\Support\Testing\TestsActions as BaseTestsActions;
+use Filament\Actions\Testing\TestsActions as BaseTestsActions;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
@@ -23,10 +23,8 @@ class TestsActions
         return function (string $name, $record = null): static {
             $name = $this->parseActionName($name);
 
-            $livewire = $this->instance();
-
             if ($record instanceof Model) {
-                $record = $livewire->getTableRecordKey($record);
+                $record = $this->instance()->getTableRecordKey($record);
             }
 
             /** @phpstan-ignore-next-line */
@@ -34,12 +32,8 @@ class TestsActions
 
             $this->call('mountTableAction', $name, $record);
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
-
-            if (! $action->shouldOpenModal()) {
+            if ($this->instance()->mountedTableAction === null) {
                 $this->assertNotDispatchedBrowserEvent('open-modal');
-
-                $this->assertNotSet('mountedTableAction', $action->getName());
 
                 return $this;
             }
@@ -47,7 +41,7 @@ class TestsActions
             $this->assertSet('mountedTableAction', $name);
 
             $this->assertDispatchedBrowserEvent('open-modal', [
-                'id' => "{$livewire->id}-table-action",
+                'id' => "{$this->instance()->id}-table-action",
             ]);
 
             return $this;
@@ -97,19 +91,17 @@ class TestsActions
     public function callMountedTableAction(): Closure
     {
         return function (array $arguments = []): static {
-            $livewire = $this->instance();
-
-            $action = $livewire->getMountedTableAction();
+            $action = $this->instance()->getMountedTableAction();
 
             if (! $action) {
                 return $this;
             }
 
-            $this->call('callMountedTableAction', json_encode($arguments));
+            $this->call('callMountedTableAction', $arguments);
 
             if ($this->get('mountedTableAction') !== $action->getName()) {
                 $this->assertDispatchedBrowserEvent('close-modal', [
-                    'id' => "{$livewire->id}-table-action",
+                    'id' => "{$this->instance()->id}-table-action",
                 ]);
             }
 
@@ -120,10 +112,9 @@ class TestsActions
     public function assertTableActionExists(): Closure
     {
         return function (string $name): static {
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $livewireClass = $this->instance()::class;
 
             Assert::assertInstanceOf(
                 Action::class,
@@ -138,10 +129,9 @@ class TestsActions
     public function assertTableActionDoesNotExist(): Closure
     {
         return function (string $name): static {
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $livewireClass = $this->instance()::class;
 
             Assert::assertNull(
                 $action,
@@ -158,15 +148,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->isHidden(),
@@ -185,15 +174,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertTrue(
                 $action->isHidden(),
@@ -212,15 +200,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->isDisabled(),
@@ -239,15 +226,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->isEnabled(),
@@ -266,15 +252,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertTrue(
                 $action->getIcon() === $icon,
@@ -293,15 +278,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->getIcon() === $icon,
@@ -320,15 +304,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertTrue(
                 $action->getLabel() === $label,
@@ -347,15 +330,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->getLabel() === $label,
@@ -374,15 +356,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertTrue(
                 $action->getColor() === $color,
@@ -401,15 +382,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->getColor() === $color,
@@ -428,15 +408,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertTrue(
                 $action->getUrl() === $url,
@@ -455,15 +434,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->getUrl() === $url,
@@ -482,15 +460,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertTrue(
                 $action->shouldOpenUrlInNewTab(),
@@ -509,15 +486,14 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewire = $this->instance();
-            $livewireClass = $livewire::class;
-
             if (! $record instanceof Model) {
-                $record = $livewire->getTableRecord($record);
+                $record = $this->instance()->getTableRecord($record);
             }
 
-            $action = $livewire->getCachedTableAction($name) ?? $livewire->getCachedTableEmptyStateAction($name) ?? $livewire->getCachedTableHeaderAction($name);
+            $action = $this->instance()->getTable()->getAction($name) ?? $this->instance()->getTable()->getEmptyStateAction($name) ?? $this->instance()->getTable()->getHeaderAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
 
             Assert::assertFalse(
                 $action->shouldOpenUrlInNewTab(),

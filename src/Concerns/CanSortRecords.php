@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait CanSortRecords
 {
-    public $tableSortColumn = null;
+    public ?string $tableSortColumn = null;
 
-    public $tableSortDirection = null;
+    public ?string $tableSortDirection = null;
 
     public function sortTable(?string $column = null, ?string $direction = null): void
     {
@@ -25,7 +25,7 @@ trait CanSortRecords
         $this->tableSortColumn = $direction ? $column : null;
         $this->tableSortDirection = $direction;
 
-        $this->updatedTableSort();
+        $this->updatedTableSortColumn();
     }
 
     public function getTableSortColumn(): ?string
@@ -38,47 +38,81 @@ trait CanSortRecords
         return $this->tableSortDirection;
     }
 
-    protected function getDefaultTableSortColumn(): ?string
-    {
-        return null;
-    }
-
-    protected function getDefaultTableSortDirection(): ?string
-    {
-        return null;
-    }
-
-    public function updatedTableSort(): void
+    public function updatedTableSortColumn(): void
     {
         $this->resetPage();
     }
 
     protected function applySortingToTableQuery(Builder $query): Builder
     {
-        if ($this->isTableReordering()) {
-            return $query->orderBy($this->getTableReorderColumn());
+        if ($this->getTable()->isGroupsOnly()) {
+            return $query;
         }
 
-        $sortColumn = $this->tableSortColumn;
+        if ($this->isTableReordering()) {
+            return $query->orderBy($this->getTable()->getReorderColumn());
+        }
 
-        if (! $sortColumn) {
-            return $query;
+        if (! $this->tableSortColumn) {
+            return $this->applyDefaultSortingToTableQuery($query);
+        }
+
+        $column = $this->getTable()->getSortableVisibleColumn($this->tableSortColumn);
+
+        if (! $column) {
+            return $this->applyDefaultSortingToTableQuery($query);
         }
 
         $sortDirection = $this->tableSortDirection === 'desc' ? 'desc' : 'asc';
 
-        $column = $this->getCachedTableColumn($sortColumn);
+        $column->applySort($query, $sortDirection);
 
-        if ($column && (! $column->isHidden()) && $column->isSortable()) {
-            $column->applySort($query, $sortDirection);
+        return $query;
+    }
+
+    protected function applyDefaultSortingToTableQuery(Builder $query): Builder
+    {
+        $sortColumnName = $this->getTable()->getDefaultSortColumn();
+        $sortDirection = $this->tableSortDirection === 'desc' ? 'desc' : 'asc';
+
+        if (
+            $sortColumnName &&
+            ($sortColumn = $this->getTable()->getSortableVisibleColumn($sortColumnName))
+        ) {
+            $sortColumn->applySort($query, $sortDirection);
 
             return $query;
         }
 
-        if ($sortColumn === $this->getDefaultTableSortColumn()) {
-            return $query->orderBy($sortColumn, $sortDirection);
+        if ($sortColumnName) {
+            return $query->orderBy($sortColumnName, $sortDirection);
         }
 
-        return $query;
+        if ($sortQueryUsing = $this->getTable()->getDefaultSortQuery()) {
+            app()->call($sortQueryUsing, [
+                'direction' => $sortDirection,
+                'query' => $query,
+            ]);
+
+            return $query;
+        }
+
+        return $query->orderBy($query->getModel()->getQualifiedKeyName());
+    }
+
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    protected function getDefaultTableSortColumn(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    protected function getDefaultTableSortDirection(): ?string
+    {
+        return null;
     }
 }

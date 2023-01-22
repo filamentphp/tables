@@ -2,7 +2,10 @@
 
 namespace Filament\Tables\Columns;
 
+use BackedEnum;
 use Closure;
+use Filament\Support\Contracts\HasLabel as LabelInterface;
+use Illuminate\Contracts\Support\Arrayable;
 use stdClass;
 
 class TextColumn extends Column
@@ -16,9 +19,40 @@ class TextColumn extends Column
     use Concerns\HasSize;
     use Concerns\HasWeight;
 
-    protected string $view = 'tables::columns.text-column';
+    /**
+     * @var view-string
+     */
+    protected string $view = 'filament-tables::columns.text-column';
 
     protected bool | Closure $canWrap = false;
+
+    protected ?string $enum = null;
+
+    /**
+     * @param  string | array<scalar, scalar> | Arrayable  $enum
+     */
+    public function enum(string | array | Arrayable $enum, mixed $default = null): static
+    {
+        if (is_array($enum) || $enum instanceof Arrayable) {
+            $this->formatStateUsing(static fn ($state): ?string => $enum[$state] ?? ($default ?? $state));
+
+            return $this;
+        }
+
+        $this->enum = $enum;
+
+        if (
+            is_string($enum) &&
+            function_exists('enum_exists') &&
+            enum_exists($enum) &&
+            is_a($enum, BackedEnum::class, allow_string: true) &&
+            is_a($enum, LabelInterface::class, allow_string: true)
+        ) {
+            $this->formatStateUsing(static fn ($state): ?string => $enum::tryFrom($state)?->getLabel() ?? ($default ?? $state));
+        }
+
+        return $this;
+    }
 
     public function rowIndex(bool $isFromZero = false): static
     {
@@ -38,9 +72,12 @@ class TextColumn extends Column
 
     public function canWrap(): bool
     {
-        return $this->evaluate($this->canWrap);
+        return (bool) $this->evaluate($this->canWrap);
     }
 
+    /**
+     * @param  array<scalar>  $state
+     */
     protected function mutateArrayState(array $state): string
     {
         return implode(', ', $state);

@@ -2,21 +2,31 @@
 
 namespace Filament\Tables\Actions;
 
-use Filament\Support\Actions\ActionGroup as BaseActionGroup;
-use Filament\Support\Actions\Concerns\InteractsWithRecord;
+use Filament\Actions\ActionGroup as BaseActionGroup;
+use Filament\Actions\Concerns\InteractsWithRecord;
 
+/**
+ * @property array<Action | BulkAction> $actions
+ */
 class ActionGroup extends BaseActionGroup
 {
     use InteractsWithRecord;
 
-    protected string $view = 'tables::actions.group';
-
+    /**
+     * @return array<Action | BulkAction>
+     */
     public function getActions(): array
     {
         $actions = [];
 
         foreach ($this->actions as $action) {
-            $actions[$action->getName()] = $action->grouped()->record($this->getRecord());
+            $action->grouped();
+
+            if (! $action instanceof BulkAction) {
+                $action->record($this->getRecord());
+            }
+
+            $actions[$action->getName()] = $action;
         }
 
         return $actions;

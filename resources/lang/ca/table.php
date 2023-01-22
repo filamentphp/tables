@@ -4,7 +4,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Cerca',
             'placeholder' => 'Cerca',
         ],
@@ -49,7 +49,7 @@ return [
             'label' => 'Filtre',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Open actions',
         ],
 

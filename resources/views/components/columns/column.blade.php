@@ -19,29 +19,29 @@
 @endphp
 
 <div
-    {{ $attributes->class([
-        'filament-tables-column-wrapper',
-        match ($alignment) {
-            'start' => 'text-start',
-            'center' => 'text-center',
-            'end' => 'text-end',
-            'left' => 'text-left',
-            'right' => 'text-right',
-            'justify' => 'text-justify',
-            default => null,
-        },
-    ]) }}
     @if ($tooltip)
         x-data="{}"
         x-tooltip.raw="{{ $tooltip }}"
     @endif
+    {{ $attributes->class([
+        'filament-tables-column-wrapper',
+        match ($alignment) {
+            'center' => 'text-center',
+            'end' => 'text-end',
+            'justify' => 'text-justify',
+            'left' => 'text-left',
+            'right' => 'text-right',
+            'start' => 'text-start',
+            default => null,
+        },
+    ]) }}
 >
     @if ($isClickDisabled)
         {{ $slot }}
     @elseif ($url || ($recordUrl && $action === null))
         <a
             href="{{ $url ?: $recordUrl }}"
-            {!! $shouldOpenUrlInNewTab ? 'target="_blank"' : null !!}
+            @if ($shouldOpenUrlInNewTab) target="_blank" @endif
             class="inline-block"
         >
             {{ $slot }}
@@ -53,7 +53,7 @@
             } elseif ($action) {
                 $wireClickAction = "callTableColumnAction('{$name}', '{$recordKey}')";
             } else {
-                if ($this->getCachedTableAction($recordAction)) {
+                if ($this->getTable()->getAction($recordAction)) {
                     $wireClickAction = "mountTableAction('{$recordAction}', '{$recordKey}')";
                 } else {
                     $wireClickAction = "{$recordAction}('{$recordKey}')";
@@ -65,9 +65,8 @@
             wire:click="{{ $wireClickAction }}"
             wire:target="{{ $wireClickAction }}"
             wire:loading.attr="disabled"
-            wire:loading.class="cursor-wait opacity-70"
             type="button"
-            class="inline-block"
+            class="inline-block disabled:opacity-70 disabled:pointer-events-none"
         >
             {{ $slot }}
         </button>

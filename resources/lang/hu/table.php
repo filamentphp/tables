@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Keresés',
             'placeholder' => 'Keres',
         ],
@@ -74,7 +74,7 @@ return [
             'label' => 'Szűrés',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Műveletek magjelenítése',
         ],
 

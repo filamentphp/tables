@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Cerca',
             'placeholder' => 'Cerca',
         ],
@@ -75,7 +75,7 @@ return [
             'label' => 'Filtra',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Azioni aperte',
         ],
 

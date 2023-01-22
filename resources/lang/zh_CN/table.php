@@ -4,7 +4,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => '搜索',
             'placeholder' => '搜索',
         ],
@@ -49,7 +49,7 @@ return [
             'label' => '筛选',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => '展开操作项',
         ],
 

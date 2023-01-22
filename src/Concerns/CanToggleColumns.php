@@ -2,22 +2,28 @@
 
 namespace Filament\Tables\Concerns;
 
-use Filament\Forms\ComponentContainer;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Form;
 use Illuminate\Support\Arr;
 
 /**
- * @property ComponentContainer $toggleTableColumnForm
+ * @property Form $toggleTableColumnForm
  */
 trait CanToggleColumns
 {
+    /**
+     * @var array<string, bool | array<string, bool>>
+     */
     public array $toggledTableColumns = [];
 
+    /**
+     * @return array<string, bool | array<string, bool>>
+     */
     protected function getDefaultTableColumnToggleState(): array
     {
         $state = [];
 
-        foreach ($this->getCachedTableColumns() as $column) {
+        foreach ($this->getTable()->getColumns() as $column) {
             if (! $column->isToggleable()) {
                 continue;
             }
@@ -35,20 +41,7 @@ trait CanToggleColumns
         ]);
     }
 
-    public function hasToggleableTableColumns(): bool
-    {
-        foreach ($this->getCachedTableColumns() as $column) {
-            if (! $column->isToggleable()) {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public function getTableColumnToggleForm(): ComponentContainer
+    public function getTableColumnToggleForm(): Form
     {
         if ((! $this->isCachingForms) && $this->hasCachedForm('toggleTableColumnForm')) {
             return $this->getCachedForm('toggleTableColumnForm');
@@ -56,16 +49,19 @@ trait CanToggleColumns
 
         return $this->makeForm()
             ->schema($this->getTableColumnToggleFormSchema())
-            ->columns($this->getTableColumnToggleFormColumns())
+            ->columns($this->getTable()->getColumnToggleFormColumns())
             ->statePath('toggledTableColumns')
             ->reactive();
     }
 
+    /**
+     * @return array<Checkbox>
+     */
     protected function getTableColumnToggleFormSchema(): array
     {
         $schema = [];
 
-        foreach ($this->getCachedTableColumns() as $column) {
+        foreach ($this->getTable()->getColumns() as $column) {
             if (! $column->isToggleable()) {
                 continue;
             }
@@ -75,21 +71,6 @@ trait CanToggleColumns
         }
 
         return $schema;
-    }
-
-    protected function getTableColumnToggleFormColumns(): int | array
-    {
-        return 1;
-    }
-
-    protected function getTableColumnToggleFormWidth(): ?string
-    {
-        return match ($this->getTableColumnToggleFormColumns()) {
-            2 => '2xl',
-            3 => '4xl',
-            4 => '6xl',
-            default => null,
-        };
     }
 
     public function isTableColumnToggledHidden(string $name): bool
@@ -102,5 +83,23 @@ trait CanToggleColumns
         $table = class_basename($this::class);
 
         return "tables.{$table}_toggled_columns";
+    }
+
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     *
+     * @return int | array<string, int | null>
+     */
+    protected function getTableColumnToggleFormColumns(): int | array
+    {
+        return 1;
+    }
+
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    protected function getTableColumnToggleFormWidth(): ?string
+    {
+        return null;
     }
 }

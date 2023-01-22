@@ -2,48 +2,65 @@
 
 namespace Filament\Tables\Concerns;
 
-use function Filament\locale_has_pluralization;
-use function Filament\Support\get_model_label;
-use Filament\Tables\Contracts\HasRelationshipTable;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
 use function Livewire\invade;
 
 trait HasRecords
 {
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
     protected bool $allowsDuplicates = false;
 
     protected Collection | Paginator | null $records = null;
 
-    public function allowsDuplicates(): bool
+    public function getFilteredTableQuery(): Builder
     {
-        return $this->allowsDuplicates;
-    }
-
-    protected function getFilteredTableQuery(): Builder
-    {
-        $query = $this->getTableQuery();
+        $query = $this->getTable()->getQuery();
 
         $this->applyFiltersToTableQuery($query);
 
         $this->applySearchToTableQuery($query);
 
-        foreach ($this->getCachedTableColumns() as $column) {
-            $column->applyEagerLoading($query);
+        foreach ($this->getTable()->getColumns() as $column) {
+            if ($column->isHidden()) {
+                continue;
+            }
+
             $column->applyRelationshipAggregates($query);
+
+            if ($this->getTable()->isGroupsOnly()) {
+                continue;
+            }
+
+            $column->applyEagerLoading($query);
         }
+
+        return $query;
+    }
+
+    public function getFilteredSortedTableQuery(): Builder
+    {
+        $query = $this->getFilteredTableQuery();
+
+        $this->applyGroupingToTableQuery($query);
+
+        $this->applySortingToTableQuery($query);
 
         return $query;
     }
 
     protected function hydratePivotRelationForTableRecords(Collection | Paginator $records): Collection | Paginator
     {
-        if ($this instanceof HasRelationshipTable && $this->getRelationship() instanceof BelongsToMany && ! $this->allowsDuplicates()) {
-            invade($this->getRelationship())->hydratePivotRelation($records->all());
+        $table = $this->getTable();
+        $relationship = $table->getRelationship();
+
+        if ($table->getRelationship() instanceof BelongsToMany && ! $table->allowsDuplicates()) {
+            invade($relationship)->hydratePivotRelation($records->all());
         }
 
         return $records;
@@ -55,13 +72,11 @@ trait HasRecords
             return $this->records;
         }
 
-        $query = $this->getFilteredTableQuery();
-
-        $this->applySortingToTableQuery($query);
+        $query = $this->getFilteredSortedTableQuery();
 
         if (
-            (! $this->isTablePaginationEnabled()) ||
-            ($this->isTableReordering() && (! $this->isTablePaginationEnabledWhileReordering()))
+            (! $this->getTable()->isPaginated()) ||
+            ($this->isTableReordering() && (! $this->getTable()->isPaginatedWhileReordering()))
         ) {
             return $this->records = $this->hydratePivotRelationForTableRecords($query->get());
         }
@@ -75,28 +90,25 @@ trait HasRecords
             return null;
         }
 
-        if (! ($this instanceof HasRelationshipTable && $this->getRelationship() instanceof BelongsToMany)) {
-            return $this->getTableQuery()->find($key);
+        if (! ($this->getTable()->getRelationship() instanceof BelongsToMany)) {
+            return $this->getTable()->getQuery()->find($key);
         }
 
         /** @var BelongsToMany $relationship */
-        $relationship = $this->getRelationship();
+        $relationship = $this->getTable()->getRelationship();
 
         $pivotClass = $relationship->getPivotClass();
         $pivotKeyName = app($pivotClass)->getKeyName();
 
-        $query = $this->allowsDuplicates() ?
+        $table = $this->getTable();
+
+        $query = $table->allowsDuplicates() ?
             $relationship->wherePivot($pivotKeyName, $key) :
             $relationship->where($relationship->getQualifiedRelatedKeyName(), $key);
 
-        $record = $this->selectPivotDataInQuery($query)->first();
+        $record = $table->selectPivotDataInQuery($query)->first();
 
         return $record?->setRawAttributes($record->getRawOriginal());
-    }
-
-    public function getTableModel(): string
-    {
-        return $this->getTableQuery()->getModel()::class;
     }
 
     public function getTableRecord(?string $key): ?Model
@@ -106,12 +118,14 @@ trait HasRecords
 
     public function getTableRecordKey(Model $record): string
     {
-        if (! ($this instanceof HasRelationshipTable && $this->getRelationship() instanceof BelongsToMany && $this->allowsDuplicates())) {
+        $table = $this->getTable();
+
+        if (! ($table->getRelationship() instanceof BelongsToMany && $table->allowsDuplicates())) {
             return $record->getKey();
         }
 
         /** @var BelongsToMany $relationship */
-        $relationship = $this->getRelationship();
+        $relationship = $table->getRelationship();
 
         $pivotClass = $relationship->getPivotClass();
         $pivotKeyName = app($pivotClass)->getKeyName();
@@ -119,22 +133,35 @@ trait HasRecords
         return $record->getAttributeValue($pivotKeyName);
     }
 
-    public function getTableRecordTitle(Model $record): string
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    public function allowsDuplicates(): bool
     {
-        return $this->getTableModelLabel();
+        return $this->allowsDuplicates;
     }
 
-    public function getTableModelLabel(): string
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    public function getTableRecordTitle(Model $record): ?string
     {
-        return (string) get_model_label($this->getTableModel());
+        return null;
     }
 
-    public function getTablePluralModelLabel(): string
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    public function getTableModelLabel(): ?string
     {
-        if (locale_has_pluralization()) {
-            return Str::plural($this->getTableModelLabel());
-        }
+        return null;
+    }
 
-        return $this->getTableModelLabel();
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    public function getTablePluralModelLabel(): ?string
+    {
+        return null;
     }
 }

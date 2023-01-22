@@ -2,16 +2,11 @@
 
 namespace Filament\Tables\Actions\Modal\Actions;
 
-use Filament\Support\Actions\Modal\Actions\Action as BaseAction;
+use Filament\Actions\Modal\Actions\Action as BaseAction;
 
+/**
+ * @deprecated Use `\Filament\Actions\Modal\Actions\Action` instead.
+ */
 class Action extends BaseAction
 {
-    protected string $view = 'tables::actions.modal.actions.button-action';
-
-    public function button(): static
-    {
-        $this->view('tables::actions.modal.actions.button-action');
-
-        return $this;
-    }
 }

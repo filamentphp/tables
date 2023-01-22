@@ -2,9 +2,6 @@
 
 namespace Filament\Tables\Concerns;
 
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Actions\RecordCheckboxPosition;
-use Filament\Tables\Contracts\HasRelationshipTable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,6 +9,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 trait CanSelectRecords
 {
+    /**
+     * @var array<int | string>
+     */
     public array $selectedTableRecords = [];
 
     protected bool $shouldSelectCurrentPageOnly = false;
@@ -25,9 +25,9 @@ trait CanSelectRecords
     {
         $query = $this->getFilteredTableQuery();
 
-        if ($this->shouldSelectCurrentPageOnly()) {
+        if ($this->getTable()->selectsCurrentPageOnly()) {
             return $this->getTableRecords()
-                ->map(fn ($key): string => (string) $key->id)
+                ->map(fn ($key): string => (string) $key->getKey())
                 ->all();
         }
 
@@ -39,7 +39,7 @@ trait CanSelectRecords
 
     public function getAllTableRecordsCount(): int
     {
-        if ($this->shouldSelectCurrentPageOnly()) {
+        if ($this->getTable()->selectsCurrentPageOnly()) {
             return $this->records->count();
         }
 
@@ -49,10 +49,10 @@ trait CanSelectRecords
 
         $query = $this->getFilteredTableQuery();
 
-        if ($this->isTableRecordSelectable() !== null) {
+        if ($this->getTable()->checksIfRecordIsSelectable()) {
             return $query
                 ->get()
-                ->filter(fn (Model $record): bool => $this->isTableRecordSelectable()($record))
+                ->filter(fn (Model $record): bool => $this->getTable()->isRecordSelectable($record))
                 ->count();
         }
 
@@ -61,35 +61,24 @@ trait CanSelectRecords
 
     public function getSelectedTableRecords(): Collection
     {
-        if (! ($this instanceof HasRelationshipTable && $this->getRelationship() instanceof BelongsToMany && $this->allowsDuplicates())) {
-            $query = $this->getTableQuery()->whereIn(app($this->getTableModel())->getQualifiedKeyName(), $this->selectedTableRecords);
+        $table = $this->getTable();
+
+        if (! ($table->getRelationship() instanceof BelongsToMany && $table->allowsDuplicates())) {
+            $query = $table->getQuery()->whereIn(app($table->getModel())->getQualifiedKeyName(), $this->selectedTableRecords);
             $this->applySortingToTableQuery($query);
 
             return $query->get();
         }
 
         /** @var BelongsToMany $relationship */
-        $relationship = $this->getRelationship();
+        $relationship = $table->getRelationship();
 
         $pivotClass = $relationship->getPivotClass();
         $pivotKeyName = app($pivotClass)->getKeyName();
 
-        return $this->hydratePivotRelationForTableRecords($this->selectPivotDataInQuery(
+        return $this->hydratePivotRelationForTableRecords($table->selectPivotDataInQuery(
             $relationship->wherePivotIn($pivotKeyName, $this->selectedTableRecords),
         )->get());
-    }
-
-    public function isTableSelectionEnabled(): bool
-    {
-        return (bool) count(array_filter(
-            $this->getCachedTableBulkActions(),
-            fn (BulkAction $action): bool => ! $action->isHidden(),
-        ));
-    }
-
-    public function getTableRecordCheckboxPosition(): string
-    {
-        return RecordCheckboxPosition::BeforeCells;
     }
 
     public function shouldSelectCurrentPageOnly(): bool

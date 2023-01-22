@@ -16,7 +16,7 @@ return [
 
     'fields' => [
 
-        'search_query' => [
+        'search' => [
             'label' => 'Vyhledávání',
             'placeholder' => 'Hledat',
         ],
@@ -73,7 +73,7 @@ return [
             'label' => 'Filtrovat',
         ],
 
-        'open_actions' => [
+        'open_bulk_actions' => [
             'label' => 'Otevřít panel akcí',
         ],
 

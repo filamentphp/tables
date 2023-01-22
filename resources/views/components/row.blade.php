@@ -4,14 +4,10 @@
     'striped' => false,
 ])
 
-<tr
-    {{ $attributes->class([
-        'filament-tables-row transition',
-        'hover:bg-gray-50' => $recordUrl || $recordAction,
-        'dark:hover:bg-gray-500/10' => ($recordUrl || $recordAction) && config('tables.dark_mode'),
-        'even:bg-gray-100' => $striped,
-        'dark:even:bg-gray-900' => $striped && config('tables.dark_mode'),
-    ]) }}
->
+<tr {{ $attributes->class([
+    'filament-tables-row transition',
+    'hover:bg-gray-50 dark:hover:bg-gray-500/10' => $recordUrl || $recordAction,
+    'even:bg-gray-100 dark:even:bg-gray-900' => $striped,
+]) }}>
     {{ $slot }}
 </tr>

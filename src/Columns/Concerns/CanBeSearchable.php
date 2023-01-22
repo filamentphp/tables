@@ -3,7 +3,6 @@
 namespace Filament\Tables\Columns\Concerns;
 
 use Closure;
-use Illuminate\Support\Str;
 
 trait CanBeSearchable
 {
@@ -13,10 +12,16 @@ trait CanBeSearchable
 
     protected bool $isSearchable = false;
 
+    /**
+     * @var array<string> | null
+     */
     protected ?array $searchColumns = null;
 
     protected ?Closure $searchQuery = null;
 
+    /**
+     * @param  bool | array<string>  $condition
+     */
     public function searchable(
         bool | array $condition = true,
         ?Closure $query = null,
@@ -38,6 +43,9 @@ trait CanBeSearchable
         return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getSearchColumns(): array
     {
         return $this->searchColumns ?? $this->getDefaultSearchColumns();
@@ -58,8 +66,11 @@ trait CanBeSearchable
         return $this->isSearchable() && $this->isIndividuallySearchable;
     }
 
-    protected function getDefaultSearchColumns(): array
+    /**
+     * @return array{0: string}
+     */
+    public function getDefaultSearchColumns(): array
     {
-        return [Str::of($this->getName())->afterLast('.')];
+        return [str($this->getName())->afterLast('.')];
     }
 }

@@ -4,14 +4,11 @@ namespace Filament\Tables\Columns\Concerns;
 
 use BackedEnum;
 use Closure;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Arr;
 
 trait HasState
 {
-    protected $defaultState = null;
+    protected mixed $defaultState = null;
 
     protected ?Closure $getStateUsing = null;
 
@@ -22,22 +19,26 @@ trait HasState
         return $this;
     }
 
-    public function default($state): static
+    public function default(mixed $state): static
     {
         $this->defaultState = $state;
 
         return $this;
     }
 
-    public function getDefaultState()
+    public function getDefaultState(): mixed
     {
-        return $this->evaluate($this->defaultState);
+        return $this->evaluate($this->defaultState, exceptParameters: ['state']);
     }
 
-    public function getState()
+    public function getState(): mixed
     {
+        if (! $this->getRecord()) {
+            return null;
+        }
+
         $state = $this->getStateUsing ?
-            $this->evaluate($this->getStateUsing) :
+            $this->evaluate($this->getStateUsing, exceptParameters: ['state']) :
             $this->getStateFromRecord();
 
         if (
@@ -59,7 +60,7 @@ trait HasState
         return $state;
     }
 
-    protected function getStateFromRecord()
+    public function getStateFromRecord(): mixed
     {
         $record = $this->getRecord();
 
@@ -73,32 +74,28 @@ trait HasState
             return null;
         }
 
-        $relationshipName = $this->getRelationshipName();
+        $relationship = $this->getRelationship($record);
 
-        if (! method_exists($record, $relationshipName)) {
+        if (! $relationship) {
             return null;
         }
 
-        $relationship = $record->{$relationshipName}();
+        $state = collect($this->getRelationshipResults($record))
+            ->pluck($this->getRelationshipAttribute())
+            ->unique()
+            ->values();
 
-        if (! (
-            $relationship instanceof HasMany ||
-            $relationship instanceof BelongsToMany ||
-            $relationship instanceof MorphMany
-        )) {
+        if (! $state->count()) {
             return null;
         }
 
-        $state = $record->getRelationValue($relationshipName)->pluck($this->getRelationshipTitleColumnName());
-
-        if (! count($state)) {
-            return null;
-        }
-
-        return $state->toArray();
+        return $state->all();
     }
 
-    protected function mutateArrayState(array $state)
+    /**
+     * @param  array<array-key>  $state
+     */
+    protected function mutateArrayState(array $state): mixed
     {
         return $state;
     }

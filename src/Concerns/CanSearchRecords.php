@@ -8,42 +8,22 @@ use RecursiveIteratorIterator;
 
 trait CanSearchRecords
 {
-    public $tableColumnSearchQueries = [];
+    /**
+     * @var array<string, string | array<string, string | null> | null>
+     */
+    public array $tableColumnSearches = [];
 
-    public $tableSearchQuery = '';
+    /**
+     * @var string | null
+     */
+    public $tableSearch = '';
 
-    public function isTableSearchable(): bool
+    public function updatedTableSearch(): void
     {
-        foreach ($this->getCachedTableColumns() as $column) {
-            if (! $column->isGloballySearchable()) {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public function isTableSearchableByColumn(): bool
-    {
-        foreach ($this->getCachedTableColumns() as $column) {
-            if (! $column->isIndividuallySearchable()) {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public function updatedTableSearchQuery(): void
-    {
-        if ($this->shouldPersistTableSearchInSession()) {
+        if ($this->getTable()->persistsSearchInSession()) {
             session()->put(
                 $this->getTableSearchSessionKey(),
-                $this->tableSearchQuery,
+                $this->tableSearch,
             );
         }
 
@@ -52,16 +32,19 @@ trait CanSearchRecords
         $this->resetPage();
     }
 
-    public function updatedTableColumnSearchQueries($value, $key): void
+    /**
+     * @param  string | null  $value
+     */
+    public function updatedTableColumnSearches($value, string $key): void
     {
         if (blank($value)) {
-            unset($this->tableColumnSearchQueries[$key]);
+            unset($this->tableColumnSearches[$key]);
         }
 
-        if ($this->shouldPersistTableColumnSearchInSession()) {
+        if ($this->getTable()->persistsColumnSearchInSession()) {
             session()->put(
                 $this->getTableColumnSearchSessionKey(),
-                $this->tableColumnSearchQueries,
+                $this->tableColumnSearches,
             );
         }
 
@@ -80,14 +63,22 @@ trait CanSearchRecords
 
     protected function applyColumnSearchToTableQuery(Builder $query): Builder
     {
-        foreach ($this->getTableColumnSearchQueries() as $column => $search) {
+        foreach ($this->getTableColumnSearches() as $column => $search) {
             if ($search === '') {
                 continue;
             }
 
-            $column = $this->getCachedTableColumn($column);
+            $column = $this->getTable()->getColumn($column);
 
             if (! $column) {
+                continue;
+            }
+
+            if ($column->isHidden()) {
+                continue;
+            }
+
+            if (! $column->isIndividuallySearchable()) {
                 continue;
             }
 
@@ -99,7 +90,6 @@ trait CanSearchRecords
                         $query,
                         $searchWord,
                         $isFirst,
-                        isIndividual: true,
                     );
                 });
             }
@@ -110,7 +100,7 @@ trait CanSearchRecords
 
     protected function applyGlobalSearchToTableQuery(Builder $query): Builder
     {
-        $search = $this->getTableSearchQuery();
+        $search = $this->getTableSearch();
 
         if ($search === '') {
             return $query;
@@ -120,7 +110,15 @@ trait CanSearchRecords
             $query->where(function (Builder $query) use ($searchWord) {
                 $isFirst = true;
 
-                foreach ($this->getCachedTableColumns() as $column) {
+                foreach ($this->getTable()->getColumns() as $column) {
+                    if ($column->isHidden()) {
+                        continue;
+                    }
+
+                    if (! $column->isGloballySearchable()) {
+                        continue;
+                    }
+
                     $column->applySearchConstraint(
                         $query,
                         $searchWord,
@@ -133,24 +131,31 @@ trait CanSearchRecords
         return $query;
     }
 
-    protected function getTableSearchQuery(): string
+    public function getTableSearch(): string
     {
-        return trim(strtolower($this->tableSearchQuery));
+        return trim(strtolower($this->tableSearch));
     }
 
-    protected function castTableColumnSearchQueries(array $searchQueries): array
+    /**
+     * @param  array<string, string | array<string, string | null> | null>  $searches
+     * @return array<string, string | array<string, string | null> | null>
+     */
+    protected function castTableColumnSearches(array $searches): array
     {
         return array_map(
             fn ($search): array | string => is_array($search) ?
-                $this->castTableColumnSearchQueries($search) :
+                $this->castTableColumnSearches($search) :
                 strval($search),
-            $searchQueries,
+            $searches,
         );
     }
 
-    protected function getTableColumnSearchQueries(): array
+    /**
+     * @return array<string, string | null>
+     */
+    public function getTableColumnSearches(): array
     {
-        // Example input of `$this->tableColumnSearchQueries`:
+        // Example input of `$this->tableColumnSearches`:
         // [
         //     'number' => '12345 ',
         //     'customer' => [
@@ -158,14 +163,14 @@ trait CanSearchRecords
         //     ],
         // ]
 
-        // The `$this->tableColumnSearchQueries` array is potentially nested.
+        // The `$this->tableColumnSearches` array is potentially nested.
         // So, we iterate through it deeply:
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveArrayIterator($this->tableColumnSearchQueries),
+            new RecursiveArrayIterator($this->tableColumnSearches),
             RecursiveIteratorIterator::SELF_FIRST
         );
 
-        $searchQueries = [];
+        $searches = [];
         $path = [];
 
         foreach ($iterator as $key => $value) {
@@ -176,12 +181,12 @@ trait CanSearchRecords
             }
 
             // Nested array keys are flattened into `dot.syntax`.
-            $searchQueries[
+            $searches[
                 implode('.', array_slice($path, 0, $iterator->getDepth() + 1))
             ] = trim(strtolower($value));
         }
 
-        return $searchQueries;
+        return $searches;
 
         // Example output:
         // [
@@ -197,11 +202,6 @@ trait CanSearchRecords
         return "tables.{$table}_search";
     }
 
-    protected function shouldPersistTableSearchInSession(): bool
-    {
-        return false;
-    }
-
     public function getTableColumnSearchSessionKey(): string
     {
         $table = class_basename($this::class);
@@ -209,6 +209,17 @@ trait CanSearchRecords
         return "tables.{$table}_column_search";
     }
 
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    protected function shouldPersistTableSearchInSession(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
     protected function shouldPersistTableColumnSearchInSession(): bool
     {
         return false;

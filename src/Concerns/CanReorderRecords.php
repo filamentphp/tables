@@ -2,24 +2,25 @@
 
 namespace Filament\Tables\Concerns;
 
-use Filament\Tables\Contracts\HasRelationshipTable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 trait CanReorderRecords
 {
     public bool $isTableReordering = false;
 
+    /**
+     * @param  array<int | string>  $order
+     */
     public function reorderTable(array $order): void
     {
-        if (! $this->isTableReorderable()) {
+        if (! $this->getTable()->isReorderable()) {
             return;
         }
 
-        $orderColumn = $this->getTableReorderColumn();
+        $orderColumn = $this->getTable()->getReorderColumn();
 
         if (
-            $this instanceof HasRelationshipTable &&
-            (($relationship = $this->getRelationship()) instanceof BelongsToMany) &&
+            (($relationship = $this->getTable()->getRelationship()) instanceof BelongsToMany) &&
             in_array($orderColumn, $relationship->getPivotColumns())
         ) {
             foreach ($order as $index => $recordKey) {
@@ -45,19 +46,20 @@ trait CanReorderRecords
 
     public function isTableReordering(): bool
     {
-        return $this->isTableReorderable() && $this->isTableReordering;
+        return $this->getTable()->isReorderable() && $this->isTableReordering;
     }
 
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
     protected function isTablePaginationEnabledWhileReordering(): bool
     {
         return false;
     }
 
-    protected function isTableReorderable(): bool
-    {
-        return filled($this->getTableReorderColumn());
-    }
-
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
     protected function getTableReorderColumn(): ?string
     {
         return null;
