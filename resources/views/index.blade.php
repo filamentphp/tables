@@ -22,7 +22,7 @@
     $header = $getHeader();
     $headerActions = array_filter(
         $getHeaderActions(),
-        fn (\Filament\Tables\Actions\Action | \Filament\Tables\Actions\BulkAction | \Filament\Tables\Actions\ActionGroup $action): bool => ! $action->isHidden(),
+        fn (\Filament\Tables\Actions\Action | \Filament\Tables\Actions\BulkAction | \Filament\Tables\Actions\ActionGroup $action): bool => $action->isVisible(),
     );
     $headerActionsPosition = $getHeaderActionsPosition();
     $heading = $getHeading();
@@ -257,7 +257,7 @@
                     @if ((! $isReordering) && count($groupedBulkActions))
                         <x-filament-tables::bulk-actions
                             x-show="selectedRecords.length"
-                            x-cloak=""
+                            x-cloak="x-cloak"
                             :actions="$groupedBulkActions"
                         />
                     @endif
@@ -457,7 +457,7 @@
                                     $recordGroupTitle = $group?->getTitle($record);
 
                                     $collapsibleColumnsLayout?->record($record);
-                                    $hasCollapsibleColumnsLayout = $collapsibleColumnsLayout && (! $collapsibleColumnsLayout->isHidden());
+                                    $hasCollapsibleColumnsLayout = (bool) $collapsibleColumnsLayout?->isVisible();
                                 @endphp
 
                                 @if ($recordGroupTitle !== $previousRecordGroupTitle)
@@ -494,7 +494,7 @@
                                                         alias="tables::grouping.collapse"
                                                         size="h-4 w-4"
                                                         class="text-gray-600 transition dark:text-gray-300"
-                                                        x-cloak=""
+                                                        x-cloak="x-cloak"
                                                     />
                                                 </button>
                                             @endif
@@ -925,7 +925,7 @@
                                                             alias="tables::grouping.collapse"
                                                             size="h-4 w-4"
                                                             class="text-gray-600 transition dark:text-gray-300"
-                                                            x-cloak=""
+                                                            x-cloak="x-cloak"
                                                         />
                                                     </button>
                                                 @endif
