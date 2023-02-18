@@ -2,7 +2,6 @@
 
 namespace Filament\Tables\Columns\Concerns;
 
-use BackedEnum;
 use Closure;
 use Filament\Support\Contracts\HasColor as ColorInterface;
 use Filament\Tables\Columns\Column;
@@ -58,6 +57,6 @@ trait HasColor
             return null;
         }
 
-        return $color->getColor();
+        return $state->getColor();
     }
 }
