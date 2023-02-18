@@ -2,11 +2,8 @@
 
 namespace Filament\Tables\Columns;
 
-use BackedEnum;
 use Closure;
-use Filament\Support\Contracts\HasLabel as LabelInterface;
 use Filament\Tables\Contracts\HasTable;
-use Illuminate\Contracts\Support\Arrayable;
 use stdClass;
 
 class TextColumn extends Column
@@ -26,8 +23,6 @@ class TextColumn extends Column
     protected string $view = 'filament-tables::columns.text-column';
 
     protected bool | Closure $canWrap = false;
-
-    protected ?string $enum = null;
 
     protected bool | Closure $isBadge = false;
 
@@ -61,13 +56,6 @@ class TextColumn extends Column
     public function limitList(int | Closure | null $limit = 3): static
     {
         $this->listLimit = $limit;
-
-        return $this;
-    }
-
-    public function enum(?string $enum): static
-    {
-        $this->enum = $enum;
 
         return $this;
     }
