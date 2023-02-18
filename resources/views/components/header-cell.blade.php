@@ -14,7 +14,7 @@
         @endif
         type="button"
         @class([
-            'flex items-center w-full px-4 py-2 whitespace-nowrap space-x-1 rtl:space-x-reverse font-medium text-sm text-gray-600',
+            'flex items-center gap-x-1 w-full px-4 py-2 whitespace-nowrap font-medium text-sm text-gray-600',
             'dark:text-gray-300' => config('tables.dark_mode'),
             'cursor-default' => ! $sortable,
             match ($alignment) {

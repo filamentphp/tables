@@ -27,13 +27,13 @@
     $isSelectionEnabled = $isSelectionEnabled();
     $recordCheckboxPosition = $getRecordCheckboxPosition();
     $isStriped = $isStriped();
+    $isLoaded = $isLoaded();
     $hasFilters = $isFilterable();
     $hasFiltersPopover = $hasFilters && ($getFiltersLayout() === FiltersLayout::Popover);
     $hasFiltersAboveContent = $hasFilters && ($getFiltersLayout() === FiltersLayout::AboveContent);
     $hasFiltersAfterContent = $hasFilters && ($getFiltersLayout() === FiltersLayout::BelowContent);
     $isColumnToggleFormVisible = $hasToggleableColumns();
-    $records = $getRecords();
-
+    $records = $isLoaded ? $getRecords() : null;
     $columnsCount = count($columns);
     if (count($actions) && (! $isReordering)) $columnsCount++;
     if ($isSelectionEnabled || $isReordering) $columnsCount++;
@@ -160,6 +160,9 @@
 
     }"
     class="filament-tables-component"
+    @if (! $isLoaded)
+        wire:init="loadTable"
+    @endif
 >
     <x-tables::container>
         <div
@@ -299,7 +302,11 @@
             }"
         >
             @if ($content || $hasColumnsLayout)
-                @if (count($records))
+                @if ($records === null)
+                    <div class="flex items-center justify-center p-4">
+                        <x-filament-support::loading-indicator class="w-5 h-5" />
+                    </div>
+                @elseif (count($records))
                     @if (($content || $hasColumnsLayout) && (! $isReordering))
                         <div @class([
                             'bg-gray-500/5 flex items-center gap-4 px-4 border-b',
@@ -590,6 +597,7 @@
                     @if (($content || $hasColumnsLayout) && $contentFooter)
                         {{ $contentFooter->with(['columns' => $columns, 'records' => $records]) }}
                     @endif
+
                 @else
                     @if ($emptyState = $getEmptyState())
                         {{ $emptyState }}
@@ -749,7 +757,15 @@
                         </x-tables::row>
                     @endif
 
-                    @if (count($records))
+                    @if ($records === null)
+                        <tr>
+                            <td colspan="{{ $columnsCount }}">
+                                <div class="flex items-center justify-center w-full p-4">
+                                    <x-filament-support::loading-indicator class="w-5 h-5"/>
+                                </div>
+                            </td>
+                        </tr>
+                    @elseif (count($records))
                         @foreach ($records as $record)
                             @php
                                 $recordAction = $getRecordAction($record);
