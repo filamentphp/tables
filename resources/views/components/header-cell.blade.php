@@ -14,7 +14,7 @@
         @endif
         type="button"
         @class([
-            'flex items-center w-full px-4 py-2 space-x-1 rtl:space-x-reverse font-medium text-sm text-gray-600 dark:text-gray-300',
+            'flex items-center gap-x-1 w-full px-4 py-2 font-medium text-sm text-gray-600 dark:text-gray-300',
             'cursor-default' => ! $sortable,
             'whitespace-nowrap' => ! $wrap,
             'whitespace-normal' => $wrap,

@@ -2,7 +2,6 @@
 
 namespace Filament\Tables\Columns\Concerns;
 
-use BackedEnum;
 use Closure;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -57,14 +56,6 @@ trait HasState
         $state = $this->getStateUsing ?
             $this->evaluate($this->getStateUsing, exceptParameters: ['state']) :
             $this->getStateFromRecord();
-
-        if (
-            interface_exists(BackedEnum::class) &&
-            ($state instanceof BackedEnum) &&
-            property_exists($state, 'value')
-        ) {
-            $state = $state->value;
-        }
 
         if (is_string($state) && ($separator = $this->getSeparator())) {
             $state = explode($separator, $state);

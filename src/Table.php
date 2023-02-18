@@ -169,6 +169,8 @@ class Table extends ViewComponent
 
     protected bool | Closure $isGroupsOnly = false;
 
+    protected bool | Closure $isLoadingDeferred = false;
+
     protected bool | Closure $isPaginated = true;
 
     protected bool | Closure $isPaginatedWhileReordering = true;
@@ -232,7 +234,10 @@ class Table extends ViewComponent
 
     public static function make(HasTable $livewire): static
     {
-        return app(static::class, ['livewire' => $livewire]);
+        $static = app(static::class, ['livewire' => $livewire]);
+        $static->configure();
+
+        return $static;
     }
 
     /**
@@ -644,6 +649,13 @@ class Table extends ViewComponent
     public function heading(string | Htmlable | Closure | null $heading): static
     {
         $this->heading = $heading;
+
+        return $this;
+    }
+
+    public function deferLoading(bool | Closure $condition = true): static
+    {
+        $this->isLoadingDeferred = $condition;
 
         return $this;
     }
@@ -1584,5 +1596,15 @@ class Table extends ViewComponent
     public function checksIfRecordIsSelectable(): bool
     {
         return $this->checkIfRecordIsSelectableUsing !== null;
+    }
+
+    public function isLoaded(): bool
+    {
+        return $this->getLivewire()->isTableLoaded();
+    }
+
+    public function isLoadingDeferred(): bool
+    {
+        return (bool) $this->evaluate($this->isLoadingDeferred);
     }
 }
