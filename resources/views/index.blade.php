@@ -34,6 +34,7 @@
     $hasFiltersAfterContent = $hasFilters && ($getFiltersLayout() === FiltersLayout::BelowContent);
     $isColumnToggleFormVisible = $hasToggleableColumns();
     $records = $isLoaded ? $getRecords() : null;
+    $allRecordsCount = $isLoaded ? $getAllRecordsCount() : null;
     $columnsCount = count($columns);
     if (count($actions) && (! $isReordering)) $columnsCount++;
     if ($isSelectionEnabled || $isReordering) $columnsCount++;
@@ -263,7 +264,7 @@
             />
         @elseif ($isSelectionEnabled)
             <x-tables::selection-indicator
-                :all-records-count="$getAllRecordsCount()"
+                :all-records-count="$allRecordsCount"
                 :colspan="$columnsCount"
                 x-show="selectedRecords.length"
                 :class="\Illuminate\Support\Arr::toCssClasses([
@@ -434,7 +435,7 @@
 
                             <div
                                 @if ($hasCollapsibleColumnsLayout)
-                                    x-data="{ isCollapsed: true }"
+                                    x-data="{ isCollapsed: @js($collapsibleColumnsLayout->isCollapsed()) }"
                                     x-init="$dispatch('collapsible-table-row-initialized')"
                                     x-on:expand-all-table-rows.window="isCollapsed = false"
                                     x-on:collapse-all-table-rows.window="isCollapsed = true"
