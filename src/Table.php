@@ -221,6 +221,8 @@ class Table extends ViewComponent
 
     protected bool | Closure | null $selectsCurrentPageOnly = false;
 
+    protected bool | Closure $shouldDeselectAllRecordsWhenFiltered = true;
+
     public static string $defaultDateDisplayFormat = 'M j, Y';
 
     public static string $defaultDateTimeDisplayFormat = 'M j, Y H:i:s';
@@ -264,6 +266,8 @@ class Table extends ViewComponent
                 throw new InvalidArgumentException('Table actions must be an instance of ' . Action::class . ' or ' . ActionGroup::class . '.');
             }
 
+            $action->defaultSize('sm');
+            $action->defaultView($action::LINK_VIEW);
             $action->table($this);
 
             $this->actions[$action->getName()] = $action;
@@ -494,6 +498,13 @@ class Table extends ViewComponent
         return $this;
     }
 
+    public function deselectAllRecordsWhenFiltered(bool | Closure $condition = true): static
+    {
+        $this->shouldDeselectAllRecordsWhenFiltered = $condition;
+
+        return $this;
+    }
+
     public function emptyStateDescription(string | Htmlable | Closure | null $description): static
     {
         $this->emptyStateDescription = $description;
@@ -632,6 +643,7 @@ class Table extends ViewComponent
                 throw new InvalidArgumentException('Table header actions must be an instance of ' . Action::class . ', ' . BulkAction::class . ', or ' . ActionGroup::class . '.');
             }
 
+            $action->defaultSize('sm');
             $action->table($this);
 
             if ($action instanceof BulkAction) {
@@ -1606,5 +1618,15 @@ class Table extends ViewComponent
     public function isLoadingDeferred(): bool
     {
         return (bool) $this->evaluate($this->isLoadingDeferred);
+    }
+
+    public function hasColumnSearches(): bool
+    {
+        return $this->getLivewire()->hasTableColumnSearches();
+    }
+
+    public function shouldDeselectAllRecordsWhenFiltered(): bool
+    {
+        return (bool) $this->evaluate($this->shouldDeselectAllRecordsWhenFiltered);
     }
 }

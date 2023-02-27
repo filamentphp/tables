@@ -83,4 +83,12 @@ trait CanSelectRecords
     {
         return $this->shouldSelectCurrentPageOnly;
     }
+
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
+    public function shouldDeselectAllRecordsWhenTableFiltered(): bool
+    {
+        return true;
+    }
 }

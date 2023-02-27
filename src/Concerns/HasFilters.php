@@ -40,7 +40,9 @@ trait HasFilters
             );
         }
 
-        $this->deselectAllTableRecords();
+        if ($this->getTable()->shouldDeselectAllRecordsWhenFiltered()) {
+            $this->deselectAllTableRecords();
+        }
 
         $this->resetPage();
     }
