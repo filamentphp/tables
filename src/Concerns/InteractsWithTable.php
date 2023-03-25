@@ -4,6 +4,7 @@ namespace Filament\Tables\Concerns;
 
 use Closure;
 use Filament\Forms;
+use Filament\Support\Contracts\TranslatableContentDriver;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
@@ -18,7 +19,6 @@ trait InteractsWithTable
     use CanPaginateRecords;
     use CanReorderRecords;
     use CanSearchRecords;
-    use CanSelectRecords;
     use CanSortRecords;
     use CanSummarizeRecords;
     use CanToggleColumns;
@@ -112,6 +112,15 @@ trait InteractsWithTable
             $this->tableColumnSearches ?? [],
         );
 
+        $sortSessionKey = $this->getTableSortSessionKey();
+
+        if (blank($this->tableSortColumn) && $this->getTable()->persistsSortInSession() && session()->has($sortSessionKey)) {
+            $sort = session()->get($sortSessionKey);
+
+            $this->tableSortColumn = $sort['column'] ?? null;
+            $this->tableSortDirection = $sort['direction'] ?? null;
+        }
+
         if ($this->getTable()->isPaginated()) {
             $this->tableRecordsPerPage = $this->getDefaultTableRecordsPerPageSelectOption();
         }
@@ -159,6 +168,7 @@ trait InteractsWithTable
             ->persistFiltersInSession($this->shouldPersistTableFiltersInSession())
             ->persistSearchInSession($this->shouldPersistTableSearchInSession())
             ->persistColumnSearchInSession($this->shouldPersistTableColumnSearchInSession())
+            ->persistSortInSession($this->shouldPersistTableSortInSession())
             ->pluralModelLabel($this->getTablePluralModelLabel())
             ->poll($this->getTablePollingInterval())
             ->recordAction($this->getTableRecordActionUsing())
@@ -208,6 +218,25 @@ trait InteractsWithTable
     public function getActiveTableLocale(): ?string
     {
         return null;
+    }
+
+    /**
+     * @return class-string<TranslatableContentDriver> | null
+     */
+    public function getTableTranslatableContentDriver(): ?string
+    {
+        return null;
+    }
+
+    public function makeTableTranslatableContentDriver(): ?TranslatableContentDriver
+    {
+        $driver = $this->getTableTranslatableContentDriver();
+
+        if (! $driver) {
+            return null;
+        }
+
+        return app($driver, ['locale' => $this->getActiveTableLocale() ?? app()->getLocale()]);
     }
 
     /**
