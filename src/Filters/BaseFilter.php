@@ -5,6 +5,7 @@ namespace Filament\Tables\Filters;
 use Exception;
 use Filament\Support\Components\Component;
 use Illuminate\Support\Traits\Conditionable;
+use ReflectionParameter;
 
 class BaseFilter extends Component
 {
@@ -49,14 +50,12 @@ class BaseFilter extends Component
         return null;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getDefaultEvaluationParameters(): array
+    protected function resolveClosureDependencyForEvaluation(ReflectionParameter $parameter): mixed
     {
-        return array_merge(parent::getDefaultEvaluationParameters(), [
+        return match ($parameter->getName()) {
             'livewire' => $this->getLivewire(),
             'table' => $this->getTable(),
-        ]);
+            default => parent::resolveClosureDependencyForEvaluation($parameter),
+        };
     }
 }

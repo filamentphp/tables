@@ -6,6 +6,7 @@ use Filament\Support\Components\ViewComponent;
 use Filament\Support\Concerns\HasExtraAttributes;
 use Filament\Tables\Columns\Concerns\BelongsToLayout;
 use Illuminate\Support\Traits\Conditionable;
+use ReflectionParameter;
 
 class Column extends ViewComponent
 {
@@ -53,22 +54,15 @@ class Column extends ViewComponent
         return $static;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getDefaultEvaluationParameters(): array
+    protected function resolveClosureDependencyForEvaluation(ReflectionParameter $parameter): mixed
     {
-        $record = $this->getRecord();
-
-        return array_merge(parent::getDefaultEvaluationParameters(), [
+        return match ($parameter->getName()) {
             'livewire' => $this->getLivewire(),
-            'record' => $record,
+            'record' => $this->getRecord(),
             'rowLoop' => $this->getRowLoop(),
-            'state' => $this->resolveEvaluationParameter(
-                'state',
-                fn () => $this->getState(),
-            ),
+            'state' => $this->getState(),
             'table' => $this->getTable(),
-        ]);
+            default => parent::resolveClosureDependencyForEvaluation($parameter),
+        };
     }
 }

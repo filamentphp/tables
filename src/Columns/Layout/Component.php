@@ -14,6 +14,7 @@ use Filament\Tables\Columns\Concerns\CanSpanColumns;
 use Filament\Tables\Columns\Concerns\HasRecord;
 use Filament\Tables\Columns\Concerns\HasRowLoopObject;
 use Illuminate\Support\Traits\Conditionable;
+use ReflectionParameter;
 
 class Component extends ViewComponent
 {
@@ -115,16 +116,14 @@ class Component extends ViewComponent
         return $this->isCollapsible;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getDefaultEvaluationParameters(): array
+    protected function resolveClosureDependencyForEvaluation(ReflectionParameter $parameter): mixed
     {
-        return array_merge(parent::getDefaultEvaluationParameters(), [
+        return match ($parameter->getName()) {
             'livewire' => $this->getLivewire(),
             'record' => $this->getRecord(),
             'rowLoop' => $this->getRowLoop(),
             'table' => $this->getTable(),
-        ]);
+            default => parent::resolveClosureDependencyForEvaluation($parameter),
+        };
     }
 }

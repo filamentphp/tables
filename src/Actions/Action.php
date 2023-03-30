@@ -7,6 +7,7 @@ use Filament\Actions\Contracts\Groupable;
 use Filament\Actions\Contracts\HasRecord;
 use Filament\Actions\MountableAction;
 use Illuminate\Database\Eloquent\Model;
+use ReflectionParameter;
 
 class Action extends MountableAction implements Groupable, HasRecord
 {
@@ -37,18 +38,13 @@ class Action extends MountableAction implements Groupable, HasRecord
         return "mountTableAction('{$this->getName()}')";
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getDefaultEvaluationParameters(): array
+    protected function resolveClosureDependencyForEvaluation(ReflectionParameter $parameter): mixed
     {
-        return array_merge(parent::getDefaultEvaluationParameters(), [
-            'record' => $this->resolveEvaluationParameter(
-                'record',
-                fn (): ?Model => $this->getRecord(),
-            ),
+        return match ($parameter->getName()) {
+            'record' => $this->getRecord(),
             'table' => $this->getTable(),
-        ]);
+            default => parent::resolveClosureDependencyForEvaluation($parameter),
+        };
     }
 
     public function getRecordTitle(?Model $record = null): string
