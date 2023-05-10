@@ -216,7 +216,7 @@
                 {{ $header }}
             @elseif ($heading || $description || $headerActions)
                 <div @class([
-                    'px-2 pt-2',
+                    'filament-tables-header-hr-wrapper px-2 pt-2',
                     'hidden' => ! ($heading || $description) && $isReordering,
                 ])>
                     <x-filament-tables::header
@@ -291,27 +291,29 @@
                             </div>
                         @endif
 
-                        <div class="flex items-center">
-                            @if ($hasFiltersDropdown)
-                                <x-filament-tables::filters.dropdown
-                                    :form="$getFiltersForm()"
-                                    :indicators-count="count(\Illuminate\Support\Arr::flatten($filterIndicators))"
-                                    :max-height="$getFiltersFormMaxHeight()"
-                                    :trigger-action="$getFiltersTriggerAction()"
-                                    :width="$getFiltersFormWidth()"
-                                    class="shrink-0"
-                                />
-                            @endif
+                        @if ($hasFiltersDropdown || $isColumnToggleFormVisible)
+                            <div class="flex items-center">
+                                @if ($hasFiltersDropdown)
+                                    <x-filament-tables::filters.dropdown
+                                        :form="$getFiltersForm()"
+                                        :indicators-count="count(\Illuminate\Support\Arr::flatten($filterIndicators))"
+                                        :max-height="$getFiltersFormMaxHeight()"
+                                        :trigger-action="$getFiltersTriggerAction()"
+                                        :width="$getFiltersFormWidth()"
+                                        class="shrink-0"
+                                    />
+                                @endif
 
-                            @if ($isColumnToggleFormVisible)
-                                <x-filament-tables::toggleable
-                                    :form="$getColumnToggleForm()"
-                                    :max-height="$getColumnToggleFormMaxHeight()"
-                                    :width="$getColumnToggleFormWidth()"
-                                    class="shrink-0"
-                                />
-                            @endif
-                        </div>
+                                @if ($isColumnToggleFormVisible)
+                                    <x-filament-tables::toggleable
+                                        :form="$getColumnToggleForm()"
+                                        :max-height="$getColumnToggleFormMaxHeight()"
+                                        :width="$getColumnToggleFormWidth()"
+                                        class="shrink-0"
+                                    />
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
