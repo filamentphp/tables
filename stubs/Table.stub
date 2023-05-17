@@ -29,7 +29,9 @@ class {{ class }} extends Component implements HasTable
                 //
             ])
             ->bulkActions([
-                //
+                Tables\Actions\BulkActionGroup::make([
+                    //
+                ]),
             ]);
     }
 
