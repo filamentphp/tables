@@ -72,6 +72,12 @@ trait CanSelectRecords
 
         if (! ($this instanceof HasRelationshipTable && $this->getRelationship() instanceof BelongsToMany && $this->allowsDuplicates())) {
             $query = $this->getTableQuery()->whereIn(app($this->getTableModel())->getQualifiedKeyName(), $this->selectedTableRecords);
+
+            foreach ($this->getCachedTableColumns() as $column) {
+                $column->applyEagerLoading($query);
+                $column->applyRelationshipAggregates($query);
+            }
+
             $this->applySortingToTableQuery($query);
 
             return $this->cachedSelectedTableRecords = $query->get();
@@ -83,9 +89,16 @@ trait CanSelectRecords
         $pivotClass = $relationship->getPivotClass();
         $pivotKeyName = app($pivotClass)->getKeyName();
 
-        return $this->cachedSelectedTableRecords = $this->hydratePivotRelationForTableRecords($this->selectPivotDataInQuery(
-            $relationship->wherePivotIn($pivotKeyName, $this->selectedTableRecords),
-        )->get());
+        $relationship->wherePivotIn($pivotKeyName, $this->selectedTableRecords);
+
+        foreach ($this->getCachedTableColumns() as $column) {
+            $column->applyEagerLoading($relationship);
+            $column->applyRelationshipAggregates($relationship);
+        }
+
+        return $this->cachedSelectedTableRecords = $this->hydratePivotRelationForTableRecords(
+            $this->selectPivotDataInQuery($relationship)->get(),
+        );
     }
 
     public function isTableSelectionEnabled(): bool

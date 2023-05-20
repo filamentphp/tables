@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 trait InteractsWithTableQuery
 {
-    public function applyRelationshipAggregates(Builder $query): Builder
+    public function applyRelationshipAggregates(Builder | Relation $query): Builder | Relation
     {
         return $query->when(
             filled([$this->getRelationshipToAvg(), $this->getColumnToAvg()]),
@@ -34,7 +34,7 @@ trait InteractsWithTableQuery
         );
     }
 
-    public function applyEagerLoading(Builder $query): Builder
+    public function applyEagerLoading(Builder | Relation $query): Builder | Relation
     {
         if ($this->isHidden()) {
             return $query;
@@ -50,7 +50,7 @@ trait InteractsWithTableQuery
             return $query;
         }
 
-        return $query->with([$this->getRelationshipName()]);
+        return $query->with([$relationshipName]);
     }
 
     public function applySearchConstraint(Builder $query, string $search, bool &$isFirst, bool $isIndividual = false): Builder
