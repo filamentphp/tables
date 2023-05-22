@@ -5,10 +5,11 @@ namespace Filament\Tables\Concerns;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\RecordCheckboxPosition;
 use Filament\Tables\Contracts\HasRelationshipTable;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 trait CanSelectRecords
 {
@@ -16,7 +17,7 @@ trait CanSelectRecords
 
     protected bool $shouldSelectCurrentPageOnly = false;
 
-    protected Collection $cachedSelectedTableRecords;
+    protected EloquentCollection $cachedSelectedTableRecords;
 
     public function deselectAllTableRecords(): void
     {
@@ -28,22 +29,53 @@ trait CanSelectRecords
         return true;
     }
 
-    public function getAllTableRecordKeys(): array
+    public function getAllSelectableTableRecordKeys(): array
     {
         $query = $this->getFilteredTableQuery();
+        $checkIfRecordIsSelectableUsing = $this->isTableRecordSelectable();
+
+        if (! $checkIfRecordIsSelectableUsing) {
+            $records = $this->shouldSelectCurrentPageOnly() ?
+                $this->getTableRecords() :
+                $query;
+
+            return $records
+                ->pluck($query->getModel()->getQualifiedKeyName())
+                ->map(fn ($key): string => (string) $key)
+                ->all();
+        }
 
         $records = $this->shouldSelectCurrentPageOnly() ?
             $this->getTableRecords() :
-            $query;
+            $query->get();
 
-        return $records
-            ->pluck($query->getModel()->getQualifiedKeyName())
-            ->map(fn ($key): string => (string) $key)
-            ->all();
+        return $records->reduce(
+            function (array $carry, Model $record) use ($checkIfRecordIsSelectableUsing): array {
+                if (! $checkIfRecordIsSelectableUsing($record)) {
+                    return $carry;
+                }
+
+                $carry[] = (string) $record->getKey();
+
+                return $carry;
+            },
+            initial: [],
+        );
     }
 
-    public function getAllTableRecordsCount(): int
+    public function getAllSelectableTableRecordsCount(): int
     {
+        if ($this->isTableRecordSelectable() !== null) {
+            /** @var Collection $records */
+            $records = $this->shouldSelectCurrentPageOnly() ?
+                $this->getTableRecords() :
+                $this->getFilteredTableQuery()->get();
+
+            return $records
+                ->filter(fn (Model $record): bool => $this->isTableRecordSelectable()($record))
+                ->count();
+        }
+
         if ($this->shouldSelectCurrentPageOnly()) {
             return $this->records->count();
         }
@@ -52,19 +84,19 @@ trait CanSelectRecords
             return $this->records->total();
         }
 
-        $query = $this->getFilteredTableQuery();
-
-        if ($this->isTableRecordSelectable() !== null) {
-            return $query
-                ->get()
-                ->filter(fn (Model $record): bool => $this->isTableRecordSelectable()($record))
-                ->count();
-        }
-
-        return $query->count();
+        return $this->getFilteredTableQuery()->count();
     }
 
-    public function getSelectedTableRecords(): Collection
+    public function getAllTableRecordsCount(): int
+    {
+        if ($this->records instanceof LengthAwarePaginator) {
+            return $this->records->total();
+        }
+
+        return $this->getFilteredTableQuery()->count();
+    }
+
+    public function getSelectedTableRecords(): EloquentCollection
     {
         if (isset($this->cachedSelectedTableRecords)) {
             return $this->cachedSelectedTableRecords;
