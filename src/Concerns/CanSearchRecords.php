@@ -3,7 +3,6 @@
 namespace Filament\Tables\Concerns;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Arr;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 
@@ -15,7 +14,7 @@ trait CanSearchRecords
     public array $tableColumnSearches = [];
 
     /**
-     * @var ?string
+     * @var string | null
      */
     public $tableSearch = '';
 
@@ -40,7 +39,7 @@ trait CanSearchRecords
      */
     public function updatedTableColumnSearches($value = null, ?string $key = null): void
     {
-        if (blank($value) && ! str($key)->contains('.')) {
+        if (blank($value)) {
             unset($this->tableColumnSearches[$key]);
         }
 
@@ -69,7 +68,7 @@ trait CanSearchRecords
     protected function applyColumnSearchesToTableQuery(Builder $query): Builder
     {
         foreach ($this->getTableColumnSearches() as $column => $search) {
-            if (blank($search)) {
+            if ($search === '') {
                 continue;
             }
 
@@ -105,9 +104,9 @@ trait CanSearchRecords
 
     protected function applyGlobalSearchToTableQuery(Builder $query): Builder
     {
-        $search = trim(strtolower($this->getTableSearch()));
+        $search = $this->getTableSearch();
 
-        if (blank($search)) {
+        if ($search === '') {
             return $query;
         }
 
@@ -136,69 +135,9 @@ trait CanSearchRecords
         return $query;
     }
 
-    /**
-     * @return ?string
-     */
-    public function getTableSearch()
+    public function getTableSearch(): string
     {
-        return $this->tableSearch;
-    }
-
-    public function hasTableSearch(): bool
-    {
-        return filled($this->tableSearch);
-    }
-
-    public function resetTableSearch(): void
-    {
-        $this->tableSearch = '';
-        $this->updatedTableSearch();
-    }
-
-    public function resetTableColumnSearch(string $column): void
-    {
-        $this->updatedTableColumnSearches(null, $column);
-    }
-
-    public function resetTableColumnSearches(): void
-    {
-        $this->tableColumnSearches = [];
-        $this->updatedTableColumnSearches();
-    }
-
-    public function getTableSearchIndicator(): string
-    {
-        return __('filament-tables::table.fields.search.indicator') . ': ' . $this->getTableSearch();
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getTableColumnSearchIndicators(): array
-    {
-        $indicators = [];
-
-        foreach ($this->getTable()->getColumns() as $column) {
-            if ($column->isHidden()) {
-                continue;
-            }
-
-            if (! $column->isIndividuallySearchable()) {
-                continue;
-            }
-
-            $columnName = $column->getName();
-
-            $search = Arr::get($this->tableColumnSearches, $columnName);
-
-            if (blank($search)) {
-                continue;
-            }
-
-            $indicators[$columnName] = "{$column->getLabel()}: {$search}";
-        }
-
-        return $indicators;
+        return trim(strtolower($this->tableSearch));
     }
 
     /**
@@ -258,6 +197,12 @@ trait CanSearchRecords
         //     'number' => '12345',
         //     'customer.name' => 'john smith',
         // ]
+    }
+
+    public function hasTableColumnSearches(): bool
+    {
+        return collect($this->getTableColumnSearches())
+            ->contains(fn (string $search): bool => filled($search));
     }
 
     public function getTableSearchSessionKey(): string

@@ -13,14 +13,9 @@ use InvalidArgumentException;
 trait HasActions
 {
     /**
-     * @var array<Action | ActionGroup>
+     * @var array<string, Action | ActionGroup>
      */
     protected array $actions = [];
-
-    /**
-     * @var array<string, Action>
-     */
-    protected array $flatActions = [];
 
     protected string | Closure | null $actionsColumnLabel = null;
 
@@ -33,24 +28,30 @@ trait HasActions
      */
     public function actions(array | ActionGroup $actions, string | Closure | null $position = null): static
     {
-        foreach (Arr::wrap($actions) as $action) {
-            $action->table($this);
-
+        foreach (Arr::wrap($actions) as $index => $action) {
             if ($action instanceof ActionGroup) {
-                /** @var array<string, Action> $flatActions */
-                $flatActions = $action->getFlatActions();
+                foreach ($action->getActions() as $groupedAction) {
+                    if (! $groupedAction instanceof Action) {
+                        throw new InvalidArgumentException('Table actions within a group must be an instance of ' . Action::class . '.');
+                    }
 
-                $this->mergeCachedFlatActions($flatActions);
-            } elseif ($action instanceof Action) {
-                $action->defaultSize('sm');
-                $action->defaultView($action::LINK_VIEW);
+                    $groupedAction->table($this);
+                }
 
-                $this->cacheAction($action);
-            } else {
+                $this->actions[$index] = $action;
+
+                continue;
+            }
+
+            if (! $action instanceof Action) {
                 throw new InvalidArgumentException('Table actions must be an instance of ' . Action::class . ' or ' . ActionGroup::class . '.');
             }
 
-            $this->actions[] = $action;
+            $action->defaultSize('sm');
+            $action->defaultView($action::LINK_VIEW);
+            $action->table($this);
+
+            $this->actions[$action->getName()] = $action;
         }
 
         $this->actionsPosition($position);
@@ -105,7 +106,41 @@ trait HasActions
 
         $mountedRecord = $this->getLivewire()->getMountedTableActionRecord();
 
-        $action = $this->getFlatActions()[$name] ?? null;
+        $actions = $this->getActions();
+
+        $action = $actions[$name] ?? null;
+
+        if ($action) {
+            return $this->getMountableModalActionFromAction(
+                $action->record($mountedRecord),
+                modalActionNames: $modalActionNames ?? [],
+                parentActionName: $name,
+                mountedRecord: $mountedRecord,
+            );
+        }
+
+        foreach ($actions as $action) {
+            if (! $action instanceof ActionGroup) {
+                continue;
+            }
+
+            $groupedAction = $action->getActions()[$name] ?? null;
+
+            if (! $groupedAction) {
+                continue;
+            }
+
+            return $this->getMountableModalActionFromAction(
+                $groupedAction->record($mountedRecord),
+                modalActionNames: $modalActionNames ?? [],
+                parentActionName: $name,
+                mountedRecord: $mountedRecord,
+            );
+        }
+
+        $actions = $this->columnActions;
+
+        $action = $actions[$name] ?? null;
 
         if (! $action) {
             return null;
@@ -120,30 +155,6 @@ trait HasActions
     }
 
     /**
-     * @return array<string, Action>
-     */
-    public function getFlatActions(): array
-    {
-        return $this->flatActions;
-    }
-
-    protected function cacheAction(Action $action): void
-    {
-        $this->flatActions[$action->getName()] = $action;
-    }
-
-    /**
-     * @param  array<string, Action>  $actions
-     */
-    protected function mergeCachedFlatActions(array $actions): void
-    {
-        $this->flatActions = [
-            ...$this->flatActions,
-            ...$actions,
-        ];
-    }
-
-    /**
      * @param  array<string>  $modalActionNames
      */
     protected function getMountableModalActionFromAction(Action $action, array $modalActionNames, string $parentActionName, ?Model $mountedRecord = null): ?Action
@@ -152,7 +163,7 @@ trait HasActions
             $action = $action->getMountableModalAction($modalActionName);
 
             if (! $action) {
-                return null;
+                throw new InvalidArgumentException("The [{$modalActionName}] action has not been registered on the [{$parentActionName}] table action.");
             }
 
             if ($action instanceof Action) {

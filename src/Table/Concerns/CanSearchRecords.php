@@ -60,21 +60,8 @@ trait CanSearchRecords
         return (bool) $this->evaluate($this->persistsColumnSearchesInSession);
     }
 
-    public function hasSearch(): bool
+    public function hasColumnSearches(): bool
     {
-        return $this->getLivewire()->hasTableSearch();
-    }
-
-    public function getSearchIndicator(): string
-    {
-        return $this->getLivewire()->getTableSearchIndicator();
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function getColumnSearchIndicators(): array
-    {
-        return $this->getLivewire()->getTableColumnSearchIndicators();
+        return $this->getLivewire()->hasTableColumnSearches();
     }
 }

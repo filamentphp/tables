@@ -44,10 +44,7 @@ class Grid extends Component
             ];
         }
 
-        $this->columns = [
-            ...($this->columns ?? []),
-            ...$columns,
-        ];
+        $this->columns = array_merge($this->columns ?? [], $columns);
 
         return $this;
     }

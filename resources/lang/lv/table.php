@@ -16,14 +16,6 @@ return [
 
     'fields' => [
 
-        'bulk_select_page' => [
-            'label' => 'Atlasīt/noņemt atlasi visām lielapjoma darbībām.',
-        ],
-
-        'bulk_select_record' => [
-            'label' => 'Atlasīt/noņemt atlasi priekš :key lielapjoma darbībām.',
-        ],
-
         'search_query' => [
             'label' => 'Meklēt',
             'placeholder' => 'Meklēt',
@@ -35,7 +27,7 @@ return [
 
         'label' => 'Lapdales navigācija',
 
-        'overview' => '{1} Rāda 1 rezultātu|[2,*] Rāda :first līdz :last no :total rezultātiem',
+        'overview' => 'Rāda :first līdz :last no :total rezultātiem',
 
         'fields' => [
 

@@ -18,7 +18,7 @@ public function table(Table $table): Table
 }
 ```
 
-Filters may be created using the static `make()` method, passing its unique name. You should then pass a callback to `query()` which applies your filter's scope:
+Filters may be created using the static `make()` method, passing its unique name. The name of the filter should be unique. You should then pass a callback to `query()` which applies your filter's scope:
 
 ```php
 use Filament\Tables\Filters\Filter;
@@ -263,17 +263,17 @@ Filter::make('created_at')
 
 When a filter is active, an indicator is displayed above the table content to signal that the table query has been scoped.
 
-By default, the label of the filter is used as the indicator. You can override this using the `indicator()` method:
+By default, the label of the filter is used as the indicator. You can override this:
 
 ```php
-use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\TernaryFilter;
 
-Filter::make('is_admin')
+TernaryFilter::make('is_admin')
     ->label('Administrators only?')
     ->indicator('Administrators')
 ```
 
-### Custom active indicators
+### Custom indicators
 
 Not all indicators are simple, so you may need to use `indicateUsing()` to customize which indicators should be shown at any time.
 
@@ -294,8 +294,6 @@ Filter::make('created_at')
         return 'Created at ' . Carbon::parse($data['date'])->toFormattedDateString();
     })
 ```
-
-### Multiple active indicators
 
 You may even render multiple indicators at once, by returning an array. If you have different fields associated with different indicators, you should use the field's name as the array key, to ensure that the correct field is reset when the filter is removed:
 
@@ -324,7 +322,9 @@ Filter::make('created_at')
     })
 ```
 
-## Positioning filters into grid columns
+## Appearance
+
+By default, filters are displayed in a thin dropdown on the right side of the table, in 1 column.
 
 To change the number of columns that filters may occupy, you may use the `filtersFormColumns()` method:
 
@@ -341,9 +341,7 @@ public function table(Table $table): Table
 }
 ```
 
-## Controlling the width of the filters dropdown
-
-To customize the dropdown width, you may use the `filtersFormWidth()` method, and specify a width - `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `4xl`, `5xl`, `6xl`, or `7xl`. By default, the width is `xs`:
+To customize the dropdown width, you may use the `filtersFormWidth()` method, and specify a width from `xs` to `7xl`:
 
 ```php
 use Filament\Tables\Table;
@@ -358,24 +356,7 @@ public function table(Table $table): Table
 }
 ```
 
-## Controlling the maximum height of the filters dropdown
-
-To add a maximum height to the filters dropdown content, so that they scroll, you may use the `filtersFormMaxHeight()` method, passing a [CSS length](https://developer.mozilla.org/en-US/docs/Web/CSS/length):
-
-```php
-use Filament\Tables\Table;
-
-public function table(Table $table): Table
-{
-    return $table
-        ->filters([
-            // ...
-        ])
-        ->filtersFormMaxHeight('400px');
-}
-```
-
-## Displaying filters above the table content
+## Displaying filters above or below the table content
 
 To render the filters above the table content instead of in a dropdown, you may use:
 
@@ -391,24 +372,6 @@ public function table(Table $table): Table
         ], layout: Layout::AboveContent);
 }
 ```
-
-### Allowing filters above the table content to be collapsed
-
-To allow the filters above the table content to be collapsed, you may use:
-
-```php
-use Filament\Tables\Filters\Layout;
-
-public function table(Table $table): Table
-{
-    return $table
-        ->filters([
-            // ...
-        ], layout: Layout::AboveContentCollapsible);
-}
-```
-
-## Displaying filters below the table content
 
 To render the filters below the table content instead of in a dropdown, you may use:
 
@@ -439,44 +402,5 @@ public function table(Table $table): Table
             // ...
         ])
         ->persistFiltersInSession();
-}
-```
-
-## Deselecting records when filters change
-
-By default, all records will be deselected when the filters change. Using the `deselectAllRecordsWhenFiltered(false)` method, you can disable this behaviour:
-
-```php
-use Filament\Tables\Table;
-
-public function table(Table $table): Table
-{
-    return $table
-        ->filters([
-            // ...
-        ])
-        ->deselectAllRecordsWhenFiltered(false);
-}
-```
-
-## Customizing the filters dropdown trigger action
-
-To customize the filters dropdown trigger button, you may use the `filtersTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../actions/trigger-button) can be used:
-
-```php
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Table;
-
-public function table(Table $table): Table
-{
-    return $table
-        ->filters([
-            // ...
-        ])
-        ->filtersTriggerAction(
-            fn (Action $action) => $action
-                ->button()
-                ->label('Filter'),
-        );
 }
 ```

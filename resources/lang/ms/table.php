@@ -97,6 +97,14 @@ return [
 
         'heading' => 'Tiada rekod dijumpai',
 
+        'buttons' => [
+
+            'reset_column_searches' => [
+                'label' => 'Kosongkan carian',
+            ],
+
+        ],
+
     ],
 
     'filters' => [

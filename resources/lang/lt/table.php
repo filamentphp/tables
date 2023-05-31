@@ -25,7 +25,7 @@ return [
 
     'pagination' => [
 
-        'label' => 'Pagination navigation',
+        'label' => 'Pagination Navigation',
 
         'overview' => 'Rodomi nuo :first iki :last rezultatai iš :total',
 

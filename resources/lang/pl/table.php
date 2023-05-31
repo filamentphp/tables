@@ -97,6 +97,14 @@ return [
 
         'heading' => 'Nie znaleziono rekordów',
 
+        'buttons' => [
+
+            'reset_column_searches' => [
+                'label' => 'Wyczyść wyszukiwanie w kolumnach',
+            ],
+
+        ],
+
     ],
 
     'filters' => [

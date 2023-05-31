@@ -97,6 +97,14 @@ return [
 
         'heading' => 'Tietueita ei löytynyt',
 
+        'buttons' => [
+
+            'reset_column_searches' => [
+                'label' => 'Tyhjennä kolumnien haku',
+            ],
+
+        ],
+
     ],
 
     'filters' => [

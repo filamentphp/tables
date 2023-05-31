@@ -10,15 +10,9 @@ trait CanAggregateRelatedModels
 
     protected string | Closure | null $relationshipToAvg = null;
 
-    /**
-     * @var string | array<string> | Closure | null
-     */
-    protected string | array | Closure | null $relationshipsToCount = null;
+    protected string | Closure | null $relationshipToCount = null;
 
-    /**
-     * @var string | array<string> | Closure | null
-     */
-    protected string | array | Closure | null $relationshipsToExistenceCheck = null;
+    protected string | Closure | null $relationshipToExistenceCheck = null;
 
     protected string | Closure | null $columnToMax = null;
 
@@ -40,22 +34,16 @@ trait CanAggregateRelatedModels
         return $this;
     }
 
-    /**
-     * @param  string | array<string> | Closure | null  $relationships
-     */
-    public function counts(string | array | Closure | null $relationships): static
+    public function counts(string | Closure | null $relationship): static
     {
-        $this->relationshipsToCount = $relationships;
+        $this->relationshipToCount = $relationship;
 
         return $this;
     }
 
-    /**
-     * @param  string | array<string> | Closure | null  $relationships
-     */
-    public function exists(string | array | Closure | null $relationships): static
+    public function exists(string | Closure | null $relationship): static
     {
-        $this->relationshipsToExistenceCheck = $relationships;
+        $this->relationshipToExistenceCheck = $relationship;
 
         return $this;
     }
@@ -94,20 +82,14 @@ trait CanAggregateRelatedModels
         return $this->evaluate($this->relationshipToAvg);
     }
 
-    /**
-     * @return string | array<string> | null
-     */
-    public function getRelationshipsToCount(): string | array | null
+    public function getRelationshipToCount(): ?string
     {
-        return $this->evaluate($this->relationshipsToCount);
+        return $this->evaluate($this->relationshipToCount);
     }
 
-    /**
-     * @return string | array<string> | null
-     */
-    public function getRelationshipsToExistenceCheck(): string | array | null
+    public function getRelationshipToExistenceCheck(): ?string
     {
-        return $this->evaluate($this->relationshipsToExistenceCheck);
+        return $this->evaluate($this->relationshipToExistenceCheck);
     }
 
     public function getColumnToMax(): ?string

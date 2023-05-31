@@ -2,7 +2,7 @@
 title: Custom columns
 ---
 
-## View columns
+## View column
 
 You may render a custom view for a cell using the `view()` method:
 
@@ -12,13 +12,21 @@ use Filament\Tables\Columns\ViewColumn;
 ViewColumn::make('status')->view('filament.tables.columns.status-switcher')
 ```
 
-This assumes that you have a `resources/views/filament/tables/columns/status-switcher.blade.php` file.
+Inside your view, you may retrieve the state of the cell using the `$getState()` method:
+
+```blade
+<div>
+    {{ $getState() }}
+</div>
+```
+
+You can also access the entire Eloquent record with `$getRecord()`.
 
 ## Custom classes
 
 You may create your own custom column classes and cell views, which you can reuse across your project, and even release as a plugin to the community.
 
-> If you're just creating a simple custom column to use once, you could instead use a [view column](#view-columns) to render any custom Blade file.
+> If you're just creating a simple custom column to use once, you could instead use a [view column](#view-column) to render any custom Blade file.
 
 To create a custom column class and view, you may use the following command:
 
@@ -37,11 +45,7 @@ class StatusSwitcher extends Column
 }
 ```
 
-It will also create a view file at `resources/views/filament/tables/columns/status-switcher.blade.php`.
-
-## Accessing the state
-
-Inside your view, you may retrieve the state of the cell using the `$getState()` function:
+Inside your view, you may retrieve the state of the cell using the `$getState()` method:
 
 ```blade
 <div>
@@ -49,12 +53,4 @@ Inside your view, you may retrieve the state of the cell using the `$getState()`
 </div>
 ```
 
-## Accessing the Eloquent record
-
-Inside your view, you may access the Eloquent record using the `$getRecord()` function:
-
-```blade
-<div>
-    {{ $getRecord()->name }}
-</div>
-```
+You can also access the entire Eloquent record with `$getRecord()`.

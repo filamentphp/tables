@@ -9,28 +9,34 @@
                 {{ __('filament-tables::table.filters.indicator') }}
             </span>
 
-            @foreach ($indicators as $wireClickHandler => $label)
-                <span class="filament-tables-filter-indicator inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-xs font-medium tracking-tight rounded-xl text-gray-700 bg-gray-500/10 whitespace-normal dark:text-gray-300 dark:bg-gray-500/20">
-                    {{ $label }}
+            @foreach ($indicators as $filter => $filterIndicators)
+                @foreach ($filterIndicators as $field => $indicator)
+                    @php
+                        $field = is_numeric($field) ? null : $field;
+                    @endphp
 
-                    <button
-                        wire:click="{{ $wireClickHandler }}"
-                        wire:loading.attr="disabled"
-                        wire:target="removeTableFilter"
-                        type="button"
-                        class="ms-1 -me-2 p-1 -my-1 hover:bg-gray-500/10 rounded-full"
-                    >
-                        <x-filament::icon
-                            name="heroicon-m-x-mark"
-                            alias="filament-tables::filters.buttons.remove"
-                            size="h-3 w-3"
-                        />
+                    <span class="filament-tables-filter-indicator inline-flex items-center justify-center min-h-6 px-2 py-0.5 text-xs font-medium tracking-tight rounded-xl text-gray-700 bg-gray-500/10 whitespace-normal dark:text-gray-300 dark:bg-gray-500/20">
+                        {{ $indicator }}
 
-                        <span class="sr-only">
-                            {{ __('filament-tables::table.filters.buttons.remove.label') }}
-                        </span>
-                    </button>
-                </span>
+                        <button
+                            wire:click="removeTableFilter('{{ $filter }}'{{ $field ? ' , \'' . $field . '\'' : null }})"
+                            wire:loading.attr="disabled"
+                            wire:target="removeTableFilter"
+                            type="button"
+                            class="ms-1 -me-2 p-1 -my-1 hover:bg-gray-500/10 rounded-full"
+                        >
+                            <x-filament::icon
+                                name="heroicon-m-x-mark"
+                                alias="filament-tables::filters.buttons.remove"
+                                size="h-3 w-3"
+                            />
+
+                            <span class="sr-only">
+                                {{ __('filament-tables::table.filters.buttons.remove.label') }}
+                            </span>
+                        </button>
+                    </span>
+                @endforeach
             @endforeach
         </div>
 

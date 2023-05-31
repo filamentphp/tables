@@ -21,8 +21,7 @@ By default, the `public` disk will be used to retrieve images. You may pass a cu
 ```php
 use Filament\Tables\Columns\ImageColumn;
 
-ImageColumn::make('header_image')
-    ->disk('s3')
+ImageColumn::make('header_image')->disk('s3')
 ```
 
 ## Private images
@@ -32,8 +31,7 @@ Filament can generate temporary URLs to render private images, you may set the `
 ```php
 use Filament\Tables\Columns\ImageColumn;
 
-ImageColumn::make('header_image')
-    ->visibility('private')
+ImageColumn::make('header_image')->visibility('private')
 ```
 
 ## Square image
@@ -43,8 +41,7 @@ You may display the image using a 1:1 aspect ratio:
 ```php
 use Filament\Tables\Columns\ImageColumn;
 
-ImageColumn::make('author.avatar')
-    ->square()
+ImageColumn::make('author.avatar')->square()
 ```
 
 ## Circular image
@@ -54,8 +51,7 @@ You may make the image fully rounded, which is useful for rendering avatars:
 ```php
 use Filament\Tables\Columns\ImageColumn;
 
-ImageColumn::make('author.avatar')
-    ->circular()
+ImageColumn::make('author.avatar')->circular()
 ```
 
 ## Customizing the size
@@ -65,25 +61,11 @@ You may customize the image size by passing a `width()` and `height()`, or both 
 ```php
 use Filament\Tables\Columns\ImageColumn;
 
-ImageColumn::make('header_image')
-    ->width(200)
+ImageColumn::make('header_image')->width(200)
 
-ImageColumn::make('header_image')
-    ->height(50)
+ImageColumn::make('header_image')->height(50)
 
-ImageColumn::make('author.avatar')
-    ->size(40)
-```
-
-## Adding a default image URL
-
-You can display a placeholder image if one doesn't exist yet, by passing a URL to the `defaultImageUrl()` method:
-
-```php
-use Filament\Tables\Columns\ImageColumn;
-
-ImageColumn::make('avatar')
-    ->defaultImageUrl(url('/images/placeholder.png'))
+ImageColumn::make('author.avatar')->size(40)
 ```
 
 ## Custom attributes
@@ -94,16 +76,5 @@ You may customize the extra HTML attributes of the image using `extraImgAttribut
 use Filament\Tables\Columns\ImageColumn;
 
 ImageColumn::make('logo')
-    ->extraImgAttributes(['loading' => 'lazy']),
-```
-
-You can access the current record using a `$record` parameter:
-
-```php
-use Filament\Tables\Columns\ImageColumn;
-
-ImageColumn::make('logo')
-    ->extraImgAttributes(fn (Company $record): array => [
-        'alt' => "{$record->name} logo",
-    ]),
+    ->extraImgAttributes(['title' => 'Company logo']),
 ```

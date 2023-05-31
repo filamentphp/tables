@@ -2,6 +2,7 @@
 
 namespace Filament\Tables;
 
+use Filament\Support\Assets\AssetManager;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Tables\Testing\TestsActions;
@@ -26,12 +27,17 @@ class TablesServiceProvider extends PackageServiceProvider
             ->hasViews();
     }
 
+    public function packageRegistered(): void
+    {
+        $this->app->resolving(AssetManager::class, function () {
+            FilamentAsset::register([
+                Js::make('tables', __DIR__ . '/../dist/index.js'),
+            ], 'filament/tables');
+        });
+    }
+
     public function packageBooted(): void
     {
-        FilamentAsset::register([
-            Js::make('tables', __DIR__ . '/../dist/index.js'),
-        ], 'filament/tables');
-
         if ($this->app->runningInConsole()) {
             foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
                 $this->publishes([
@@ -70,9 +76,6 @@ class TablesServiceProvider extends PackageServiceProvider
             $aliases[] = $class;
         }
 
-        return [
-            ...$commands,
-            ...$aliases,
-        ];
+        return array_merge($commands, $aliases);
     }
 }

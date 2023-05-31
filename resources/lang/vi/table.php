@@ -129,6 +129,14 @@ return [
 
         'heading' => 'Không có dữ liệu nào',
 
+        'buttons' => [
+
+            'reset_column_searches' => [
+                'label' => 'Xóa tìm kiếm cột',
+            ],
+
+        ],
+
     ],
 
     'filters' => [

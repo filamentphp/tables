@@ -97,6 +97,14 @@ return [
 
         'heading' => 'Ez da erregistrorik aurkitu',
 
+        'buttons' => [
+
+            'reset_column_searches' => [
+                'label' => 'Zutabeen bilaketa garbitu',
+            ],
+
+        ],
+
     ],
 
     'filters' => [

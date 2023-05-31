@@ -3,13 +3,11 @@
 namespace Filament\Tables\Actions;
 
 use Closure;
-use Filament\Actions\Contracts\Groupable;
 use Filament\Actions\MountableAction;
-use Filament\Tables\Actions\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
-class BulkAction extends MountableAction implements Groupable, HasTable
+class BulkAction extends MountableAction
 {
     use Concerns\BelongsToTable;
     use Concerns\CanDeselectRecordsAfterCompletion;

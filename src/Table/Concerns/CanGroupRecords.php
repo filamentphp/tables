@@ -24,7 +24,7 @@ trait CanGroupRecords
     }
 
     /**
-     * @param  array<Group | string>  $groups
+     * @param  array<Group>  $groups
      */
     public function groups(array $groups): static
     {

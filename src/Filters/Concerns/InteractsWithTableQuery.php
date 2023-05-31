@@ -45,13 +45,6 @@ trait InteractsWithTableQuery
 
     public function query(?Closure $callback): static
     {
-        $this->modifyQueryUsing($callback);
-
-        return $this;
-    }
-
-    public function modifyQueryUsing(?Closure $callback): static
-    {
         $this->modifyQueryUsing = $callback;
 
         return $this;

@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Stringable;
+use Znck\Eloquent\Relations\BelongsToThrough;
 
 trait InteractsWithTableQuery
 {
@@ -25,17 +25,17 @@ trait InteractsWithTableQuery
         return $this;
     }
 
-    public function applyRelationshipAggregates(EloquentBuilder | Relation $query): EloquentBuilder | Relation
+    public function applyRelationshipAggregates(EloquentBuilder $query): EloquentBuilder
     {
         return $query->when(
             filled([$this->getRelationshipToAvg(), $this->getColumnToAvg()]),
             fn ($query) => $query->withAvg($this->getRelationshipToAvg(), $this->getColumnToAvg())
         )->when(
-            filled($this->getRelationshipsToCount()),
-            fn ($query) => $query->withCount(Arr::wrap($this->getRelationshipsToCount()))
+            filled($this->getRelationshipToCount()),
+            fn ($query) => $query->withCount([$this->getRelationshipToCount()])
         )->when(
-            filled($this->getRelationshipsToExistenceCheck()),
-            fn ($query) => $query->withExists(Arr::wrap($this->getRelationshipsToExistenceCheck()))
+            filled($this->getRelationshipToExistenceCheck()),
+            fn ($query) => $query->withExists($this->getRelationshipToExistenceCheck())
         )->when(
             filled([$this->getRelationshipToMax(), $this->getColumnToMax()]),
             fn ($query) => $query->withMax($this->getRelationshipToMax(), $this->getColumnToMax())
@@ -48,19 +48,13 @@ trait InteractsWithTableQuery
         );
     }
 
-    public function applyEagerLoading(EloquentBuilder | Relation $query): EloquentBuilder | Relation
+    public function applyEagerLoading(EloquentBuilder $query): EloquentBuilder
     {
         if (! $this->queriesRelationships($query->getModel())) {
             return $query;
         }
 
-        $relationshipName = $this->getRelationshipName();
-
-        if (array_key_exists($relationshipName, $query->getEagerLoads())) {
-            return $query;
-        }
-
-        return $query->with([$relationshipName]);
+        return $query->with([$this->getRelationshipName()]);
     }
 
     public function applySearchConstraint(EloquentBuilder $query, string $search, bool &$isFirst): EloquentBuilder
@@ -218,22 +212,19 @@ trait InteractsWithTableQuery
 
             if ($currentRelationshipValue instanceof Collection) {
                 if (! count($relationships)) {
-                    $results = [
-                        ...$results,
-                        ...$currentRelationshipValue->all(),
-                    ];
+                    $results = array_merge($results, $currentRelationshipValue->all());
 
                     continue;
                 }
 
                 foreach ($currentRelationshipValue as $valueRecord) {
-                    $results = [
-                        ...$results,
-                        ...$this->getRelationshipResults(
+                    $results = array_merge(
+                        $results,
+                        $this->getRelationshipResults(
                             $valueRecord,
                             $relationships,
                         ),
-                    ];
+                    );
                 }
 
                 break;
@@ -282,7 +273,7 @@ trait InteractsWithTableQuery
                 ->when(
                     ($relationship instanceof BelongsTo ||
                     $relationship instanceof BelongsToMany ||
-                    $relationship instanceof \Znck\Eloquent\Relations\BelongsToThrough),
+                    $relationship instanceof BelongsToThrough),
                     fn (Stringable $name) => $name->plural(),
                 )
                 ->camel();

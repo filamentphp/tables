@@ -109,20 +109,14 @@ trait HasActions
         $action = $this->getMountedTableAction();
 
         if (! $action) {
-            $this->unmountTableAction();
-
             return null;
         }
 
         if (filled($record) && ($action->getRecord() === null)) {
-            $this->unmountTableAction();
-
             return null;
         }
 
         if ($action->isDisabled()) {
-            $this->unmountTableAction();
-
             return null;
         }
 
@@ -192,7 +186,7 @@ trait HasActions
             return null;
         }
 
-        return $this->getTable()->getAction($this->mountedTableActions);
+        return $this->getTable()->getAction($this->mountedTableActions) ?? $this->getTable()->getEmptyStateAction($this->mountedTableActions) ?? $this->getTable()->getHeaderAction($this->mountedTableActions);
     }
 
     public function getMountedTableActionForm(): ?Form
@@ -204,7 +198,7 @@ trait HasActions
         }
 
         if ((! $this->isCachingForms) && $this->hasCachedForm('mountedTableActionForm')) {
-            return $this->getForm('mountedTableActionForm');
+            return $this->getCachedForm('mountedTableActionForm');
         }
 
         return $action->getForm(

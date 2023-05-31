@@ -89,6 +89,14 @@ return [
 
         'heading' => 'ჩანაწერები ვერ მოიძებნა',
 
+        'buttons' => [
+
+            'reset_column_searches' => [
+                'label' => 'სვეტის ძიების წაშლა',
+            ],
+
+        ],
+
     ],
 
     'filters' => [
