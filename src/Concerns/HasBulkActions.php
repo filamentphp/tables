@@ -7,10 +7,11 @@ use Filament\Forms\Form;
 use Filament\Support\Exceptions\Cancel;
 use Filament\Support\Exceptions\Halt;
 use Filament\Tables\Actions\BulkAction;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 /**
  * @property Form $mountedTableBulkActionForm
@@ -22,8 +23,6 @@ trait HasBulkActions
      */
     public array $selectedTableRecords = [];
 
-    protected bool $shouldSelectCurrentPageOnly = false;
-
     public ?string $mountedTableBulkAction = null;
 
     /**
@@ -31,7 +30,7 @@ trait HasBulkActions
      */
     public ?array $mountedTableBulkActionData = [];
 
-    protected Collection $cachedSelectedTableRecords;
+    protected EloquentCollection $cachedSelectedTableRecords;
 
     protected function configureTableBulkAction(BulkAction $action): void
     {
@@ -180,22 +179,52 @@ trait HasBulkActions
         $this->emitSelf('deselectAllTableRecords');
     }
 
-    public function getAllTableRecordKeys(): array
+    public function getAllSelectableTableRecordKeys(): array
     {
         $query = $this->getFilteredTableQuery();
 
+        if (! $this->getTable()->checksIfRecordIsSelectable()) {
+            $records = $this->getTable()->selectsCurrentPageOnly() ?
+                $this->getTableRecords() :
+                $query;
+
+            return $records
+                ->pluck($query->getModel()->getQualifiedKeyName())
+                ->map(fn ($key): string => (string) $key)
+                ->all();
+        }
+
         $records = $this->getTable()->selectsCurrentPageOnly() ?
             $this->getTableRecords() :
-            $query;
+            $query->get();
 
-        return $records
-            ->pluck($query->getModel()->getQualifiedKeyName())
-            ->map(fn ($key): string => (string) $key)
-            ->all();
+        return $records->reduce(
+            function (array $carry, Model $record): array {
+                if (! $this->getTable()->isRecordSelectable($record)) {
+                    return $carry;
+                }
+
+                $carry[] = (string) $record->getKey();
+
+                return $carry;
+            },
+            initial: [],
+        );
     }
 
-    public function getAllTableRecordsCount(): int
+    public function getAllSelectableTableRecordsCount(): int
     {
+        if ($this->getTable()->checksIfRecordIsSelectable()) {
+            /** @var Collection $records */
+            $records = $this->getTable()->selectsCurrentPageOnly() ?
+                $this->getTableRecords() :
+                $this->getFilteredTableQuery()->get();
+
+            return $records
+                ->filter(fn (Model $record): bool => $this->getTable()->isRecordSelectable($record))
+                ->count();
+        }
+
         if ($this->getTable()->selectsCurrentPageOnly()) {
             return $this->records->count();
         }
@@ -204,19 +233,10 @@ trait HasBulkActions
             return $this->records->total();
         }
 
-        $query = $this->getFilteredTableQuery();
-
-        if ($this->getTable()->checksIfRecordIsSelectable()) {
-            return $query
-                ->get()
-                ->filter(fn (Model $record): bool => $this->getTable()->isRecordSelectable($record))
-                ->count();
-        }
-
-        return $query->count();
+        return $this->getFilteredTableQuery()->count();
     }
 
-    public function getSelectedTableRecords(): Collection
+    public function getSelectedTableRecords(): EloquentCollection
     {
         if (isset($this->cachedSelectedTableRecords)) {
             return $this->cachedSelectedTableRecords;
@@ -228,6 +248,11 @@ trait HasBulkActions
             $query = $table->getQuery()->whereIn(app($table->getModel())->getQualifiedKeyName(), $this->selectedTableRecords);
             $this->applySortingToTableQuery($query);
 
+            foreach ($this->getTable()->getColumns() as $column) {
+                $column->applyEagerLoading($query);
+                $column->applyRelationshipAggregates($query);
+            }
+
             return $this->cachedSelectedTableRecords = $query->get();
         }
 
@@ -237,14 +262,24 @@ trait HasBulkActions
         $pivotClass = $relationship->getPivotClass();
         $pivotKeyName = app($pivotClass)->getKeyName();
 
-        return $this->cachedSelectedTableRecords = $this->hydratePivotRelationForTableRecords($table->selectPivotDataInQuery(
-            $relationship->wherePivotIn($pivotKeyName, $this->selectedTableRecords),
-        )->get());
+        $relationship->wherePivotIn($pivotKeyName, $this->selectedTableRecords);
+
+        foreach ($this->getTable()->getColumns() as $column) {
+            $column->applyEagerLoading($relationship);
+            $column->applyRelationshipAggregates($relationship);
+        }
+
+        return $this->cachedSelectedTableRecords = $this->hydratePivotRelationForTableRecords(
+            $table->selectPivotDataInQuery($relationship)->get(),
+        );
     }
 
+    /**
+     * @deprecated Override the `table()` method to configure the table.
+     */
     public function shouldSelectCurrentPageOnly(): bool
     {
-        return $this->shouldSelectCurrentPageOnly;
+        return false;
     }
 
     /**
@@ -273,7 +308,7 @@ trait HasBulkActions
         }
 
         if ((! $this->isCachingForms) && $this->hasCachedForm('mountedTableBulkActionForm')) {
-            return $this->getCachedForm('mountedTableBulkActionForm');
+            return $this->getForm('mountedTableBulkActionForm');
         }
 
         return $action->getForm(

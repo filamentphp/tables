@@ -7,16 +7,31 @@
     $actionsAlignment = $getActionsAlignment();
     $actionsPosition = $getActionsPosition();
     $actionsColumnLabel = $getActionsColumnLabel();
-    $allRecordsCount = $getAllRecordsCount();
     $columns = $getVisibleColumns();
     $collapsibleColumnsLayout = $getCollapsibleColumnsLayout();
     $content = $getContent();
     $contentGrid = $getContentGrid();
     $contentFooter = $getContentFooter();
-    $filterIndicators = collect($getFilters())
-        ->mapWithKeys(fn (\Filament\Tables\Filters\BaseFilter $filter): array => [$filter->getName() => $filter->getIndicators()])
-        ->filter(fn (array $indicators): bool => count($indicators))
-        ->all();
+    $filterIndicators = [
+        ...($hasSearch() ? ['resetTableSearch' => $getSearchIndicator()] : []),
+        ...collect($getColumnSearchIndicators())
+            ->mapWithKeys(fn (string $indicator, string $column): array => [
+                "resetTableColumnSearch('{$column}')" => $indicator,
+            ])
+            ->all(),
+        ...array_reduce(
+            $getFilters(),
+            fn (array $carry, \Filament\Tables\Filters\BaseFilter $filter): array => [
+                ...$carry,
+                ...collect($filter->getIndicators())
+                    ->mapWithKeys(fn (string $label, int | string $field) => [
+                        "removeTableFilter('{$filter->getName()}'" . (is_string($field) ? ' , \'' . $field . '\'' : null) . ')' => $label,
+                    ])
+                    ->all(),
+            ],
+            [],
+        ),
+    ];
     $hasColumnsLayout = $hasColumnsLayout();
     $hasSummary = $hasSummary();
     $header = $getHeader();
@@ -27,8 +42,8 @@
     $headerActionsPosition = $getHeaderActionsPosition();
     $heading = $getHeading();
     $group = $getGrouping();
-    $groupedBulkActions = array_filter(
-        $getGroupedBulkActions(),
+    $bulkActions = array_filter(
+        $getBulkActions(),
         fn (\Filament\Tables\Actions\BulkAction | \Filament\Tables\Actions\ActionGroup $action): bool => $action->isVisible(),
     );
     $groups = $getGroups();
@@ -47,11 +62,11 @@
     $hasFiltersDropdown = $hasFilters && ($filtersLayout === FiltersLayout::Dropdown);
     $hasFiltersAboveContent = $hasFilters && in_array($filtersLayout, [FiltersLayout::AboveContent, FiltersLayout::AboveContentCollapsible]);
     $hasFiltersAboveContentCollapsible = $hasFilters && ($filtersLayout === FiltersLayout::AboveContentCollapsible);
-    $hasFiltersAfterContent = $hasFilters && ($filtersLayout === FiltersLayout::BelowContent);
+    $hasFiltersBelowContent = $hasFilters && ($filtersLayout === FiltersLayout::BelowContent);
     $isColumnToggleFormVisible = $hasToggleableColumns();
     $pluralModelLabel = $getPluralModelLabel();
     $records = $isLoaded ? $getRecords() : null;
-    $allRecordsCount = $isLoaded ? $getAllRecordsCount() : null;
+    $allSelectableRecordsCount = $isLoaded ? $getAllSelectableRecordsCount() : null;
     $columnsCount = count($columns);
     if (count($actions) && (! $isReordering)) $columnsCount++;
     if ($isSelectionEnabled || $isReordering) $columnsCount++;
@@ -165,7 +180,7 @@
         selectAllRecords: async function () {
             this.isLoading = true
 
-            this.selectedRecords = await $wire.getAllTableRecordKeys()
+            this.selectedRecords = await $wire.getAllSelectableTableRecordKeys()
 
             this.isLoading = false
         },
@@ -209,14 +224,14 @@
     <x-filament-tables::container>
         <div
             class="filament-tables-header-container"
-            x-show="hasHeader = (@js($renderHeader = ($header || $heading || $description || ($headerActions && (! $isReordering)) || $isReorderable || count($groups) || $isGlobalSearchVisible || $hasFilters || $isColumnToggleFormVisible)) || (selectedRecords.length && @js(count($groupedBulkActions))))"
+            x-show="hasHeader = (@js($renderHeader = ($header || $heading || $description || ($headerActions && (! $isReordering)) || $isReorderable || count($groups) || $isGlobalSearchVisible || $hasFilters || $isColumnToggleFormVisible)) || (selectedRecords.length && @js(count($bulkActions))))"
             @if (! $renderHeader) x-cloak @endif
         >
             @if ($header)
                 {{ $header }}
             @elseif ($heading || $description || $headerActions)
                 <div @class([
-                    'px-2 pt-2',
+                    'filament-tables-header-hr-wrapper px-2 pt-2',
                     'hidden' => ! ($heading || $description) && $isReordering,
                 ])>
                     <x-filament-tables::header
@@ -228,7 +243,7 @@
                     />
 
                     <x-filament::hr
-                        :x-show="\Illuminate\Support\Js::from($isReorderable || count($groups) || $isGlobalSearchVisible || $hasFilters || $isColumnToggleFormVisible) . ' || (selectedRecords.length && ' . \Illuminate\Support\Js::from(count($groupedBulkActions)) . ')'"
+                        :x-show="\Illuminate\Support\Js::from($isReorderable || count($groups) || $isGlobalSearchVisible || $hasFilters || $isColumnToggleFormVisible) . ' || (selectedRecords.length && ' . \Illuminate\Support\Js::from(count($bulkActions)) . ')'"
                     />
                 </div>
             @endif
@@ -251,16 +266,16 @@
                     </div>
 
                     <x-filament::hr
-                        :x-show="\Illuminate\Support\Js::from($isReorderable || count($groups) || $isGlobalSearchVisible || $isColumnToggleFormVisible) . ' || (selectedRecords.length && ' . \Illuminate\Support\Js::from(count($groupedBulkActions)) . ')'"/>
+                        :x-show="\Illuminate\Support\Js::from($isReorderable || count($groups) || $isGlobalSearchVisible || $isColumnToggleFormVisible) . ' || (selectedRecords.length && ' . \Illuminate\Support\Js::from(count($bulkActions)) . ')'"/>
                 </div>
             @endif
 
             <div
-                x-show="@js($shouldRenderHeaderDiv = ($isReorderable || count($groups) || $isGlobalSearchVisible || $hasFiltersDropdown || $isColumnToggleFormVisible)) || (selectedRecords.length && @js(count($groupedBulkActions)))"
+                x-show="@js($shouldRenderHeaderDiv = ($isReorderable || count($groups) || $isGlobalSearchVisible || $hasFiltersDropdown || $isColumnToggleFormVisible)) || (selectedRecords.length && @js(count($bulkActions)))"
                 @if (! $shouldRenderHeaderDiv) x-cloak @endif
                 class="filament-tables-header-toolbar flex items-center justify-between py-2 px-3 h-14"
                 x-bind:class="{
-                    'gap-3': @js($isReorderable) || @js(count($groups)) || (selectedRecords.length && @js(count($groupedBulkActions))),
+                    'gap-3': @js($isReorderable) || @js(count($groups)) || (selectedRecords.length && @js(count($bulkActions))),
                 }"
             >
                 <div class="shrink-0 flex items-center sm:gap-3">
@@ -274,11 +289,11 @@
                         <x-filament-tables::groups :groups="$groups"/>
                     @endif
 
-                    @if ((! $isReordering) && count($groupedBulkActions))
-                        <x-filament-tables::bulk-actions
+                    @if ((! $isReordering) && count($bulkActions))
+                        <x-filament-tables::actions
+                            :actions="$bulkActions"
                             x-show="selectedRecords.length"
                             x-cloak="x-cloak"
-                            :actions="$groupedBulkActions"
                         />
                     @endif
                 </div>
@@ -291,27 +306,29 @@
                             </div>
                         @endif
 
-                        <div class="flex items-center">
-                            @if ($hasFiltersDropdown)
-                                <x-filament-tables::filters.dropdown
-                                    :form="$getFiltersForm()"
-                                    :indicators-count="count(\Illuminate\Support\Arr::flatten($filterIndicators))"
-                                    :max-height="$getFiltersFormMaxHeight()"
-                                    :trigger-action="$getFiltersTriggerAction()"
-                                    :width="$getFiltersFormWidth()"
-                                    class="shrink-0"
-                                />
-                            @endif
+                        @if ($hasFiltersDropdown || $isColumnToggleFormVisible)
+                            <div class="flex items-center">
+                                @if ($hasFiltersDropdown)
+                                    <x-filament-tables::filters.dropdown
+                                        :form="$getFiltersForm()"
+                                        :indicators-count="count(\Illuminate\Support\Arr::flatten($filterIndicators))"
+                                        :max-height="$getFiltersFormMaxHeight()"
+                                        :trigger-action="$getFiltersTriggerAction()"
+                                        :width="$getFiltersFormWidth()"
+                                        class="shrink-0"
+                                    />
+                                @endif
 
-                            @if ($isColumnToggleFormVisible)
-                                <x-filament-tables::toggleable
-                                    :form="$getColumnToggleForm()"
-                                    :max-height="$getColumnToggleFormMaxHeight()"
-                                    :width="$getColumnToggleFormWidth()"
-                                    class="shrink-0"
-                                />
-                            @endif
-                        </div>
+                                @if ($isColumnToggleFormVisible)
+                                    <x-filament-tables::toggleable
+                                        :form="$getColumnToggleForm()"
+                                        :max-height="$getColumnToggleFormMaxHeight()"
+                                        :width="$getColumnToggleFormWidth()"
+                                        class="shrink-0"
+                                    />
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -324,7 +341,7 @@
             />
         @elseif ($isSelectionEnabled && $isLoaded)
             <x-filament-tables::selection-indicator
-                :all-records-count="$allRecordsCount"
+                :all-selectable-records-count="$allSelectableRecordsCount"
                 :colspan="$columnsCount"
                 x-show="selectedRecords.length"
                 class="border-t dark:border-gray-700"
@@ -335,10 +352,12 @@
             </x-filament-tables::selection-indicator>
         @endif
 
-        <x-filament-tables::filters.indicators
-            :indicators="$filterIndicators"
-            class="border-t dark:border-gray-700"
-        />
+        <div>
+            <x-filament-tables::filters.indicators
+                :indicators="$filterIndicators"
+                class="border-t dark:border-gray-700"
+            />
+        </div>
 
         <div
             @if ($pollingInterval = $getPollingInterval())
@@ -565,16 +584,14 @@
                                     x-bind:class="{
                                         'bg-gray-50 dark:bg-gray-500/10': isRecordSelected('{{ $recordKey }}'),
                                     }"
-                                    @class(array_merge(
-                                        [
-                                            'h-full relative px-4 transition',
-                                            'hover:bg-gray-50 dark:hover:bg-gray-500/10' => $recordUrl || $recordAction,
-                                            'dark:border-gray-600' => ! $contentGrid,
-                                            'group' => $isReordering,
-                                            'rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-700/40' => $contentGrid,
-                                        ],
-                                        $getRecordClasses($record),
-                                    ))
+                                    @class([
+                                        'h-full relative px-4 transition',
+                                        'hover:bg-gray-50 dark:hover:bg-gray-500/10' => $recordUrl || $recordAction,
+                                        'dark:border-gray-600' => ! $contentGrid,
+                                        'group' => $isReordering,
+                                        'rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 dark:bg-gray-700/40' => $contentGrid,
+                                        ...$getRecordClasses($record),
+                                    ])
                                 >
                                     <div @class([
                                         'items-center gap-4 md:flex md:me-0' => (! $contentGrid),
@@ -975,12 +992,10 @@
                                         'hidden': {{ $group?->isCollapsible() ? 'true' : 'false' }} && isGroupCollapsed('{{ $recordGroupTitle }}'),
                                         'bg-gray-50 dark:bg-gray-500/10': isRecordSelected('{{ $recordKey }}'),
                                     }"
-                                    @class(array_merge(
-                                        [
-                                            'group cursor-move' => $isReordering,
-                                        ],
-                                        $getRecordClasses($record),
-                                    ))
+                                    @class([
+                                        'group cursor-move' => $isReordering,
+                                        ...$getRecordClasses($record),
+                                    ])
                                 >
                                     <x-filament-tables::reorder.cell @class([
                                         'hidden' => ! $isReordering,
@@ -1159,7 +1174,6 @@
                                 <x-filament-tables::empty-state
                                     :icon="$getEmptyStateIcon()"
                                     :actions="$getEmptyStateActions()"
-                                    :column-searches="$hasColumnSearches()"
                                 >
                                     <x-slot name="heading">
                                         {{ $getEmptyStateHeading() }}
@@ -1188,7 +1202,7 @@
             </div>
         @endif
 
-        @if ($hasFiltersAfterContent)
+        @if ($hasFiltersBelowContent)
             <div class="px-2 pb-2">
                 <x-filament::hr/>
 

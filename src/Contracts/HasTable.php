@@ -25,9 +25,11 @@ interface HasTable extends HasForms
     /**
      * @return array<int | string>
      */
-    public function getAllTableRecordKeys(): array;
+    public function getAllSelectableTableRecordKeys(): array;
 
     public function getAllTableRecordsCount(): int;
+
+    public function getAllSelectableTableRecordsCount(): int;
 
     /**
      * @return array<string, mixed> | null
@@ -36,7 +38,7 @@ interface HasTable extends HasForms
 
     public function getSelectedTableRecords(): Collection;
 
-    public function parseFilterName(string $name): string;
+    public function parseTableFilterName(string $name): string;
 
     public function getTableGrouping(): ?Group;
 
@@ -86,7 +88,18 @@ interface HasTable extends HasForms
 
     public function isTableLoaded(): bool;
 
-    public function hasTableColumnSearches(): bool;
-
     public function makeTableTranslatableContentDriver(): ?TranslatableContentDriver;
+
+    public function hasTableSearch(): bool;
+
+    public function resetTableSearch(): void;
+
+    public function resetTableColumnSearch(string $column): void;
+
+    public function getTableSearchIndicator(): string;
+
+    /**
+     * @return array<string, string>
+     */
+    public function getTableColumnSearchIndicators(): array;
 }
