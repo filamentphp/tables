@@ -444,7 +444,7 @@ class TestsActions
 
     public function assertTableActionHasColor(): Closure
     {
-        return function (string | array $name, string $color, $record = null): static {
+        return function (string | array $name, string | array $color, $record = null): static {
             $name = $this->parseNestedActionName($name);
 
             /** @phpstan-ignore-next-line */
@@ -460,11 +460,13 @@ class TestsActions
             $livewireClass = $this->instance()::class;
             $prettyName = implode(' > ', $name);
 
+            $colorName = is_string($color) ? $color : 'custom';
+
             Assert::assertTrue(
                 $action->getColor() === $color,
                 message: filled($record) ?
-                    "Failed asserting that a table action with name [{$prettyName}] has color [{$color}] on the [{$livewireClass}] component for record [{$record}]." :
-                    "Failed asserting that a table action with name [{$prettyName}] has color [{$color}] on the [{$livewireClass}] component.",
+                    "Failed asserting that a table action with name [{$prettyName}] has [{$colorName}] color on the [{$livewireClass}] component for record [{$record}]." :
+                    "Failed asserting that a table action with name [{$prettyName}] has [{$colorName}] color on the [{$livewireClass}] component.",
             );
 
             return $this;
@@ -473,7 +475,7 @@ class TestsActions
 
     public function assertTableActionDoesNotHaveColor(): Closure
     {
-        return function (string | array $name, string $color, $record = null): static {
+        return function (string | array $name, string | array $color, $record = null): static {
             $name = $this->parseNestedActionName($name);
 
             /** @phpstan-ignore-next-line */
@@ -489,11 +491,13 @@ class TestsActions
             $livewireClass = $this->instance()::class;
             $prettyName = implode(' > ', $name);
 
+            $colorName = is_string($color) ? $color : 'custom';
+
             Assert::assertFalse(
                 $action->getColor() === $color,
                 message: filled($record) ?
-                    "Failed asserting that a table action with name [{$prettyName}] does not have color [{$color}] on the [{$livewireClass}] component for record [{$record}]." :
-                    "Failed asserting that a table action with name [{$prettyName}] does not have color [{$color}] on the [{$livewireClass}] component.",
+                    "Failed asserting that a table action with name [{$prettyName}] does not have [{$colorName}] color on the [{$livewireClass}] component for record [{$record}]." :
+                    "Failed asserting that a table action with name [{$prettyName}] does not have [{$colorName}] color on the [{$livewireClass}] component.",
             );
 
             return $this;
