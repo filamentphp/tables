@@ -22,7 +22,7 @@
     $descriptionBelow = $getDescriptionBelow();
 
     $iconPosition = $getIconPosition();
-    $iconSize = $isBadge ? 'h-3 w-3' : 'h-4 w-4';
+    $iconClasses = 'fi-ta-text-icon ' . ($isBadge ? 'h-3 w-3' : 'h-4 w-4');
 
     $isClickable = $getAction() || $getUrl();
 @endphp
@@ -32,7 +32,7 @@
         $attributes
             ->merge($getExtraAttributes(), escape: false)
             ->class([
-                'filament-tables-text-column',
+                'fi-ta-text',
                 'px-4 py-3' => ! $isInline(),
                 'text-primary-600 transition hover:text-primary-500 hover:underline focus:text-primary-500 focus:underline' => $isClickable && (! $isBadge),
             ])
@@ -40,7 +40,7 @@
 >
     @if (filled($descriptionAbove))
         <div class="text-sm text-gray-500 dark:text-gray-400">
-            {{ $descriptionAbove instanceof \Illuminate\Support\HtmlString ? $descriptionAbove : str($descriptionAbove)->markdown()->sanitizeHtml()->toHtmlString() }}
+            {{ $descriptionAbove }}
         </div>
     @endif
 
@@ -67,10 +67,10 @@
                 <{{ $isListWithLineBreaks ? 'li' : 'div' }}>
                     <div
                         @class([
-                            'inline-flex items-center space-x-1 rtl:space-x-reverse',
-                            'filament-tables-text-column-badge min-h-6 justify-center whitespace-nowrap rounded-xl px-2 py-0.5' => $isBadge,
+                            'inline-flex items-center gap-x-1',
+                            'fi-ta-text-badge min-h-6 justify-center whitespace-nowrap rounded-xl px-2 py-0.5' => $isBadge,
                             'whitespace-normal' => $canWrap,
-                            "filament-tables-text-column-badge-color-{$color}" => $isBadge && is_string($color),
+                            "fi-ta-text-badge-color-{$color}" => $isBadge && is_string($color),
                             match ($color) {
                                 'gray' => 'bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-300',
                                 default => 'bg-custom-500/10 text-custom-700 dark:text-custom-500',
@@ -118,8 +118,7 @@
                         @if ($icon && $iconPosition === 'before')
                             <x-filament::icon
                                 :name="$icon"
-                                alias="tables::columns.text.prefix"
-                                :size="$iconSize"
+                                :class="$iconClasses"
                             />
                         @endif
 
@@ -131,7 +130,7 @@
                                 "
                             @endif
                             @class([
-                                'filament-tables-text-column-content',
+                                'fi-ta-text-content',
                                 'cursor-pointer' => $itemIsCopyable,
                             ])
                         >
@@ -141,8 +140,7 @@
                         @if ($icon && $iconPosition === 'after')
                             <x-filament::icon
                                 :name="$icon"
-                                alias="tables::columns.text.suffix"
-                                :size="$iconSize"
+                                :class="$iconClasses"
                             />
                         @endif
                     </div>
@@ -164,7 +162,7 @@
 
     @if (filled($descriptionBelow))
         <div class="text-sm text-gray-500 dark:text-gray-400">
-            {{ $descriptionBelow instanceof \Illuminate\Support\HtmlString ? $descriptionBelow : str($descriptionBelow)->markdown()->sanitizeHtml()->toHtmlString() }}
+            {{ $descriptionBelow }}
         </div>
     @endif
 </div>

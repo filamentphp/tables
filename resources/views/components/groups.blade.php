@@ -6,8 +6,8 @@
 
 <div
     x-data="{
-        direction: $wire.entangle('tableGroupingDirection'),
-        group: $wire.entangle('tableGrouping'),
+        direction: $wire.entangle('tableGroupingDirection').live,
+        group: $wire.entangle('tableGrouping').live,
     }"
     x-init="
         $watch('group', function (newGroup, oldGroup) {
@@ -33,7 +33,7 @@
 }}
         placement="bottom-start"
         shift
-        wire:key="{{ $this->id }}.table.grouping"
+        wire:key="{{ $this->getId() }}.table.grouping"
     >
         <x-slot name="trigger">
             {{ $triggerAction }}

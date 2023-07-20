@@ -29,7 +29,7 @@ trait HasFilters
             ->columns($this->getTable()->getFiltersFormColumns())
             ->model($this->getTable()->getModel())
             ->statePath('tableFilters')
-            ->reactive();
+            ->live();
     }
 
     public function updatedTableFilters(): void

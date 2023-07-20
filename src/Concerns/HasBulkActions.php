@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use function Livewire\store;
 
 /**
  * @property Form $mountedTableBulkActionForm
@@ -78,7 +79,7 @@ trait HasBulkActions
         } catch (Cancel $exception) {
         }
 
-        if (filled($this->redirectTo)) {
+        if (store($this)->has('redirect')) {
             return $result;
         }
 
@@ -182,7 +183,7 @@ trait HasBulkActions
 
     public function deselectAllTableRecords(): void
     {
-        $this->emitSelf('deselectAllTableRecords');
+        $this->dispatch('deselectAllTableRecords');
     }
 
     public function getAllSelectableTableRecordKeys(): array
@@ -282,16 +283,12 @@ trait HasBulkActions
 
     protected function closeTableBulkActionModal(): void
     {
-        $this->dispatchBrowserEvent('close-modal', [
-            'id' => "{$this->id}-table-bulk-action",
-        ]);
+        $this->dispatch('close-modal', id: "{$this->getId()}-table-bulk-action");
     }
 
     protected function openTableBulkActionModal(): void
     {
-        $this->dispatchBrowserEvent('open-modal', [
-            'id' => "{$this->id}-table-bulk-action",
-        ]);
+        $this->dispatch('open-modal', id: "{$this->getId()}-table-bulk-action");
     }
 
     /**

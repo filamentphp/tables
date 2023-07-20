@@ -9,28 +9,30 @@
         isLoading: false,
     }"
     x-init="
-        Livewire.hook('message.processed', (component) => {
-            if (component.component.id !== @js($this->id)) {
-                return
-            }
+        Livewire.hook('commit', ({ component, commit, succeed, fail, respond }) => {
+            succeed(({ snapshot, effect }) => {
+                if (component.id !== @js($this->getId())) {
+                    return
+                }
 
-            if (! $refs.newState) {
-                return
-            }
+                if (! $refs.newState) {
+                    return
+                }
 
-            let newState = $refs.newState.value === '1' ? true : false
+                let newState = $refs.newState.value === '1' ? true : false
 
-            if (state === newState) {
-                return
-            }
+                if (state === newState) {
+                    return
+                }
 
-            state = newState
+                state = newState
+            })
         })
     "
     {{
         $attributes
             ->merge($getExtraAttributes(), escape: false)
-            ->class(['filament-tables-checkbox-column'])
+            ->class(['fi-ta-checkbox'])
     }}
 >
     <input type="hidden" value="{{ $state ? 1 : 0 }}" x-ref="newState" />

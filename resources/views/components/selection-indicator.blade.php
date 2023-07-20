@@ -13,9 +13,9 @@
     {{
         $attributes
             ->merge([
-                'wire:key' => "{$this->id}.table.selection.indicator",
+                'wire:key' => "{$this->getId()}.table.selection.indicator",
             ], escape: false)
-            ->class(['filament-tables-selection-indicator flex flex-wrap items-center gap-1 whitespace-nowrap bg-primary-500/10 px-4 py-2 text-sm'])
+            ->class(['fi-ta-selection-indicator flex flex-wrap items-center gap-1 whitespace-nowrap bg-primary-500/10 px-4 py-2 text-sm'])
     }}
 >
     {{ $slot }}
@@ -36,7 +36,7 @@
         ></span>
 
         <span
-            id="{{ $this->id }}.table.selection.indicator.record-count.{{ $allSelectableRecordsCount }}"
+            id="{{ $this->getId() }}.table.selection.indicator.record-count.{{ $allSelectableRecordsCount }}"
             x-show="{{ $allSelectableRecordsCount }} !== {{ $selectedRecordsPropertyName }}.length"
         >
             <button
@@ -44,7 +44,7 @@
                 class="text-sm font-medium text-primary-600"
                 type="button"
             >
-                {{ trans_choice('filament-tables::table.selection_indicator.buttons.select_all.label', $allSelectableRecordsCount) }}.
+                {{ trans_choice('filament-tables::table.selection_indicator.actions.select_all.label', $allSelectableRecordsCount) }}.
             </button>
         </span>
 
@@ -54,7 +54,7 @@
                 class="text-sm font-medium text-primary-600"
                 type="button"
             >
-                {{ __('filament-tables::table.selection_indicator.buttons.deselect_all.label') }}.
+                {{ __('filament-tables::table.selection_indicator.actions.deselect_all.label') }}.
             </button>
         </span>
     </div>

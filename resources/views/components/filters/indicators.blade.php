@@ -4,7 +4,7 @@
 
 @if (count($indicators))
     <div
-        {{ $attributes->class(['filament-tables-filter-indicators flex gap-x-4 bg-gray-500/5 px-4 py-1 text-sm']) }}
+        {{ $attributes->class(['fi-ta-filter-indicators flex gap-x-4 bg-gray-500/5 px-4 py-1 text-sm']) }}
     >
         <div class="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
             <span class="font-medium dark:text-gray-200">
@@ -13,7 +13,7 @@
 
             @foreach ($indicators as $wireClickHandler => $label)
                 <span
-                    class="filament-tables-filter-indicator min-h-6 inline-flex items-center justify-center whitespace-normal rounded-xl bg-gray-500/10 px-2 py-0.5 text-xs font-medium tracking-tight text-gray-700 dark:bg-gray-500/20 dark:text-gray-300"
+                    class="fi-ta-filter-indicator min-h-6 inline-flex items-center justify-center whitespace-normal rounded-xl bg-gray-500/10 px-2 py-0.5 text-xs font-medium tracking-tight text-gray-700 dark:bg-gray-500/20 dark:text-gray-300"
                 >
                     {{ $label }}
 
@@ -26,12 +26,12 @@
                     >
                         <x-filament::icon
                             name="heroicon-m-x-mark"
-                            alias="tables::filters.buttons.remove"
-                            size="h-3 w-3"
+                            alias="tables::filters.remove-button"
+                            class="h-3 w-3"
                         />
 
                         <span class="sr-only">
-                            {{ __('filament-tables::table.filters.buttons.remove.label') }}
+                            {{ __('filament-tables::table.filters.actions.remove.label') }}
                         </span>
                     </button>
                 </span>
@@ -47,9 +47,9 @@
                 <div class="flex h-5 w-5 items-center justify-center">
                     <x-filament::icon
                         name="heroicon-m-x-mark"
-                        alias="tables::filters.buttons.remove-all"
-                        size="h-5 w-5"
-                        :x-tooltip.raw="__('filament-tables::table.filters.buttons.remove_all.tooltip')"
+                        alias="tables::filters.remove-all-button"
+                        class="h-5 w-5"
+                        :x-tooltip.raw="__('filament-tables::table.filters.actions.remove_all.tooltip')"
                         wire:loading.remove.delay=""
                         wire:target="removeTableFilters,removeTableFilter"
                     />
@@ -62,7 +62,7 @@
                 </div>
 
                 <span class="sr-only">
-                    {{ __('filament-tables::table.filters.buttons.remove_all.label') }}
+                    {{ __('filament-tables::table.filters.actions.remove_all.label') }}
                 </span>
             </button>
         </div>

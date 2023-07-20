@@ -13,7 +13,7 @@
 <nav
     role="navigation"
     aria-label="{{ __('filament-tables::table.pagination.label') }}"
-    {{ $attributes->class(['filament-tables-pagination flex items-center justify-between']) }}
+    {{ $attributes->class(['fi-ta-pagination flex items-center justify-between']) }}
 >
     <div class="flex flex-1 items-center justify-between lg:hidden">
         <div class="w-10">
@@ -22,8 +22,8 @@
                     :wire:click="'previousPage(\'' . $paginator->getPageName() . '\')'"
                     rel="prev"
                     :icon="$previousArrowIcon"
-                    icon-alias="tables::pagination.buttons.previous"
-                    :label="__('filament-tables::table.pagination.buttons.previous.label')"
+                    icon-alias="tables::pagination.actions.previous"
+                    :label="__('filament-tables::table.pagination.actions.previous.label')"
                 />
             @endif
         </div>
@@ -40,8 +40,8 @@
                     :wire:click="'nextPage(\'' . $paginator->getPageName() . '\')'"
                     rel="next"
                     :icon="$nextArrowIcon"
-                    icon-alias="tables::pagination.buttons.next"
-                    :label="__('filament-tables::table.pagination.buttons.next.label')"
+                    icon-alias="tables::pagination.next-button"
+                    :label="__('filament-tables::table.pagination.actions.next.label')"
                 />
             @endif
         </div>
@@ -58,7 +58,7 @@
                         size="sm"
                         color="gray"
                     >
-                        {{ __('filament-tables::table.pagination.buttons.previous.label') }}
+                        {{ __('filament-tables::table.pagination.actions.previous.label') }}
                     </x-filament::button>
                 @endif
             @else
@@ -97,7 +97,7 @@
                         size="sm"
                         color="gray"
                     >
-                        {{ __('filament-tables::table.pagination.buttons.next.label') }}
+                        {{ __('filament-tables::table.pagination.actions.next.label') }}
                     </x-filament::button>
                 @endif
             @else
@@ -110,7 +110,7 @@
                                 <x-filament-tables::pagination.item
                                     :wire:click="'previousPage(\'' . $paginator->getPageName() . '\')'"
                                     icon="heroicon-m-chevron-left"
-                                    aria-label="{{ __('filament-tables::table.pagination.buttons.previous.label') }}"
+                                    aria-label="{{ __('filament-tables::table.pagination.actions.previous.label') }}"
                                     rel="prev"
                                 />
                             @endif
@@ -128,9 +128,9 @@
                                         <x-filament-tables::pagination.item
                                             :wire:click="'gotoPage(' . $page . ', \'' . $paginator->getPageName() . '\')'"
                                             :label="$page"
-                                            :aria-label="trans_choice('filament-tables::table.pagination.buttons.go_to_page.label', $page, ['page' => $page])"
+                                            :aria-label="trans_choice('filament-tables::table.pagination.actions.go_to_page.label', $page, ['page' => $page])"
                                             :active="$page === $paginator->currentPage()"
-                                            :wire:key="$this->id . '.table.pagination.' . $paginator->getPageName() . '.' . $page"
+                                            :wire:key="$this->getId() . '.table.pagination.' . $paginator->getPageName() . '.' . $page"
                                         />
                                     @endforeach
                                 @endif
@@ -140,7 +140,7 @@
                                 <x-filament-tables::pagination.item
                                     :wire:click="'nextPage(\'' . $paginator->getPageName() . '\')'"
                                     icon="heroicon-m-chevron-right"
-                                    aria-label="{{ __('filament-tables::table.pagination.buttons.next.label') }}"
+                                    aria-label="{{ __('filament-tables::table.pagination.actions.next.label') }}"
                                     rel="next"
                                 />
                             @endif

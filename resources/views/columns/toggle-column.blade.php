@@ -3,7 +3,7 @@
 @endphp
 
 <div
-    wire:key="{{ $this->id }}.table.record.{{ $recordKey }}.column.{{ $getName() }}.toggle-column.{{ $state ? 'true' : 'false' }}"
+    wire:key="{{ $this->getId() }}.table.record.{{ $recordKey }}.column.{{ $getName() }}.toggle-column.{{ $state ? 'true' : 'false' }}"
 >
     <div
         x-data="{
@@ -15,7 +15,7 @@
         {{
             $attributes
                 ->merge($getExtraAttributes(), escape: false)
-                ->class(['filament-tables-toggle-column'])
+                ->class(['fi-ta-toggle'])
         }}
     >
         @php
@@ -80,14 +80,13 @@
                 @if ($hasOffIcon())
                     <x-filament::icon
                         :name="$getOffIcon()"
-                        alias="tables::columns.toggle.off"
-                        :color="
+                        @class([
+                            'fi-ta-toggle-off-icon h-3 w-3',
                             match ($onColor) {
                                 'gray' => 'text-gray-400 dark:text-gray-700',
                                 default => 'text-custom-600',
-                            }
-                        "
-                        size="h-3 w-3"
+                            },
+                        ])
                     />
                 @endif
             </span>
@@ -103,15 +102,14 @@
                 @if ($hasOnIcon())
                     <x-filament::icon
                         :name="$getOnIcon()"
-                        alias="tables::columns.toggle.on"
-                        :color="
+                        x-cloak="x-cloak"
+                        @class([
+                            'fi-ta-toggle-on-icon h-3 w-3',
                             match ($onColor) {
                                 'gray' => 'text-gray-400 dark:text-gray-700',
                                 default => 'text-custom-600',
-                            }
-                        "
-                        size="h-3 w-3"
-                        x-cloak="x-cloak"
+                            },
+                        ])
                     />
                 @endif
             </span>
