@@ -35,7 +35,9 @@
                 state = ! state
 
                 isLoading = true
-                response = await $wire.updateTableColumnState(@js($getName()), @js($recordKey), state)
+
+                const response = await $wire.updateTableColumnState(@js($getName()), @js($recordKey), state)
+
                 error = response?.error ?? undefined
 
                 if (error) {
@@ -44,7 +46,10 @@
 
                 isLoading = false
             "
-            x-tooltip="error"
+            x-tooltip="{
+                content: error,
+                theme: $store.theme,
+            }"
             x-bind:class="
                 (state
                     ? '{{
