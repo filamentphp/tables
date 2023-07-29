@@ -10,7 +10,7 @@
 <th
     {{
         $attributes
-            ->class(['fi-ta-header-cell px-3 py-3.5 sm:first-of-type:ps-6'])
+            ->class(['fi-ta-header-cell px-3 py-3.5 sm:first-of-type:ps-6 sm:last-of-type:pe-6'])
     }}
 >
     <button
@@ -39,13 +39,13 @@
             </span>
         @endif
 
-        <span class="text-sm font-medium text-gray-950 dark:text-white">
+        <span class="text-sm font-semibold text-gray-950 dark:text-white">
             {{ $slot }}
         </span>
 
         @if ($sortable)
             <x-filament::icon
-                :alias="$activelySorted && $sortDirection === 'asc' ? 'tables::header-cell.sort-asc' : 'tables::header-cell.sort-desc'"
+                :alias="$activelySorted && $sortDirection === 'asc' ? 'tables::header-cell.sort-asc-button' : 'tables::header-cell.sort-desc-button'"
                 :icon="$activelySorted && $sortDirection === 'asc' ? 'heroicon-m-chevron-up' : 'heroicon-m-chevron-down'"
                 @class([
                     'fi-ta-header-cell-sort-icon h-5 w-5 transition duration-75',
