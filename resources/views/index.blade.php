@@ -622,15 +622,14 @@
                                     @php
                                         $recordContentClasses = \Illuminate\Support\Arr::toCssClasses([
                                             $recordContentHorizontalPaddingClasses,
-                                            'block pt-4',
-                                            'pb-4' => ! $recordHasActions,
+                                            'flex-1 block',
                                         ]);
                                     @endphp
 
                                     <div
                                         @class([
-                                            'grid w-full gap-3',
-                                            'pb-4' => $recordHasActions,
+                                            'flex w-full flex-col gap-3 py-4',
+                                            'md:flex-row md:items-center' => ! $contentGrid,
                                         ])
                                     >
                                         @if ($recordUrl)
@@ -692,13 +691,10 @@
                                         @if ($recordHasActions)
                                             <x-filament-tables::actions
                                                 :actions="$actions"
-                                                :alignment="($actionsPosition === ActionsPosition::AfterContent) ? Alignment::Start : 'start sm:end'"
+                                                :alignment="(! $contentGrid) ? 'start md:end' : Alignment::Start"
                                                 :record="$record"
                                                 wrap="-sm"
-                                                @class([
-                                                    $recordContentHorizontalPaddingClasses,
-                                                    'justify-self-end' => $actionsPosition === ActionsPosition::BottomCorner,
-                                                ])
+                                                :class="$recordContentHorizontalPaddingClasses"
                                             />
                                         @endif
                                     </div>
