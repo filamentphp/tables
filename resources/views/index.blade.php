@@ -635,7 +635,7 @@
                                     @php
                                         $recordContentClasses = \Illuminate\Support\Arr::toCssClasses([
                                             $recordContentHorizontalPaddingClasses,
-                                            'block',
+                                            'block w-full',
                                         ]);
                                     @endphp
 
@@ -696,7 +696,7 @@
                                                 <div
                                                     x-collapse
                                                     x-show="! isCollapsed"
-                                                    class="{{ $recordContentHorizontalPaddingClasses }}"
+                                                    class="{{ $recordContentHorizontalPaddingClasses }} mt-3"
                                                 >
                                                     {{ $collapsibleColumnsLayout->viewData(['recordKey' => $recordKey]) }}
                                                 </div>
