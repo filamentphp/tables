@@ -2,6 +2,12 @@
 
 return [
 
+    'column_toggle' => [
+
+        'heading' => 'Coloane',
+
+    ],
+
     'columns' => [
 
         'text' => [
@@ -12,52 +18,51 @@ return [
 
     'fields' => [
 
+        'bulk_select_page' => [
+            'label' => 'Selectați/Deselectați tot pentru operațiuni in masă.',
+        ],
+
+        'bulk_select_record' => [
+            'label' => 'Selectează/Deselectează elementul :key pentru operațiuni in masă.',
+        ],
+
         'search' => [
             'label' => 'Căutare',
             'placeholder' => 'Căutare',
+            'indicator' => 'Căutare',
         ],
 
     ],
 
-    'pagination' => [
+    'summary' => [
 
-        'label' => 'Navigare',
+        'heading' => 'Sumar',
 
-        'overview' => 'Afișare :first-:last din :total rezultate',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'pe pagină',
-
-                'options' => [
-                    'all' => 'Toate',
-                ],
-
-            ],
-
+        'subheadings' => [
+            'all' => 'Toate :label',
+            'group' => 'Sumar :group',
+            'page' => 'Această pagină',
         ],
 
-        'buttons' => [
+        'summarizers' => [
 
-            'go_to_page' => [
-                'label' => 'Mergi la pagina :page',
+            'average' => [
+                'label' => 'Medie',
             ],
 
-            'next' => [
-                'label' => 'Pagina următoare',
+            'count' => [
+                'label' => 'Numărare',
             ],
 
-            'previous' => [
-                'label' => 'Pagina precedentă',
+            'sum' => [
+                'label' => 'Suma',
             ],
 
         ],
 
     ],
 
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Dezactivați reordonarea',
@@ -71,8 +76,12 @@ return [
             'label' => 'Filtru',
         ],
 
+        'group' => [
+            'label' => 'Grupare',
+        ],
+
         'open_bulk_actions' => [
-            'label' => 'Desdere operațiuni',
+            'label' => 'Operațiuni in masă',
         ],
 
         'toggle_columns' => [
@@ -82,20 +91,24 @@ return [
     ],
 
     'empty' => [
+
         'heading' => 'Nu s-au găsit rezultate',
+
+        'description' => 'Creează un :model pentru a începe.',
+
     ],
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
-                'label' => 'Ştergere filtru',
+                'label' => 'Elimină filtru',
             ],
 
             'remove_all' => [
-                'label' => 'Şterge toate filtrele',
-                'tooltip' => 'Ştergere toate filtrele',
+                'label' => 'Elimină toate filtrele',
+                'tooltip' => 'Elimină toate filtrele',
             ],
 
             'reset' => [
@@ -103,6 +116,8 @@ return [
             ],
 
         ],
+
+        'heading' => 'Filtre',
 
         'indicator' => 'Filtre active',
 
@@ -120,7 +135,7 @@ return [
 
             'only_trashed' => 'Doar elementele șterse',
 
-            'with_trashed' => 'Elementele șterse inclusiv',
+            'with_trashed' => 'Include elementele șterse',
 
             'without_trashed' => 'Doar elementele neșterse',
 
@@ -128,13 +143,37 @@ return [
 
     ],
 
-    'reorder_indicator' => 'Trageți și plasați înregistrările în ordine.',
+    'grouping' => [
+
+        'fields' => [
+
+            'group' => [
+                'label' => 'Grupează după',
+                'placeholder' => 'Grupează după',
+            ],
+
+            'direction' => [
+
+                'label' => 'Direcție grupare',
+
+                'options' => [
+                    'asc' => 'Ascendentă',
+                    'desc' => 'Descendentă',
+                ],
+
+            ],
+
+        ],
+
+    ],
+
+    'reorder_indicator' => 'Trageți și plasați elementele în ordine.',
 
     'selection_indicator' => [
 
-        'selected_count' => '1 element selectat.|:count elemente selectate.',
+        'selected_count' => '1 element selectat|:count elemente selectate',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Selectare toate :count',

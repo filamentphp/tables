@@ -12,52 +12,51 @@ return [
 
     'fields' => [
 
+        'bulk_select_page' => [
+            'label' => 'Buat/batalkan pilihan semua item untuk tindakan masal.',
+        ],
+
+        'bulk_select_record' => [
+            'label' => 'Buat/batalkan pilihan item :key untuk tindakan masal.',
+        ],
+
         'search' => [
             'label' => 'Cari',
             'placeholder' => 'Cari',
+            'indicator' => 'Pencarian',
         ],
 
     ],
 
-    'pagination' => [
+    'summary' => [
 
-        'label' => 'Navigasi halaman',
+        'heading' => 'Rangkuman',
 
-        'overview' => 'Menampilkan :first sampai :last dari :total hasil',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'per halaman',
-
-                'options' => [
-                    'all' => 'Semua',
-                ],
-
-            ],
-
+        'subheadings' => [
+            'all' => 'Semua :label',
+            'group' => 'Rangkuman :group',
+            'page' => 'Halaman ini',
         ],
 
-        'buttons' => [
+        'summarizers' => [
 
-            'go_to_page' => [
-                'label' => 'Ke halaman :page',
+            'average' => [
+                'label' => 'Rata-rata',
             ],
 
-            'next' => [
-                'label' => 'Selanjutnya',
+            'count' => [
+                'label' => 'Jumlah',
             ],
 
-            'previous' => [
-                'label' => 'Sebelumnya',
+            'sum' => [
+                'label' => 'Total',
             ],
 
         ],
 
     ],
 
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Selesaikan pengurutan ulang data',
@@ -71,6 +70,10 @@ return [
             'label' => 'Filter',
         ],
 
+        'group' => [
+            'label' => 'Grup',
+        ],
+
         'open_bulk_actions' => [
             'label' => 'Tindakan',
         ],
@@ -82,12 +85,14 @@ return [
     ],
 
     'empty' => [
+
         'heading' => 'Tidak ada data yang ditemukan',
+
     ],
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Hapus filter',
@@ -103,6 +108,8 @@ return [
             ],
 
         ],
+
+        'heading' => 'Filter',
 
         'indicator' => 'Filter aktif',
 
@@ -128,13 +135,37 @@ return [
 
     ],
 
+    'grouping' => [
+
+        'fields' => [
+
+            'group' => [
+                'label' => 'Kelompokkan berdasar',
+                'placeholder' => 'Kelompokkan berdasar',
+            ],
+
+            'direction' => [
+
+                'label' => 'Urutan grup',
+
+                'options' => [
+                    'asc' => 'Naik',
+                    'desc' => 'Turun',
+                ],
+
+            ],
+
+        ],
+
+    ],
+
     'reorder_indicator' => 'Seret dan lepaskan data ke dalam urutan.',
 
     'selection_indicator' => [
 
-        'selected_count' => ':count data dipilih.',
+        'selected_count' => ':count data dipilih',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Pilih semua (:count)',

@@ -27,45 +27,7 @@ return [
 
     ],
 
-    'pagination' => [
-
-        'label' => 'Хуудас',
-
-        'overview' => '{1} Нийт 1 |[2,*] Нийт :total бичлэг :first - :last',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'хуудас бүр',
-
-                'options' => [
-                    'all' => 'Бүгд',
-                ],
-
-            ],
-
-        ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => 'Хуудасруу очих :page',
-            ],
-
-            'next' => [
-                'label' => 'Дараах',
-            ],
-
-            'previous' => [
-                'label' => 'Өмнөх',
-            ],
-
-        ],
-
-    ],
-
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Эрэмбэлэлтийг дуусгах',
@@ -97,7 +59,7 @@ return [
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Цэвэрлэх',
@@ -142,9 +104,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '1 бичлэг сонгогдов.|:count -г сонгов.',
+        'selected_count' => '1 бичлэг сонгогдов|:count -г сонгов',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Бүгдийг сонго :count',

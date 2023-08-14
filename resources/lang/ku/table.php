@@ -19,42 +19,7 @@ return [
 
     ],
 
-    'pagination' => [
-
-        'label' => 'ڕێنوێیی پەڕەکردن',
-
-        'overview' => 'پیشاندان :first بۆ :last لە :total ئەنجام',
-
-        'fields' => [
-
-            'records_per_page' => [
-                'label' => 'بۆ هەر پەڕەیەک',
-                'options' => [
-                    'all' => 'هەموو',
-                ],
-            ],
-
-        ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => 'بڕۆ بۆ پەڕەی :page',
-            ],
-
-            'next' => [
-                'label' => 'دواتر',
-            ],
-
-            'previous' => [
-                'label' => 'پێشوو',
-            ],
-
-        ],
-
-    ],
-
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'کۆتایی بە ڕێکخستن ب‌هێنە',
@@ -84,7 +49,7 @@ return [
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'سرینەوەی فلتەر',
@@ -129,9 +94,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '١ تۆمار دیاری کراوە.|:count تۆمار دیاری کراوە.',
+        'selected_count' => '١ تۆمار دیاری کراوە|:count تۆمار دیاری کراوە',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'دیاریکردنی هەموو :count تۆمارەکان',

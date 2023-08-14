@@ -27,45 +27,7 @@ return [
 
     ],
 
-    'pagination' => [
-
-        'label' => 'Lapdales navigācija',
-
-        'overview' => '{1} Rāda 1 rezultātu|[2,*] Rāda :first līdz :last no :total rezultātiem',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'vienā lappusē',
-
-                'options' => [
-                    'all' => 'Visi',
-                ],
-
-            ],
-
-        ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => 'Doties uz lapu :page',
-            ],
-
-            'next' => [
-                'label' => 'Nākamais',
-            ],
-
-            'previous' => [
-                'label' => 'Iepriekšējais',
-            ],
-
-        ],
-
-    ],
-
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Pabeigt ierakstu kārtošanu',
@@ -95,7 +57,7 @@ return [
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Noņemt filtru',
@@ -140,9 +102,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => 'Izvēlēts 1 ieraksts.|:count ieraksti izvēlēti.',
+        'selected_count' => 'Izvēlēts 1 ieraksts|:count ieraksti izvēlēti',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Atlasīt visus :count',

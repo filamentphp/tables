@@ -19,45 +19,7 @@ return [
 
     ],
 
-    'pagination' => [
-
-        'label' => 'Paginering Navigation',
-
-        'overview' => 'Viser :first til :last af :total resultater',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'per side',
-
-                'options' => [
-                    'all' => 'Alle',
-                ],
-
-            ],
-
-        ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => 'Gå til side :page',
-            ],
-
-            'next' => [
-                'label' => 'Næste',
-            ],
-
-            'previous' => [
-                'label' => 'Forrige',
-            ],
-
-        ],
-
-    ],
-
-    'buttons' => [
+    'actions' => [
 
         'filter' => [
             'label' => 'Filtrer',
@@ -75,7 +37,7 @@ return [
 
     'selection_indicator' => [
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Vælg alle :count',

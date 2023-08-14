@@ -7,16 +7,23 @@
 ])
 
 <x-filament::dropdown
-    {{ $attributes->class(['filament-tables-filters']) }}
     :max-height="$maxHeight"
     placement="bottom-end"
     shift
     :width="$width"
-    wire:key="{{ $this->id }}.table.filters"
+    wire:key="{{ $this->getId() }}.table.filters"
+    {{ $attributes->class(['fi-ta-filters-dropdown']) }}
 >
-    <x-slot name="trigger" class="flex items-center justify-center">
-        {{ $triggerAction->indicator($indicatorsCount) }}
+    <x-slot name="trigger">
+        <span
+            @class([
+                'inline-flex',
+                '-mx-2' => $triggerAction->isIconButton(),
+            ])
+        >
+            {{ $triggerAction->badge($indicatorsCount) }}
+        </span>
     </x-slot>
 
-    <x-filament-tables::filters class="p-4" :form="$form" />
+    <x-filament-tables::filters :form="$form" class="p-6" />
 </x-filament::dropdown>

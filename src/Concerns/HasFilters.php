@@ -5,7 +5,6 @@ namespace Filament\Tables\Concerns;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Tables\Filters\BaseFilter;
-use Filament\Tables\Filters\Layout;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -29,7 +28,7 @@ trait HasFilters
             ->columns($this->getTable()->getFiltersFormColumns())
             ->model($this->getTable()->getModel())
             ->statePath('tableFilters')
-            ->reactive();
+            ->live();
     }
 
     public function updatedTableFilters(): void
@@ -178,24 +177,6 @@ trait HasFilters
 
     /**
      * @deprecated Override the `table()` method to configure the table.
-     *
-     * @return int | array<string, int | null>
-     */
-    protected function getTableFiltersFormColumns(): int | array
-    {
-        return match ($this->getTableFiltersLayout()) {
-            Layout::AboveContent, Layout::BelowContent => [
-                'sm' => 2,
-                'lg' => 3,
-                'xl' => 4,
-                '2xl' => 5,
-            ],
-            default => 1,
-        };
-    }
-
-    /**
-     * @deprecated Override the `table()` method to configure the table.
      */
     protected function getTableFiltersFormWidth(): ?string
     {
@@ -206,14 +187,6 @@ trait HasFilters
      * @deprecated Override the `table()` method to configure the table.
      */
     protected function getTableFiltersFormMaxHeight(): ?string
-    {
-        return null;
-    }
-
-    /**
-     * @deprecated Override the `table()` method to configure the table.
-     */
-    protected function getTableFiltersLayout(): ?string
     {
         return null;
     }
