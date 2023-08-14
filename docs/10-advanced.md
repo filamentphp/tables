@@ -53,7 +53,7 @@ public function table(Table $table): Table
 
 You may use simple pagination by overriding `paginateTableQuery()` method.
 
-First, locate your Livewire component. If you're using a resource from the Panel Builder and you want to add simple pagination to the List page, you'll want to open the `Pages/List.php` file in the resource, not the resource class itself.
+First, locate your Livewire component. If you're using a resource from the panel builder and you want to add simple pagination to the List page, you'll want to open the `Pages/List.php` file in the resource, not the resource class itself.
 
 ```php
 use Illuminate\Contracts\Pagination\Paginator;
@@ -155,7 +155,7 @@ public function table(Table $table): Table
 
 ## Polling table content
 
-You may poll table content so that it refreshes at a set interval, using the `$table->poll()` method:
+You may poll table content so that it refreshes at a set interval, using the `$form->poll()` method:
 
 ```php
 use Filament\Tables\Table;
@@ -193,8 +193,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 protected function applySearchToTableQuery(Builder $query): Builder
 {
-    $this->applyColumnSearchesToTableQuery($query);
-    
     if (filled($search = $this->getTableSearch())) {
         $query->whereIn('id', Post::search($search)->keys());
     }
@@ -205,8 +203,6 @@ protected function applySearchToTableQuery(Builder $query): Builder
 
 Scout uses this `whereIn()` method to retrieve results internally, so there is no performance penalty for using it.
 
-The `applyColumnSearchesToTableQuery()` method ensures that searching individual columns will still work. You can replace that method with your own implementation if you want to use Scout for those search inputs as well.
-
 ## Query string
 
 Livewire ships with a feature to store data in the URL's query string, to access across requests.
@@ -216,34 +212,14 @@ With Filament, this allows you to store your table's filters, sort, search and p
 To store the filters, sorting, and search state of your table in the query string:
 
 ```php
-use Livewire\Attributes\Url;
-
-#[Url]
-public bool $isTableReordering = false;
-
-/**
- * @var array<string, mixed> | null
- */
-#[Url]
-public ?array $tableFilters = null;
-
-#[Url]
-public ?string $tableGrouping = null;
-
-#[Url]
-public ?string $tableGroupingDirection = null;
-
-/**
- * @var ?string
- */
-#[Url]
-public $tableSearch = '';
-
-#[Url]
-public ?string $tableSortColumn = null;
-
-#[Url]
-public ?string $tableSortDirection = null;
+protected $queryString = [
+    'isTableReordering' => ['except' => false],
+    'tableFilters',
+    'tableSortColumn' => ['except' => ''],
+    'tableSortDirection' => ['except' => ''],
+    'tableSearch' => ['except' => ''],
+    'tableColumnSearches',
+];
 ```
 
 ## Styling table rows
@@ -292,12 +268,12 @@ These classes are not automatically compiled by Tailwind CSS. If you want to app
 To customize the default configuration that is used for all tables, you can call the static `configureUsing()` method from the `boot()` method of a service provider. The function will be run for each table that gets created:
 
 ```php
-use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Layout;
 use Filament\Tables\Table;
 
 Table::configureUsing(function (Table $table): void {
     $table
-        ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+        ->filtersLayout(Layout::AboveContentCollapsible)
         ->paginationPageOptions([10, 25, 50]);
 });
 ```

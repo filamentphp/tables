@@ -3,7 +3,7 @@
 @endphp
 
 <div
-    wire:key="{{ $this->getId() }}.table.record.{{ $recordKey }}.column.{{ $getName() }}.toggle-column.{{ $state ? 'true' : 'false' }}"
+    wire:key="{{ $this->id }}.table.record.{{ $recordKey }}.column.{{ $getName() }}.toggle-column.{{ $state ? 'true' : 'false' }}"
 >
     <div
         x-data="{
@@ -15,10 +15,7 @@
         {{
             $attributes
                 ->merge($getExtraAttributes(), escape: false)
-                ->class([
-                    'fi-ta-toggle',
-                    'px-3 py-4' => ! $isInline(),
-                ])
+                ->class(['filament-tables-toggle-column'])
         }}
     >
         @php
@@ -38,9 +35,7 @@
                 state = ! state
 
                 isLoading = true
-
-                const response = await $wire.updateTableColumnState(@js($getName()), @js($recordKey), state)
-
+                response = await $wire.updateTableColumnState(@js($getName()), @js($recordKey), state)
                 error = response?.error ?? undefined
 
                 if (error) {
@@ -49,14 +44,7 @@
 
                 isLoading = false
             "
-            x-tooltip="
-                error === undefined
-                    ? false
-                    : {
-                          content: error,
-                          theme: $store.theme,
-                      }
-            "
+            x-tooltip="error"
             x-bind:class="
                 (state
                     ? '{{
@@ -91,14 +79,15 @@
             >
                 @if ($hasOffIcon())
                     <x-filament::icon
-                        :icon="$getOffIcon()"
-                        @class([
-                            'fi-ta-toggle-off-icon h-3 w-3',
+                        :name="$getOffIcon()"
+                        alias="tables::columns.toggle.off"
+                        :color="
                             match ($onColor) {
                                 'gray' => 'text-gray-400 dark:text-gray-700',
                                 default => 'text-custom-600',
-                            },
-                        ])
+                            }
+                        "
+                        size="h-3 w-3"
                     />
                 @endif
             </span>
@@ -113,15 +102,16 @@
             >
                 @if ($hasOnIcon())
                     <x-filament::icon
-                        :icon="$getOnIcon()"
-                        x-cloak="x-cloak"
-                        @class([
-                            'fi-ta-toggle-on-icon h-3 w-3',
+                        :name="$getOnIcon()"
+                        alias="tables::columns.toggle.on"
+                        :color="
                             match ($onColor) {
                                 'gray' => 'text-gray-400 dark:text-gray-700',
                                 default => 'text-custom-600',
-                            },
-                        ])
+                            }
+                        "
+                        size="h-3 w-3"
+                        x-cloak="x-cloak"
                     />
                 @endif
             </span>

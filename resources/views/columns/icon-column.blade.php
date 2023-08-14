@@ -1,45 +1,31 @@
-@php
-    use Filament\Tables\Columns\IconColumn\IconColumnSize;
-@endphp
-
 <div
     {{
         $attributes
             ->merge($getExtraAttributes(), escape: false)
             ->class([
-                'fi-ta-icon flex flex-wrap gap-1.5',
-                'px-3 py-4' => ! $isInline(),
+                'filament-tables-icon-column flex flex-wrap gap-1',
                 'flex-col' => $isListWithLineBreaks(),
+                'px-4 py-3' => ! $isInline(),
             ])
     }}
 >
     @foreach (\Illuminate\Support\Arr::wrap($getState()) as $state)
         @if ($icon = $getIcon($state))
-            @php
-                $color = $getColor($state) ?? 'gray';
-                $size = $getSize($state) ?? IconColumnSize::Large;
-            @endphp
-
             <x-filament::icon
-                :icon="$icon"
-                @class([
-                    'fi-ta-icon-item',
-                    match ($size) {
-                        IconColumnSize::ExtraSmall, 'xs' => 'fi-ta-icon-item-size-xs h-3 w-3',
-                        IconColumnSize::Small, 'sm' => 'fi-ta-icon-item-size-sm h-4 w-4',
-                        IconColumnSize::Medium, 'md' => 'fi-ta-icon-item-size-md h-5 w-5',
-                        IconColumnSize::Large, 'lg' => 'fi-ta-icon-item-size-lg h-6 w-6',
-                        IconColumnSize::ExtraLarge, 'xl' => 'fi-ta-icon-item-size-xl h-7 w-7',
+                :name="$icon"
+                alias="tables::columns.icon"
+                color="text-custom-500"
+                :size="
+                    match ($size = ($getSize($state) ?? 'lg')) {
+                        'xs' => 'h-3 w-3 filament-tables-icon-column-icon-size-xs',
+                        'sm' => 'h-4 w-4 filament-tables-icon-column-icon-size-sm',
+                        'md' => 'h-5 w-5 filament-tables-icon-column-icon-size-md',
+                        'lg' => 'h-6 w-6 filament-tables-icon-column-icon-size-lg',
+                        'xl' => 'h-7 w-7 filament-tables-icon-column-icon-size-xl',
                         default => $size,
-                    },
-                    match ($color) {
-                        'gray' => 'text-gray-400 dark:text-gray-500',
-                        default => 'text-custom-500 dark:text-custom-400',
-                    },
-                ])
-                @style([
-                    \Filament\Support\get_color_css_variables($color, shades: [400, 500]) => $color !== 'gray',
-                ])
+                    }
+                "
+                :style="\Filament\Support\get_color_css_variables($getColor($state) ?? 'gray', shades: [500])"
             />
         @endif
     @endforeach

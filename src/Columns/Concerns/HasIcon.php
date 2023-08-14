@@ -4,14 +4,13 @@ namespace Filament\Tables\Columns\Concerns;
 
 use Closure;
 use Filament\Support\Contracts\HasIcon as IconInterface;
-use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\Column;
 
 trait HasIcon
 {
     protected string | bool | Closure | null $icon = null;
 
-    protected IconPosition | string | Closure | null $iconPosition = null;
+    protected string | Closure | null $iconPosition = null;
 
     public function icon(string | bool | Closure | null $icon): static
     {
@@ -46,7 +45,7 @@ trait HasIcon
         return $this;
     }
 
-    public function iconPosition(IconPosition | string | Closure | null $iconPosition): static
+    public function iconPosition(string | Closure | null $iconPosition): static
     {
         $this->iconPosition = $iconPosition;
 
@@ -74,8 +73,8 @@ trait HasIcon
         return $state->getIcon();
     }
 
-    public function getIconPosition(): IconPosition | string
+    public function getIconPosition(): string
     {
-        return $this->evaluate($this->iconPosition) ?? IconPosition::Before;
+        return $this->evaluate($this->iconPosition) ?? 'before';
     }
 }

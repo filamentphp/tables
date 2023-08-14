@@ -11,7 +11,39 @@ return [
 
     ],
 
-    'actions' => [
+    'pagination' => [
+
+        'label' => 'Paginació',
+
+        'overview' => 'Mostrant :first a :last de :total resultatss',
+
+        'fields' => [
+
+            'records_per_page' => [
+                'label' => 'per pàgina',
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Anar a la pàgina :page',
+            ],
+
+            'next' => [
+                'label' => 'Següent',
+            ],
+
+            'previous' => [
+                'label' => 'Anterior',
+            ],
+
+        ],
+
+    ],
+
+    'buttons' => [
 
         'filter' => [
             'label' => 'Filtre',
@@ -29,7 +61,7 @@ return [
 
     'selection_indicator' => [
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Select all :count',

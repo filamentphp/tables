@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use function Livewire\store;
 
 /**
  * @property Form $mountedTableBulkActionForm
@@ -79,7 +78,7 @@ trait HasBulkActions
         } catch (Cancel $exception) {
         }
 
-        if (store($this)->has('redirect')) {
+        if (filled($this->redirectTo)) {
             return $result;
         }
 
@@ -95,15 +94,12 @@ trait HasBulkActions
     }
 
     /**
-     * @param  array<int | string> | null  $selectedRecords
+     * @param  array<int | string>  $selectedRecords
      */
-    public function mountTableBulkAction(string $name, ?array $selectedRecords = null): mixed
+    public function mountTableBulkAction(string $name, array $selectedRecords): mixed
     {
         $this->mountedTableBulkAction = $name;
-
-        if ($selectedRecords !== null) {
-            $this->selectedTableRecords = $selectedRecords;
-        }
+        $this->selectedTableRecords = $selectedRecords;
 
         $action = $this->getMountedTableBulkAction();
 
@@ -186,7 +182,7 @@ trait HasBulkActions
 
     public function deselectAllTableRecords(): void
     {
-        $this->dispatch('deselectAllTableRecords');
+        $this->emitSelf('deselectAllTableRecords');
     }
 
     public function getAllSelectableTableRecordKeys(): array
@@ -286,12 +282,16 @@ trait HasBulkActions
 
     protected function closeTableBulkActionModal(): void
     {
-        $this->dispatch('close-modal', id: "{$this->getId()}-table-bulk-action");
+        $this->dispatchBrowserEvent('close-modal', [
+            'id' => "{$this->id}-table-bulk-action",
+        ]);
     }
 
     protected function openTableBulkActionModal(): void
     {
-        $this->dispatch('open-modal', id: "{$this->getId()}-table-bulk-action");
+        $this->dispatchBrowserEvent('open-modal', [
+            'id' => "{$this->id}-table-bulk-action",
+        ]);
     }
 
     /**

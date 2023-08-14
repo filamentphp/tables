@@ -6,22 +6,21 @@
     'groupsOnly' => false,
     'placeholderColumns' => true,
     'pluralModelLabel',
-    'recordCheckboxPosition' => null,
     'records',
+    'recordCheckboxPosition' => null,
     'selectionEnabled' => false,
 ])
 
 @php
-    use Filament\Support\Enums\Alignment;
-    use Filament\Tables\Enums\ActionsPosition;
-    use Filament\Tables\Enums\RecordCheckboxPosition;
+    use Filament\Tables\Actions\Position as ActionsPosition;
+    use Filament\Tables\Actions\RecordCheckboxPosition;
 
     $hasPageSummary = (! $groupsOnly) && $records instanceof \Illuminate\Contracts\Pagination\Paginator && $records->hasPages();
 @endphp
 
 @if ($hasPageSummary)
     <x-filament-tables::row
-        class="fi-ta-summary-header-row bg-gray-50 dark:bg-white/5"
+        class="filament-tables-summary-header-row bg-gray-500/5"
     >
         @if ($placeholderColumns && $actions && in_array($actionsPosition, [ActionsPosition::BeforeCells, ActionsPosition::BeforeColumns]))
             <td></td>
@@ -32,9 +31,11 @@
         @endif
 
         @if ($extraHeadingColumn)
-            <x-filament-tables::summary.header-cell>
+            <td
+                class="whitespace-nowrap px-4 py-2 text-base font-medium text-gray-600 dark:text-gray-300"
+            >
                 {{ __('filament-tables::table.summary.heading', ['label' => $pluralModelLabel]) }}
-            </x-filament-tables::summary.header-cell>
+            </td>
         @endif
 
         @foreach ($columns as $column)
@@ -43,30 +44,32 @@
                     $hasColumnHeaderLabel = (! $placeholderColumns) || $column->hasSummary();
                 @endphp
 
-                <x-filament-tables::summary.header-cell
-                    :attributes="
-                        \Filament\Support\prepare_inherited_attributes($column->getExtraHeaderAttributeBag())
-                            ->class([
-                                'whitespace-nowrap' => ! $column->isHeaderWrapped(),
-                                'whitespace-normal' => $column->isHeaderWrapped(),
-                                match ($column->getAlignment()) {
-                                    Alignment::Start, 'start' => 'text-start',
-                                    Alignment::Center, 'center' => 'text-center',
-                                    Alignment::End, 'end' => 'text-end',
-                                    Alignment::Left, 'left' => 'text-left',
-                                    Alignment::Right, 'right' => 'text-right',
-                                    Alignment::Justify, 'justify' => 'text-justify',
-                                    default => null,
-                                } => (! ($loop->first && (! $extraHeadingColumn))) && $hasColumnHeaderLabel,
-                            ])
-                    "
+                <td
+                    {{
+                        $column->getExtraHeaderAttributeBag()->class([
+                            'px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300',
+                            'whitespace-nowrap' => ! $column->isHeaderWrapped(),
+                            'whitespace-normal' => $column->isHeaderWrapped(),
+                            match ($column->getAlignment()) {
+                                'start' => 'text-start',
+                                'center' => 'text-center',
+                                'end' => 'text-end',
+                                'left' => 'text-left',
+                                'right' => 'text-right',
+                                'justify' => 'text-justify',
+                                default => null,
+                            } => (! ($loop->first && (! $extraHeadingColumn))) && $hasColumnHeaderLabel,
+                        ])
+                    }}
                 >
                     @if ($loop->first && (! $extraHeadingColumn))
-                        {{ __('filament-tables::table.summary.heading', ['label' => $pluralModelLabel]) }}
+                        <span class="text-base">
+                            {{ __('filament-tables::table.summary.heading', ['label' => $pluralModelLabel]) }}
+                        </span>
                     @elseif ($hasColumnHeaderLabel)
                         {{ $column->getLabel() }}
                     @endif
-                </x-filament-tables::summary.header-cell>
+                </td>
             @endif
         @endforeach
 
@@ -85,16 +88,17 @@
     @endphp
 
     <x-filament-tables::summary.row
+        class="filament-tables-page-summary-row"
         :actions="$actions"
         :actions-position="$actionsPosition"
         :columns="$columns"
         :extra-heading-column="$extraHeadingColumn"
         :heading="__('filament-tables::table.summary.subheadings.page', ['label' => $pluralModelLabel])"
+        :selection-enabled="$selectionEnabled"
         :placeholder-columns="$placeholderColumns"
         :query="$query"
-        :record-checkbox-position="$recordCheckboxPosition"
         :selected-state="$selectedState"
-        :selection-enabled="$selectionEnabled"
+        :record-checkbox-position="$recordCheckboxPosition"
     />
 @endif
 
@@ -104,18 +108,17 @@
 @endphp
 
 <x-filament-tables::summary.row
+    class="filament-tables-total-summary-row"
     :actions="$actions"
     :actions-position="$actionsPosition"
     :columns="$columns"
     :extra-heading-column="$extraHeadingColumn"
-    :groups-only="$groupsOnly"
     :heading="__(($hasPageSummary ? 'filament-tables::table.summary.subheadings.all' : 'filament-tables::table.summary.heading'), ['label' => $pluralModelLabel])"
-    :placeholder-columns="$placeholderColumns"
-    :query="$query"
-    :record-checkbox-position="$recordCheckboxPosition"
-    :selected-state="$selectedState"
+    :groups-only="$groupsOnly"
     :selection-enabled="$selectionEnabled"
-    @class([
-        'bg-gray-50 dark:bg-white/5' => ! $hasPageSummary,
-    ])
+    :query="$query"
+    :placeholder-columns="$placeholderColumns"
+    :selected-state="$selectedState"
+    :strong="! $hasPageSummary"
+    :record-checkbox-position="$recordCheckboxPosition"
 />

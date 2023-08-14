@@ -3,7 +3,6 @@
 namespace Filament\Tables\Columns;
 
 use Closure;
-use Filament\Tables\Columns\TextColumn\TextColumnSize;
 use Filament\Tables\Contracts\HasTable;
 use stdClass;
 
@@ -15,6 +14,7 @@ class TextColumn extends Column
     use Concerns\HasDescription;
     use Concerns\HasFontFamily;
     use Concerns\HasIcon;
+    use Concerns\HasSize;
     use Concerns\HasWeight;
 
     /**
@@ -31,8 +31,6 @@ class TextColumn extends Column
     protected bool | Closure $isListWithLineBreaks = false;
 
     protected int | Closure | null $listLimit = null;
-
-    protected TextColumnSize | string | Closure | null $size = null;
 
     public function badge(bool | Closure $condition = true): static
     {
@@ -78,20 +76,6 @@ class TextColumn extends Column
         $this->canWrap = $condition;
 
         return $this;
-    }
-
-    public function size(TextColumnSize | string | Closure | null $size): static
-    {
-        $this->size = $size;
-
-        return $this;
-    }
-
-    public function getSize(mixed $state): TextColumnSize | string | null
-    {
-        return $this->evaluate($this->size, [
-            'state' => $state,
-        ]);
     }
 
     public function canWrap(): bool

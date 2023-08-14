@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Colonne',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -18,89 +12,82 @@ return [
 
     'fields' => [
 
-        'bulk_select_page' => [
-            'label' => 'Seleziona/Deseleziona tutti gli elementi per le azioni di massa.',
-        ],
-
-        'bulk_select_record' => [
-            'label' => "Seleziona/Deseleziona l'elemento :key per le azioni di massa.",
-        ],
-
         'search' => [
             'label' => 'Cerca',
             'placeholder' => 'Cerca',
-            'indicator' => 'Cerca',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Riepilogo',
+        'label' => 'Navigazione paginazione',
 
-        'subheadings' => [
-            'all' => 'Tutti gli :label',
-            'group' => 'Riepilogo :group',
-            'page' => 'Questa pagina',
+        'overview' => 'Mostrati :first a :last di :total risultati',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'per pagina',
+
+                'options' => [
+                    'all' => 'Tutti',
+                ],
+
+            ],
+
         ],
 
-        'summarizers' => [
+        'buttons' => [
 
-            'average' => [
-                'label' => 'Media',
+            'go_to_page' => [
+                'label' => 'Vai a pagina :page',
             ],
 
-            'count' => [
-                'label' => 'Conteggio',
+            'next' => [
+                'label' => 'Successivo',
             ],
 
-            'sum' => [
-                'label' => 'Somma',
+            'previous' => [
+                'label' => 'Precedente',
             ],
 
         ],
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
-            'label' => 'Termina riordino record',
+            'label' => 'Termina riordino records',
         ],
 
         'enable_reordering' => [
-            'label' => 'Riordina record',
+            'label' => 'Riordina records',
         ],
 
         'filter' => [
-            'label' => 'Filtro',
-        ],
-
-        'group' => [
-            'label' => 'Gruppo',
+            'label' => 'Filtra',
         ],
 
         'open_bulk_actions' => [
-            'label' => 'Azioni',
+            'label' => 'Azioni aperte',
         ],
 
         'toggle_columns' => [
-            'label' => 'Mostra/Nascondi colonne',
+            'label' => 'Alterna colonne',
         ],
 
     ],
 
     'empty' => [
-
-        'heading' => 'Nessun risultato',
-
-        'description' => 'Crea un :model per iniziare.',
-
+        'heading' => 'Nessun valore trovato',
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Rimuovi filtro',
@@ -112,12 +99,10 @@ return [
             ],
 
             'reset' => [
-                'label' => 'Reimposta',
+                'label' => 'Azzera filtri',
             ],
 
         ],
-
-        'heading' => 'Filtri',
 
         'indicator' => 'Filtri attivi',
 
@@ -131,52 +116,28 @@ return [
 
         'trashed' => [
 
-            'label' => 'Elimina record',
+            'label' => 'Records eliminati',
 
-            'only_trashed' => 'Solo record eliminati',
+            'only_trashed' => 'Solo records eliminati',
 
-            'with_trashed' => 'Con record eliminati',
+            'with_trashed' => 'Con records eliminati',
 
-            'without_trashed' => 'Senza record eliminati',
-
-        ],
-
-    ],
-
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'Raggruppa per',
-                'placeholder' => 'Raggruppa per',
-            ],
-
-            'direction' => [
-
-                'label' => 'Ordine',
-
-                'options' => [
-                    'asc' => 'Crescente',
-                    'desc' => 'Decrescente',
-                ],
-
-            ],
+            'without_trashed' => 'Senza records eliminati',
 
         ],
 
     ],
 
-    'reorder_indicator' => 'Trascina e rilascia i record in ordine.',
+    'reorder_indicator' => 'Prendi e trascina i record in ordine.',
 
     'selection_indicator' => [
 
-        'selected_count' => '1 record selezionato|:count record selezionati',
+        'selected_count' => '1 record selezionato.|:count records selezionati.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
-                'label' => 'Seleziona tutti :count',
+                'label' => 'Seleziona tutti i :count',
             ],
 
             'deselect_all' => [

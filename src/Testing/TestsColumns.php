@@ -7,12 +7,12 @@ use Filament\Tables\Columns\Column;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Testing\Assert;
-use Livewire\Features\SupportTesting\Testable;
+use Livewire\Testing\TestableLivewire;
 
 /**
  * @method HasTable instance()
  *
- * @mixin Testable
+ * @mixin TestableLivewire
  */
 class TestsColumns
 {

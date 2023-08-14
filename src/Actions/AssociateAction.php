@@ -7,13 +7,13 @@ use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Database\Query\Expression;
 
 class AssociateAction extends Action
 {
@@ -31,8 +31,6 @@ class AssociateAction extends Action
      * @var array<string> | Closure | null
      */
     protected array | Closure | null $recordSelectSearchColumns = null;
-
-    protected bool | Closure $isSearchForcedCaseInsensitive = false;
 
     public static function getDefaultName(): ?string
     {
@@ -58,7 +56,7 @@ class AssociateAction extends Action
             ] : [];
         });
 
-        $this->successNotificationTitle(__('filament-actions::associate.single.notifications.associated.title'));
+        $this->successNotificationTitle(__('filament-actions::associate.single.messages.associated'));
 
         $this->color('gray');
 
@@ -175,37 +173,36 @@ class AssociateAction extends Action
 
             $relationshipQuery = $relationship->getQuery();
 
+            $titleAttribute = $relationshipQuery->qualifyColumn($this->getRecordTitleAttribute());
+
+            $relationshipQuery->orderBy($titleAttribute);
+
             if ($this->modifyRecordSelectOptionsQueryUsing) {
                 $relationshipQuery = $this->evaluate($this->modifyRecordSelectOptionsQueryUsing, [
                     'query' => $relationshipQuery,
                 ]) ?? $relationshipQuery;
             }
 
-            $titleAttribute = $this->getRecordTitleAttribute();
-            $titleAttribute = filled($titleAttribute) ? $relationshipQuery->qualifyColumn($titleAttribute) : null;
-
-            if (empty($relationshipQuery->getQuery()->orders) && filled($titleAttribute)) {
-                $relationshipQuery->orderBy($titleAttribute);
-            }
-
-            if (filled($search) && ($searchColumns || filled($titleAttribute))) {
+            if (filled($search)) {
                 $search = strtolower($search);
+
+                /** @var Connection $databaseConnection */
+                $databaseConnection = $relationshipQuery->getConnection();
+
+                $searchOperator = match ($databaseConnection->getDriverName()) {
+                    'pgsql' => 'ilike',
+                    default => 'like',
+                };
 
                 $searchColumns ??= [$titleAttribute];
                 $isFirst = true;
-                $isForcedCaseInsensitive = $this->isSearchForcedCaseInsensitive();
 
-                $relationshipQuery->where(function (Builder $query) use ($isFirst, $isForcedCaseInsensitive, $searchColumns, $search): Builder {
+                $relationshipQuery->where(function (Builder $query) use ($isFirst, $searchColumns, $searchOperator, $search): Builder {
                     foreach ($searchColumns as $searchColumn) {
-                        $caseAwareSearchColumn = $isForcedCaseInsensitive ?
-                            new Expression("lower({$searchColumn})") :
-                            $searchColumn;
-
                         $whereClause = $isFirst ? 'where' : 'orWhere';
 
-                        $query->{$whereClause}(
-                            $caseAwareSearchColumn,
-                            'like',
+                        $query->{"{$whereClause}Raw"}(
+                            "lower({$searchColumn}) {$searchOperator} ?",
                             "%{$search}%",
                         );
 
@@ -216,7 +213,7 @@ class AssociateAction extends Action
                 });
             }
 
-            $relationshipQuery
+            return $relationshipQuery
                 ->whereDoesntHave($table->getInverseRelationship(), function (Builder $query) use ($relationship): Builder {
                     if ($relationship instanceof MorphMany) {
                         return $query
@@ -226,7 +223,7 @@ class AssociateAction extends Action
                             )
                             ->where(
                                 $relationship->getQualifiedForeignKeyName(),
-                                $relationship->getParent()->getKey(),
+                                $relationship->getParent()->getKey()
                             );
                     }
 
@@ -234,18 +231,10 @@ class AssociateAction extends Action
                         $relationship->getParent()->getQualifiedKeyName(),
                         $relationship->getParent()->getKey(),
                     );
-                });
-
-            if (filled($titleAttribute)) {
-                return $relationshipQuery
-                    ->pluck($titleAttribute, $relationship->getModel()->getQualifiedKeyName())
-                    ->all();
-            }
-
-            return $relationshipQuery
+                })
                 ->get()
                 ->mapWithKeys(fn (Model $record): array => [$record->getKey() => $this->getRecordTitle($record)])
-                ->all();
+                ->toArray();
         };
 
         $select = Select::make('recordId')
@@ -264,17 +253,5 @@ class AssociateAction extends Action
         }
 
         return $select;
-    }
-
-    public function forceSearchCaseInsensitive(bool | Closure $condition = true): static
-    {
-        $this->isSearchForcedCaseInsensitive = $condition;
-
-        return $this;
-    }
-
-    public function isSearchForcedCaseInsensitive(): bool
-    {
-        return (bool) $this->evaluate($this->isSearchForcedCaseInsensitive);
     }
 }

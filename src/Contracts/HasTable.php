@@ -2,6 +2,7 @@
 
 namespace Filament\Tables\Contracts;
 
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Support\Contracts\TranslatableContentDriver;
 use Filament\Tables\Actions\Action;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
-interface HasTable
+interface HasTable extends HasForms
 {
     public function callTableColumnAction(string $name, string $recordKey): mixed;
 
@@ -87,6 +88,8 @@ interface HasTable
 
     public function isTableLoaded(): bool;
 
+    public function makeTableTranslatableContentDriver(): ?TranslatableContentDriver;
+
     public function hasTableSearch(): bool;
 
     public function resetTableSearch(): void;
@@ -100,9 +103,5 @@ interface HasTable
      */
     public function getTableColumnSearchIndicators(): array;
 
-    public function getFilteredTableQuery(): Builder;
-
     public function getFilteredSortedTableQuery(): Builder;
-
-    public function makeFilamentTranslatableContentDriver(): ?TranslatableContentDriver;
 }

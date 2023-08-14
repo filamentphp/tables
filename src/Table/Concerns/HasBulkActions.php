@@ -6,7 +6,7 @@ use Closure;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Enums\RecordCheckboxPosition;
+use Filament\Tables\Actions\RecordCheckboxPosition;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
@@ -27,7 +27,7 @@ trait HasBulkActions
 
     protected bool | Closure | null $selectsCurrentPageOnly = false;
 
-    protected RecordCheckboxPosition | Closure | null $recordCheckboxPosition = null;
+    protected string | Closure | null $recordCheckboxPosition = null;
 
     /**
      * @param  array<BulkAction | ActionGroup> | ActionGroup  $actions
@@ -155,15 +155,21 @@ trait HasBulkActions
         return $this->checkIfRecordIsSelectableUsing !== null;
     }
 
-    public function recordCheckboxPosition(RecordCheckboxPosition | Closure | null $position = null): static
+    public function recordCheckboxPosition(string | Closure | null $position = null): static
     {
         $this->recordCheckboxPosition = $position;
 
         return $this;
     }
 
-    public function getRecordCheckboxPosition(): RecordCheckboxPosition
+    public function getRecordCheckboxPosition(): string
     {
-        return $this->evaluate($this->recordCheckboxPosition) ?? RecordCheckboxPosition::BeforeCells;
+        $position = $this->evaluate($this->recordCheckboxPosition);
+
+        if (filled($position)) {
+            return $position;
+        }
+
+        return RecordCheckboxPosition::BeforeCells;
     }
 }
