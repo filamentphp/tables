@@ -1,11 +1,7 @@
 <?php
 
 return [
-    'column_toggle' => [
 
-        'heading' => 'Стовпці',
-
-    ],
     'columns' => [
 
         'text' => [
@@ -15,49 +11,53 @@ return [
     ],
 
     'fields' => [
-        'bulk_select_page' => [
-            'label' => 'Обрати/зняти всі елементи для масових дій.',
-        ],
 
-        'bulk_select_record' => [
-            'label' => 'Обрати/скасувати :key для масових дій.',
-        ],
         'search' => [
             'label' => 'Пошук',
             'placeholder' => 'Пошук',
-            'indicator' => 'Пошук',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Підсумок',
+        'label' => 'Пагінація',
 
-        'subheadings' => [
-            'all' => 'Всі :label',
-            'group' => 'Підсумок :group ',
-            'page' => 'Ця сторінка',
-        ],
+        'overview' => 'Показано з :first по :last з :total',
 
-        'summarizers' => [
+        'fields' => [
 
-            'average' => [
-                'label' => 'Середнє',
-            ],
+            'records_per_page' => [
 
-            'count' => [
-                'label' => 'Кол.',
-            ],
+                'label' => 'на сторінку',
 
-            'sum' => [
-                'label' => 'Сума',
+                'options' => [
+                    'all' => 'Всі',
+                ],
+
             ],
 
         ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Перейти до сторінки :page',
+            ],
+
+            'next' => [
+                'label' => 'Наступна',
+            ],
+
+            'previous' => [
+                'label' => 'Попередня',
+            ],
+
+        ],
+
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Зберегти порядок',
@@ -70,9 +70,7 @@ return [
         'filter' => [
             'label' => 'Фільтр',
         ],
-        'group' => [
-            'label' => 'Групувати',
-        ],
+
         'open_bulk_actions' => [
             'label' => 'Відкрити дії',
         ],
@@ -84,15 +82,12 @@ return [
     ],
 
     'empty' => [
-
-        'heading' => 'Не знайдено :model',
-
-        'description' => 'Створити :model для початку.',
+        'heading' => 'Не знайдено записів',
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Видалити фільтр',
@@ -104,12 +99,10 @@ return [
             ],
 
             'reset' => [
-                'label' => 'Скинути',
+                'label' => 'Скинути фільтри',
             ],
 
         ],
-
-        'heading' => 'Фільтри',
 
         'indicator' => 'Активні фільтри',
 
@@ -123,52 +116,28 @@ return [
 
         'trashed' => [
 
-            'label' => 'Віддалені записи',
+            'label' => 'Видалені записи',
 
             'only_trashed' => 'Тільки видалені записи',
 
-            'with_trashed' => 'З віддаленими записами',
+            'with_trashed' => 'З видаленими записами',
 
-            'without_trashed' => 'Без віддалених записів',
-
-        ],
-
-    ],
-
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'Групувати за',
-                'placeholder' => 'Групувати за',
-            ],
-
-            'direction' => [
-
-                'label' => 'Напрямок',
-
-                'options' => [
-                    'asc' => 'За зростанням',
-                    'desc' => 'За спаданням',
-                ],
-
-            ],
+            'without_trashed' => 'Без видалених записів',
 
         ],
 
     ],
 
-    'reorder_indicator' => 'Drag-n-drop порядок.',
+    'reorder_indicator' => 'Drag-n-drop порядок записів.',
 
     'selection_indicator' => [
 
-        'selected_count' => 'Обрано 1 запис|Обрано :count записів',
+        'selected_count' => 'Вибрано 1 запис.|Вибрано :count записів.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
-                'label' => 'Обрати все :count',
+                'label' => 'Вибрати все :count',
             ],
 
             'deselect_all' => [
@@ -184,16 +153,16 @@ return [
         'fields' => [
 
             'column' => [
-                'label' => 'Сортувати за',
+                'label' => 'Сортування',
             ],
 
             'direction' => [
 
-                'label' => 'Напрямок',
+                'label' => 'Напрямок сортування',
 
                 'options' => [
                     'asc' => 'За зростанням',
-                    'desc' => 'За спаданням',
+                    'desc' => 'За зменшенням',
                 ],
 
             ],

@@ -3,10 +3,9 @@
 namespace Filament\Tables\Table\Concerns;
 
 use Closure;
-use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Actions\Position;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
@@ -27,12 +26,12 @@ trait HasActions
 
     protected string | Closure | null $actionsAlignment = null;
 
-    protected ActionsPosition | Closure | null $actionsPosition = null;
+    protected string | Closure | null $actionsPosition = null;
 
     /**
      * @param  array<Action | ActionGroup> | ActionGroup  $actions
      */
-    public function actions(array | ActionGroup $actions, ActionsPosition | string | Closure | null $position = null): static
+    public function actions(array | ActionGroup $actions, string | Closure $position = null): static
     {
         foreach (Arr::wrap($actions) as $action) {
             $action->table($this);
@@ -47,7 +46,7 @@ trait HasActions
 
                 $this->mergeCachedFlatActions($flatActions);
             } elseif ($action instanceof Action) {
-                $action->defaultSize(ActionSize::Small);
+                $action->defaultSize('sm');
                 $action->defaultView($action::LINK_VIEW);
 
                 $this->cacheAction($action);
@@ -70,14 +69,14 @@ trait HasActions
         return $this;
     }
 
-    public function actionsAlignment(string | Closure | null $alignment = null): static
+    public function actionsAlignment(string | Closure $alignment = null): static
     {
         $this->actionsAlignment = $alignment;
 
         return $this;
     }
 
-    public function actionsPosition(ActionsPosition | Closure | null $position = null): static
+    public function actionsPosition(string | Closure $position = null): static
     {
         $this->actionsPosition = $position;
 
@@ -132,11 +131,6 @@ trait HasActions
         return $this->flatActions;
     }
 
-    public function hasAction(string $name): bool
-    {
-        return array_key_exists($name, $this->getFlatActions());
-    }
-
     protected function cacheAction(Action $action): void
     {
         $this->flatActions[$action->getName()] = $action;
@@ -156,7 +150,7 @@ trait HasActions
     /**
      * @param  array<string>  $modalActionNames
      */
-    protected function getMountableModalActionFromAction(Action $action, array $modalActionNames, string $parentActionName, ?Model $mountedRecord = null): ?Action
+    protected function getMountableModalActionFromAction(Action $action, array $modalActionNames, string $parentActionName, Model $mountedRecord = null): ?Action
     {
         foreach ($modalActionNames as $modalActionName) {
             $action = $action->getMountableModalAction($modalActionName);
@@ -179,19 +173,29 @@ trait HasActions
         return $action;
     }
 
-    public function getActionsPosition(): ActionsPosition
+    public function getActionsPosition(): string
     {
         $position = $this->evaluate($this->actionsPosition);
 
-        if ($position) {
+        if (filled($position)) {
             return $position;
         }
 
         if (! ($this->getContentGrid() || $this->hasColumnsLayout())) {
-            return ActionsPosition::AfterColumns;
+            return Position::AfterColumns;
         }
 
-        return ActionsPosition::AfterContent;
+        $actions = $this->getActions();
+
+        $firstAction = Arr::first($actions);
+
+        if ($firstAction instanceof ActionGroup) {
+            $firstAction->size('sm md:md');
+
+            return Position::BottomCorner;
+        }
+
+        return Position::AfterContent;
     }
 
     public function getActionsAlignment(): ?string

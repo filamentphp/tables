@@ -1,7 +1,3 @@
-@php
-    use Filament\Support\Enums\Alignment;
-@endphp
-
 <div
     {{
         $attributes
@@ -9,9 +5,9 @@
             ->class([
                 'flex flex-col',
                 match ($getAlignment()) {
-                    Alignment::Center, 'center' => 'items-center',
-                    Alignment::End, Alignment::Right, 'end', 'right' => 'items-end',
-                    default => 'items-start',
+                    'center' => 'items-center',
+                    'end', 'right' => 'items-end',
+                    'start', 'left', null => 'items-start',
                 },
                 match ($space = $getSpace()) {
                     1 => 'space-y-1',

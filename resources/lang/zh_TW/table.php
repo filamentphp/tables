@@ -11,7 +11,39 @@ return [
 
     ],
 
-    'actions' => [
+    'pagination' => [
+
+        'label' => '分頁導航',
+
+        'overview' => '正在顯示第 :first 至 :last 項結果，共 :total 項',
+
+        'fields' => [
+
+            'records_per_page' => [
+                'label' => '每頁顯示',
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => '前往第 :page 頁',
+            ],
+
+            'next' => [
+                'label' => '下一頁',
+            ],
+
+            'previous' => [
+                'label' => '上一頁',
+            ],
+
+        ],
+
+    ],
+
+    'buttons' => [
 
         'filter' => [
             'label' => '篩選',
@@ -33,7 +65,7 @@ return [
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'reset' => [
                 'label' => '重設篩選',
@@ -65,9 +97,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '已選擇 :count 個項目',
+        'selected_count' => '已選擇 :count 個項目。',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => '選擇全部 :count 項',

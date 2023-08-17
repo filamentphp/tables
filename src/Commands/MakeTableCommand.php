@@ -5,10 +5,10 @@ namespace Filament\Tables\Commands;
 use Filament\Support\Commands\Concerns\CanIndentStrings;
 use Filament\Support\Commands\Concerns\CanManipulateFiles;
 use Filament\Support\Commands\Concerns\CanReadModelSchemas;
+use Filament\Support\Commands\Concerns\CanValidateInput;
 use Filament\Tables\Commands\Concerns\CanGenerateTables;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use function Laravel\Prompts\text;
 
 class MakeTableCommand extends Command
 {
@@ -16,6 +16,7 @@ class MakeTableCommand extends Command
     use CanIndentStrings;
     use CanManipulateFiles;
     use CanReadModelSchemas;
+    use CanValidateInput;
 
     protected $description = 'Create a new Livewire component containing a Filament table';
 
@@ -23,11 +24,7 @@ class MakeTableCommand extends Command
 
     public function handle(): int
     {
-        $component = (string) str($this->argument('name') ?? text(
-            label: 'What is the table name?',
-            placeholder: 'Products/ListProducts',
-            required: true,
-        ))
+        $component = (string) str($this->argument('name') ?? $this->askRequired('Name (e.g. `Products/ListProducts`)', 'name'))
             ->trim('/')
             ->trim('\\')
             ->trim(' ')
@@ -44,17 +41,13 @@ class MakeTableCommand extends Command
             ->map(fn ($segment) => Str::lower(Str::kebab($segment)))
             ->implode('.');
 
-        $model = (string) str($this->argument('model') ?? text(
-            label: 'What is the model name?',
-            placeholder: 'Product',
-            required: true,
-        ))
+        $model = (string) str($this->argument('model') ?? $this->askRequired('Model (e.g. `Product`)', 'model'))
             ->replace('/', '\\');
         $modelClass = (string) str($model)->afterLast('\\');
 
         $path = (string) str($component)
             ->prepend('/')
-            ->prepend(app_path('Livewire/'))
+            ->prepend(app_path('Http/Livewire/'))
             ->replace('\\', '/')
             ->replace('//', '/')
             ->append('.php');
@@ -77,7 +70,7 @@ class MakeTableCommand extends Command
             ) : '//', 4),
             'model' => $model,
             'modelClass' => $modelClass,
-            'namespace' => 'App\\Livewire' . ($componentNamespace !== '' ? "\\{$componentNamespace}" : ''),
+            'namespace' => 'App\\Http\\Livewire' . ($componentNamespace !== '' ? "\\{$componentNamespace}" : ''),
             'view' => $view,
         ]);
 

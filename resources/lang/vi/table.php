@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Cột',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -29,7 +23,44 @@ return [
         'search' => [
             'label' => 'Tìm kiếm',
             'placeholder' => 'Tìm kiếm',
-            'indicator' => 'Tìm kiếm',
+        ],
+
+    ],
+
+    'pagination' => [
+
+        'label' => 'Điều hướng phân trang',
+
+        'overview' => 'Hiển thị từ :first đến :last trong số :total kết quả',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'mỗi trang',
+
+                'options' => [
+                    'all' => 'Tất cả',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Đi tới trang :page',
+            ],
+
+            'next' => [
+                'label' => 'Tiếp',
+            ],
+
+            'previous' => [
+                'label' => 'Trước',
+            ],
+
         ],
 
     ],
@@ -62,7 +93,7 @@ return [
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Sắp xếp lại bản ghi thành công',
@@ -94,12 +125,11 @@ return [
 
         'heading' => 'Không có dữ liệu nào',
 
-        'description' => 'Tạo một :model để bắt đầu.',
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Xóa bộ lọc',
@@ -115,8 +145,6 @@ return [
             ],
 
         ],
-
-        'heading' => 'Bộ lọc',
 
         'indicator' => 'Bộ lọc đang kích hoạt',
 
@@ -170,9 +198,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => 'đã chọn 1 bản ghi|đã chọn :count bản ghi',
+        'selected_count' => 'đã chọn 1 bản ghi.|đã chọn :count bản ghi.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Chọn tất cả :count',
