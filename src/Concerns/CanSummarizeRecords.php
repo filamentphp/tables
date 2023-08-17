@@ -3,7 +3,7 @@
 namespace Filament\Tables\Concerns;
 
 use Closure;
-use Filament\Support\Services\RelationshipJoiner;
+use Filament\Tables\Support\RelationshipJoiner;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -27,7 +27,7 @@ trait CanSummarizeRecords
     /**
      * @return array<string, mixed>
      */
-    public function getTableSummarySelectedState(Builder $query, Closure $modifyQueryUsing = null): array
+    public function getTableSummarySelectedState(Builder $query, ?Closure $modifyQueryUsing = null): array
     {
         $selects = [];
 

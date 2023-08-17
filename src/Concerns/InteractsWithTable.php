@@ -4,13 +4,13 @@ namespace Filament\Tables\Concerns;
 
 use Closure;
 use Filament\Forms;
-use Filament\Support\Contracts\TranslatableContentDriver;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Livewire\WithPagination;
 
 trait InteractsWithTable
 {
@@ -27,6 +27,9 @@ trait InteractsWithTable
     use HasColumns;
     use HasFilters;
     use HasRecords;
+    use WithPagination {
+        WithPagination::resetPage as resetLivewirePage;
+    }
     use CanBeStriped;
     use CanPollRecords;
     use HasContent;
@@ -164,7 +167,6 @@ trait InteractsWithTable
             ->query($this->getTableQuery())
             ->actions($this->getTableActions())
             ->actionsColumnLabel($this->getTableActionsColumnLabel())
-            ->actionsPosition($this->getTableActionsPosition())
             ->groupedBulkActions($this->getTableBulkActions())
             ->checkIfRecordIsSelectableUsing($this->isTableRecordSelectable())
             ->columns($this->getTableColumns())
@@ -184,10 +186,8 @@ trait InteractsWithTable
             ->emptyStateHeading($this->getTableEmptyStateHeading())
             ->emptyStateIcon($this->getTableEmptyStateIcon())
             ->filters($this->getTableFilters())
-            ->filtersFormColumns($this->getTableFiltersFormColumns())
             ->filtersFormMaxHeight($this->getTableFiltersFormMaxHeight())
             ->filtersFormWidth($this->getTableFiltersFormWidth())
-            ->filtersLayout($this->getTableFiltersLayout())
             ->header($this->getTableHeader())
             ->headerActions($this->getTableHeaderActions())
             ->modelLabel($this->getTableModelLabel())
@@ -250,22 +250,11 @@ trait InteractsWithTable
     }
 
     /**
-     * @return class-string<TranslatableContentDriver> | null
+     * @param  ?string  $pageName
      */
-    public function getTableTranslatableContentDriver(): ?string
+    public function resetPage($pageName = null): void
     {
-        return null;
-    }
-
-    public function makeTableTranslatableContentDriver(): ?TranslatableContentDriver
-    {
-        $driver = $this->getTableTranslatableContentDriver();
-
-        if (! $driver) {
-            return null;
-        }
-
-        return app($driver, ['locale' => $this->getActiveTableLocale() ?? app()->getLocale()]);
+        $this->resetLivewirePage($pageName ?? $this->getTablePaginationPageName());
     }
 
     /**

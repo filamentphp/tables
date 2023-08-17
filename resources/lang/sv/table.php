@@ -28,44 +28,6 @@ return [
 
     ],
 
-    'pagination' => [
-
-        'label' => 'Meny för sidnumerering',
-
-        'overview' => '{1} Visar 1 resultat|[2,*] Visar :first till :last av :total resultat',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'per sida',
-
-                'options' => [
-                    'all' => 'Alla',
-                ],
-
-            ],
-
-        ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => 'Gå till sida :page',
-            ],
-
-            'next' => [
-                'label' => 'Nästa',
-            ],
-
-            'previous' => [
-                'label' => 'Föregående',
-            ],
-
-        ],
-
-    ],
-
     'summary' => [
 
         'heading' => 'Sammanfattning',
@@ -94,7 +56,7 @@ return [
 
     ],
 
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Sluta ändra ordning på rader',
@@ -128,7 +90,7 @@ return [
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Ta bort filter',
@@ -197,9 +159,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '1 rad vald.|:count rader valda.',
+        'selected_count' => '1 rad vald|:count rader valda',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Markera alla :count',

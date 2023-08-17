@@ -19,45 +19,7 @@ return [
 
     ],
 
-    'pagination' => [
-
-        'label' => 'Pagination navigation',
-
-        'overview' => 'Rodomi nuo :first iki :last rezultatai iš :total',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'per puslapį',
-
-                'options' => [
-                    'all' => 'Viską',
-                ],
-
-            ],
-
-        ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => 'Eiti į puslapį :page',
-            ],
-
-            'next' => [
-                'label' => 'Kitas',
-            ],
-
-            'previous' => [
-                'label' => 'Buvęs',
-            ],
-
-        ],
-
-    ],
-
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Finish reordering records',
@@ -87,7 +49,7 @@ return [
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Pašalinti filtrą',
@@ -132,9 +94,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '1 įrašas pasirinktas.|:count įrašai pasirinkti.',
+        'selected_count' => '1 įrašas pasirinktas|:count įrašai pasirinkti',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Pažymėti visus :count',
