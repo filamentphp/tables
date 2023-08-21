@@ -27,7 +27,45 @@ return [
 
     ],
 
-    'actions' => [
+    'pagination' => [
+
+        'label' => 'Gwe-lywio tudalennau',
+
+        'overview' => '{1} Dangos 1 canlyniad|[2,*] Yn dangos :first i :last o :total canlyniadau',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'fesul tudalen',
+
+                'options' => [
+                    'all' => 'Pawb',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Ewch i dudalen :page',
+            ],
+
+            'next' => [
+                'label' => 'Nesaf',
+            ],
+
+            'previous' => [
+                'label' => 'Blaenorol',
+            ],
+
+        ],
+
+    ],
+
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Gorffen ail archebu cofnodion',
@@ -59,7 +97,7 @@ return [
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Tynnu hidlydd',
@@ -104,9 +142,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => 'Dewiswyd 1 cofnod|:count rcyfrif wedi`u dewis',
+        'selected_count' => 'Dewiswyd 1 cofnod.|:count rcyfrif wedi`u dewis.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Dewiswch bob :count',

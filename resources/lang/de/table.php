@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Spalten',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -29,40 +23,49 @@ return [
         'search' => [
             'label' => 'Suche',
             'placeholder' => 'Suche',
-            'indicator' => 'Suche',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Zusammenfassung',
+        'label' => 'Seitennavigation',
 
-        'subheadings' => [
-            'all' => 'Alle :label',
-            'group' => ':group Zusammenfassung',
-            'page' => 'Diese Seite',
+        'overview' => '{1} Zeige 1 Ergebnis|[2,*] Zeige :first bis :last von :total Ergebnissen',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'pro Seite',
+
+                'options' => [
+                    'all' => 'Alle',
+                ],
+
+            ],
+
         ],
 
-        'summarizers' => [
+        'buttons' => [
 
-            'average' => [
-                'label' => 'Durchschnitt',
+            'go_to_page' => [
+                'label' => 'Weiter zur Seite :page',
             ],
 
-            'count' => [
-                'label' => 'Anzahl',
+            'next' => [
+                'label' => 'Nächste',
             ],
 
-            'sum' => [
-                'label' => 'Summe',
+            'previous' => [
+                'label' => 'Vorherige',
             ],
 
         ],
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Sortieren beenden',
@@ -74,10 +77,6 @@ return [
 
         'filter' => [
             'label' => 'Filtern',
-        ],
-
-        'group' => [
-            'label' => 'Gruppe',
         ],
 
         'open_bulk_actions' => [
@@ -94,13 +93,11 @@ return [
 
         'heading' => 'Keine Datensätze gefunden',
 
-        'description' => 'Erstelle ein(e) :model um zu beginnen.',
-
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Filter löschen',
@@ -116,8 +113,6 @@ return [
             ],
 
         ],
-
-        'heading' => 'Filter',
 
         'indicator' => 'Aktive Filter',
 
@@ -143,37 +138,13 @@ return [
 
     ],
 
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'Gruppieren nach',
-                'placeholder' => 'Gruppieren nach',
-            ],
-
-            'direction' => [
-
-                'label' => 'Gruppierungsrichtung',
-
-                'options' => [
-                    'asc' => 'Aufsteigend',
-                    'desc' => 'Absteigend',
-                ],
-
-            ],
-
-        ],
-
-    ],
-
     'reorder_indicator' => 'Zum Sortieren die Einträge per Drag & Drop in die richtige Reihenfolge ziehen.',
 
     'selection_indicator' => [
 
-        'selected_count' => '1 Datensatz ausgewählt|:count Datensätze ausgewählt',
+        'selected_count' => '1 Datensatz ausgewählt.|:count Datensätze ausgewählt.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Alle :count Datensätze auswählen',

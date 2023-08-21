@@ -33,12 +33,12 @@ class Group extends Component
 
     protected bool $isTitlePrefixedWithLabel = true;
 
-    final public function __construct(?string $id = null)
+    final public function __construct(string $id = null)
     {
         $this->id($id);
     }
 
-    public static function make(?string $id = null): static
+    public static function make(string $id = null): static
     {
         return app(static::class, ['id' => $id]);
     }
@@ -242,7 +242,7 @@ class Group extends Component
     /**
      * @param  array<string> | null  $relationships
      */
-    protected function getSortColumnForQuery(EloquentBuilder $query, string $sortColumn, ?array $relationships = null, ?Relation $lastRelationship = null): string | Builder
+    protected function getSortColumnForQuery(EloquentBuilder $query, string $sortColumn, array $relationships = null, Relation $lastRelationship = null): string | Builder
     {
         $relationships ??= ($relationshipName = $this->getRelationshipName()) ?
             explode('.', $relationshipName) :
@@ -305,7 +305,7 @@ class Group extends Component
         return $query->where($column, $value);
     }
 
-    public function getRelationship(Model $record, ?string $name = null): ?Relation
+    public function getRelationship(Model $record, string $name = null): ?Relation
     {
         if (blank($name) && (! str($this->getColumn())->contains('.'))) {
             return null;
@@ -327,7 +327,7 @@ class Group extends Component
         return $relationship;
     }
 
-    public function getRelationshipAttribute(?string $name = null): string
+    public function getRelationshipAttribute(string $name = null): string
     {
         $name ??= $this->getColumn();
 
@@ -338,7 +338,7 @@ class Group extends Component
         return (string) str($name)->afterLast('.');
     }
 
-    public function getRelationshipName(?string $name = null): ?string
+    public function getRelationshipName(string $name = null): ?string
     {
         $name ??= $this->getColumn();
 

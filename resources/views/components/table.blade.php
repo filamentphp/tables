@@ -5,11 +5,11 @@
 ])
 
 <table
-    {{ $attributes->class(['fi-ta-table w-full table-auto divide-y divide-gray-200 text-start dark:divide-white/5']) }}
+    {{ $attributes->class(['filament-tables-table w-full table-auto divide-y text-start dark:divide-gray-700']) }}
 >
     @if ($header)
-        <thead class="bg-gray-50 dark:bg-white/5">
-            <tr>
+        <thead>
+            <tr class="bg-gray-500/5">
                 {{ $header }}
             </tr>
         </thead>
@@ -17,17 +17,17 @@
 
     <tbody
         @if ($reorderable)
-            x-on:end.stop="$wire.reorderTable($event.target.sortable.toArray())"
             x-sortable
+            x-on:end.stop="$wire.reorderTable($event.target.sortable.toArray())"
         @endif
-        class="divide-y divide-gray-200 whitespace-nowrap dark:divide-white/5"
+        class="divide-y whitespace-nowrap dark:divide-gray-700"
     >
         {{ $slot }}
     </tbody>
 
     @if ($footer)
-        <tfoot class="bg-gray-50 dark:bg-white/5">
-            <tr>
+        <tfoot>
+            <tr class="bg-gray-50">
                 {{ $footer }}
             </tr>
         </tfoot>

@@ -27,7 +27,45 @@ return [
 
     ],
 
-    'actions' => [
+    'pagination' => [
+
+        'label' => 'Navigacija po stranicama',
+
+        'overview' => '{1} Prikazuje 1 rezultat|[2,*]Prikazivanje :first od :last od ukupno :total rezultata',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'po stranici',
+
+                'options' => [
+                    'all' => 'Svi',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Idite na stranicu :page',
+            ],
+
+            'next' => [
+                'label' => 'Dalje',
+            ],
+
+            'previous' => [
+                'label' => 'Nazad',
+            ],
+
+        ],
+
+    ],
+
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Završi preuređivanje zapisa',
@@ -57,7 +95,7 @@ return [
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Skloni filter',
@@ -102,9 +140,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '1 izabran zapis|:count izabrani zapisi',
+        'selected_count' => '1 izabran zapis.|:count izabrani zapisi.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Izaberite sve :count',

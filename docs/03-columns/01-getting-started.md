@@ -141,7 +141,7 @@ public function table(Table $table): Table
 
 ## Searching
 
-Columns may be searchable by using the text input field in the top right of the table. To make a column searchable, you must use the `searchable()` method:
+Columns may be searchable, by using the text input in the top right of the table. To make a column searchable, you must use the `searchable()` method:
 
 ```php
 use Filament\Tables\Columns\TextColumn;
@@ -177,7 +177,7 @@ TextColumn::make('full_name')
 
 ### Searching individually
 
-You can choose to enable a per-column search input field using the `isIndividual` parameter:
+You can choose to enable a per-column search input using the `isIndividual` parameter:
 
 ```php
 use Filament\Tables\Columns\TextColumn;
@@ -188,7 +188,7 @@ TextColumn::make('name')
 
 <AutoScreenshot name="tables/columns/individually-searchable" alt="Table with individually searchable column" version="3.x" />
 
-If you use the `isIndividual` parameter, you may still search that column using the main "global" search input field for the entire table.
+If you use the `isIndividual` parameter, you may still search that column using the main "global" search input for the entire table.
 
 To disable that functionality while still preserving the individual search functionality, you need the `isGlobal` parameter:
 
@@ -202,13 +202,10 @@ TextColumn::make('title')
 You may optionally persist the searches in the query string:
 
 ```php
-use Livewire\Attributes\Url;
-
-/**
- * @var array<string, string | array<string, string | null> | null>
- */
-#[Url]
-public array $tableColumnSearches = [];
+protected $queryString = [
+    // ...
+    'tableColumnSearches',
+];
 ```
 
 ### Persist search in session
@@ -242,7 +239,9 @@ use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('title')
     ->action(function (Post $record): void {
-        $this->dispatch('open-post-edit-modal', post: $record->getKey());
+        $this->dispatchBrowserEvent('open-post-edit-modal', [
+            'post' => $record->getKey(),
+        ]);
     })
 ```
 
@@ -259,7 +258,9 @@ TextColumn::make('title')
         Action::make('select')
             ->requiresConfirmation()
             ->action(function (Post $record): void {
-                $this->dispatch('select-post', post: $record->getKey());
+                $this->dispatchBrowserEvent('select-post', [
+                    'post' => $record->getKey(),
+                ]);
             }),
     )
 ```
@@ -396,17 +397,16 @@ TextColumn::make('title')
 
 ## Aligning column content
 
-Table columns are aligned to the start (left in LTR interfaces or right in RTL interfaces) by default. You may change the alignment using the `alignment()` method, and passing it `Alignment::Start`, `Alignment::Center`, `Alignment::End` or `Alignment::Justify` options:
+Table columns are aligned to the start (left in LTR interfaces or right in RTL interfaces) by default. You may change the alignment using the `alignment()` method, and passing it `start`, `center`, `end`, `left`, `right` or `justify` options:
 
 ```php
-use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\TextColumn;
 
-TextColumn::make('email')
-    ->alignment(Alignment::End)
+TextColumn::make('name')
+    ->alignment('end')
 ```
 
-<AutoScreenshot name="tables/columns/alignment" alt="Table with column aligned to the end" version="3.x" />
+<AutoScreenshot name="tables/columns/alignment" alt="Table with column aligned to the right" version="3.x" />
 
 Alternatively, you may use shorthand methods like `alignEnd()`:
 

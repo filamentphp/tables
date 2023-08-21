@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Kolommen',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -29,7 +23,44 @@ return [
         'search' => [
             'label' => 'Zoeken',
             'placeholder' => 'Zoeken',
-            'indicator' => 'Zoekopdracht',
+        ],
+
+    ],
+
+    'pagination' => [
+
+        'label' => 'Paginering navigatie',
+
+        'overview' => '{1} Toont 1 resultaat|[2,*] Toont :first tot :last van :total resultaten',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'per pagina',
+
+                'options' => [
+                    'all' => 'Alles',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Ga naar pagina :page',
+            ],
+
+            'next' => [
+                'label' => 'Volgende',
+            ],
+
+            'previous' => [
+                'label' => 'Vorige',
+            ],
+
         ],
 
     ],
@@ -62,7 +93,7 @@ return [
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Herordenen van records voltooien',
@@ -91,16 +122,12 @@ return [
     ],
 
     'empty' => [
-
-        'heading' => 'Geen :model',
-
-        'description' => 'Maak een :model aan om aan de slag te gaan.',
-
+        'heading' => 'Geen records gevonden',
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Filter verwijderen',
@@ -112,12 +139,10 @@ return [
             ],
 
             'reset' => [
-                'label' => 'Resetten',
+                'label' => 'Filters resetten',
             ],
 
         ],
-
-        'heading' => 'Filters',
 
         'indicator' => 'Actieve filters',
 
@@ -171,9 +196,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '1 record geselecteerd|:count records geselecteerd',
+        'selected_count' => '1 record geselecteerd.|:count records geselecteerd.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Selecteer alle :count',

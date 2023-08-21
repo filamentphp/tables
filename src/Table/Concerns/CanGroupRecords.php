@@ -3,7 +3,6 @@
 namespace Filament\Tables\Table\Concerns;
 
 use Closure;
-use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Grouping\Group;
 
@@ -69,7 +68,7 @@ trait CanGroupRecords
     public function getGroupRecordsTriggerAction(): Action
     {
         $action = Action::make('groupRecords')
-            ->label(__('filament-tables::table.actions.group.label'))
+            ->label(__('filament-tables::table.buttons.group.label'))
             ->iconButton()
             ->icon('heroicon-m-rectangle-stack')
             ->color('gray')
@@ -83,7 +82,7 @@ trait CanGroupRecords
         }
 
         if ($action->getView() === Action::BUTTON_VIEW) {
-            $action->defaultSize(ActionSize::Small);
+            $action->defaultSize('sm');
         }
 
         return $action;
