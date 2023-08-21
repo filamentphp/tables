@@ -2,6 +2,12 @@
 
 return [
 
+    'column_toggle' => [
+
+        'heading' => 'Kolum',
+
+    ],
+
     'columns' => [
 
         'text' => [
@@ -23,49 +29,40 @@ return [
         'search' => [
             'label' => 'Cari',
             'placeholder' => 'Carian',
+            'indicator' => 'Carian',
         ],
 
     ],
 
-    'pagination' => [
+    'summary' => [
 
-        'label' => 'Navigasi Penomboran',
+        'heading' => 'Ringkasan',
 
-        'overview' => 'Menunjukkan :first ke :last dari :total rekod',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'setiap halaman',
-
-                'options' => [
-                    'all' => 'Semua',
-                ],
-
-            ],
-
+        'subheadings' => [
+            'all' => 'Semua :label',
+            'group' => ':group ringkasan',
+            'page' => 'Muka surat ini',
         ],
 
-        'buttons' => [
+        'summarizers' => [
 
-            'go_to_page' => [
-                'label' => 'Pergi ke halaman :page',
+            'average' => [
+                'label' => 'Purata',
             ],
 
-            'next' => [
-                'label' => 'Seterusnya',
+            'count' => [
+                'label' => 'Bilangan',
             ],
 
-            'previous' => [
-                'label' => 'Sebelumnya',
+            'sum' => [
+                'label' => 'Jumlah',
             ],
 
         ],
 
     ],
 
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Selesai menyusun semula rekod',
@@ -77,6 +74,10 @@ return [
 
         'filter' => [
             'label' => 'Penapis',
+        ],
+
+        'group' => [
+            'label' => 'Kumpulan',
         ],
 
         'open_bulk_actions' => [
@@ -93,11 +94,13 @@ return [
 
         'heading' => 'Tiada rekod dijumpai',
 
+        'description' => 'Cipta :model untuk bermula.',
+
     ],
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Buang penapis',
@@ -113,6 +116,8 @@ return [
             ],
 
         ],
+
+        'heading' => 'Penapis',
 
         'indicator' => 'Penapis aktif',
 
@@ -138,13 +143,37 @@ return [
 
     ],
 
+    'grouping' => [
+
+        'fields' => [
+
+            'group' => [
+                'label' => 'Kumpulan mengikut',
+                'placeholder' => 'Kumpulan mengikut',
+            ],
+
+            'direction' => [
+
+                'label' => 'Arah kumpulan',
+
+                'options' => [
+                    'asc' => 'Menaik',
+                    'desc' => 'Menurun',
+                ],
+
+            ],
+
+        ],
+
+    ],
+
     'reorder_indicator' => 'Seret dan lepaskan rekod mengikut susunan.',
 
     'selection_indicator' => [
 
-        'selected_count' => '{1} 1 rekod dipilih.|[2,*] :count rekod yang dipilih.',
+        'selected_count' => '{1} 1 rekod dipilih|[2,*] :count rekod yang dipilih',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Pilih semua :count',

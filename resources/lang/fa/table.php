@@ -2,6 +2,12 @@
 
 return [
 
+    'column_toggle' => [
+
+        'heading' => 'ستون‌ها',
+
+    ],
+
     'columns' => [
 
         'text' => [
@@ -13,59 +19,50 @@ return [
     'fields' => [
 
         'bulk_select_page' => [
-            'label' => 'انتخاب/عدم انتخاب تمامی موارد برای اقدامات گروهی',
+            'label' => 'انتخاب / عدم‌انتخاب تمامی موارد برای اقدامات گروهی',
         ],
 
         'bulk_select_record' => [
-            'label' => 'انتخاب/عدم انتخاب مورد :key برای اقدامات گروهی',
+            'label' => 'انتخاب / عدم‌انتخاب مورد :key برای اقدامات گروهی',
         ],
 
         'search' => [
             'label' => 'جستجو',
             'placeholder' => 'جستجو',
+            'indicator' => 'جستجو',
         ],
 
     ],
 
-    'pagination' => [
+    'summary' => [
 
-        'label' => 'صفحه بندی',
+        'heading' => 'خلاصه',
 
-        'overview' => 'در حال نمایش :first به :last از :total نتایج',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'در هر صفحه',
-
-                'options' => [
-                    'all' => 'همه',
-                ],
-
-            ],
-
+        'subheadings' => [
+            'all' => 'تمام :label',
+            'group' => ':group خلاصه',
+            'page' => 'این صفحه',
         ],
 
-        'buttons' => [
+        'summarizers' => [
 
-            'go_to_page' => [
-                'label' => 'برو به صفحه :page',
+            'average' => [
+                'label' => 'میانگین',
             ],
 
-            'next' => [
-                'label' => 'بعدی',
+            'count' => [
+                'label' => 'تعداد',
             ],
 
-            'previous' => [
-                'label' => 'قبلی',
+            'sum' => [
+                'label' => 'مجموع',
             ],
 
         ],
 
     ],
 
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'اتمام بازچینش رکوردها',
@@ -79,23 +76,31 @@ return [
             'label' => 'فیلتر',
         ],
 
+        'group' => [
+            'label' => 'گروه',
+        ],
+
         'open_bulk_actions' => [
             'label' => 'بازکردن عملیات',
         ],
 
         'toggle_columns' => [
-            'label' => 'باز/بستن ستون‌ها',
+            'label' => 'باز / بستن ستون‌ها',
         ],
 
     ],
 
     'empty' => [
-        'heading' => 'هیچ رکوردی یافت نشد',
+
+        'heading' => ':model یافت نشد.',
+
+        'description' => 'برای شروع یک :model ایجاد کنید.',
+
     ],
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'حذف فیلتر',
@@ -112,6 +117,8 @@ return [
 
         ],
 
+        'heading' => 'فیلترها',
+
         'indicator' => 'فیلترهای فعال',
 
         'multi_select' => [
@@ -124,25 +131,49 @@ return [
 
         'trashed' => [
 
-            'label' => 'رکوردهای حذف‌شده',
+            'label' => 'رکوردهای حذف‌‌شده',
 
-            'only_trashed' => 'فقط رکوردهای حذف‌شده',
+            'only_trashed' => 'فقط رکوردهای حذف‌‌شده',
 
-            'with_trashed' => 'به همراه رکوردهای حذف‌شده',
+            'with_trashed' => 'به همراه رکوردهای حذف‌‌شده',
 
-            'without_trashed' => 'بدون رکوردهای حذف‌شده',
+            'without_trashed' => 'بدون رکوردهای حذف‌‌شده',
 
         ],
 
     ],
 
-    'reorder_indicator' => 'برای تغییر ترتیب بکشید و رها کنید.',
+    'grouping' => [
+
+        'fields' => [
+
+            'group' => [
+                'label' => 'گروه‌بندی براساس',
+                'placeholder' => 'گروه‌بندی براساس',
+            ],
+
+            'direction' => [
+
+                'label' => 'ترتیب گروه',
+
+                'options' => [
+                    'asc' => 'صعودی',
+                    'desc' => 'نزولی',
+                ],
+
+            ],
+
+        ],
+
+    ],
+
+    'reorder_indicator' => 'برای تغییر ترتیب، بکشید و رها کنید.',
 
     'selection_indicator' => [
 
-        'selected_count' => '1 آیتم انتخاب شده.|:count آیتم انتخاب شده.',
+        'selected_count' => '1 آیتم انتخاب شده|:count آیتم انتخاب شده',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'انتخاب همه‌ی :count آیتم',
@@ -161,12 +192,12 @@ return [
         'fields' => [
 
             'column' => [
-                'label' => 'مرتب‌سازی براساس',
+                'label' => 'مرتب‌ سازی براساس',
             ],
 
             'direction' => [
 
-                'label' => 'جهت مرتب‌سازی',
+                'label' => 'جهت مرتب‌ سازی',
 
                 'options' => [
                     'asc' => 'صعودی',

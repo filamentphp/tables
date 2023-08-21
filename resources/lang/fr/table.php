@@ -2,6 +2,12 @@
 
 return [
 
+    'column_toggle' => [
+
+        'heading' => 'Colonnes',
+
+    ],
+
     'columns' => [
 
         'text' => [
@@ -23,48 +29,40 @@ return [
         'search' => [
             'label' => 'Rechercher',
             'placeholder' => 'Rechercher',
+            'indicator' => 'Recherche',
         ],
 
     ],
 
-    'pagination' => [
+    'summary' => [
 
-        'label' => 'Navigation par pagination',
+        'heading' => 'Résumé',
 
-        'overview' => '{1} Affichage de 1 résultat|[2,*] Affichage de :first à :last sur :total résultats',
-
-        'fields' => [
-
-            'records_per_page' => [
-
-                'label' => 'par page',
-
-                'options' => [
-                    'all' => 'Tous',
-                ],
-            ],
-
+        'subheadings' => [
+            'all' => 'Tous :label',
+            'group' => 'résumé de :group',
+            'page' => 'Cette page',
         ],
 
-        'buttons' => [
+        'summarizers' => [
 
-            'go_to_page' => [
-                'label' => 'Aller à la page :page',
+            'average' => [
+                'label' => 'Moyenne',
             ],
 
-            'next' => [
-                'label' => 'Suivant',
+            'count' => [
+                'label' => 'Compteur',
             ],
 
-            'previous' => [
-                'label' => 'Précédent',
+            'sum' => [
+                'label' => 'Somme',
             ],
 
         ],
 
     ],
 
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Fin du classement des enregistrements',
@@ -78,8 +76,12 @@ return [
             'label' => 'Filtre',
         ],
 
+        'group' => [
+            'label' => 'Groupe',
+        ],
+
         'open_bulk_actions' => [
-            'label' => 'Actions ouvertes',
+            'label' => 'Ouvrir les actions',
         ],
 
         'toggle_columns' => [
@@ -92,11 +94,13 @@ return [
 
         'heading' => 'Aucun élément trouvé',
 
+        'description' => 'Créer un(e) :model pour commencer.',
+
     ],
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Supprimer le filtre',
@@ -112,6 +116,8 @@ return [
             ],
 
         ],
+
+        'heading' => 'Filtres',
 
         'indicator' => 'Filtres actifs',
 
@@ -137,13 +143,37 @@ return [
 
     ],
 
+    'grouping' => [
+
+        'fields' => [
+
+            'group' => [
+                'label' => 'Grouper par',
+                'placeholder' => 'Grouper par',
+            ],
+
+            'direction' => [
+
+                'label' => 'Groupe',
+
+                'options' => [
+                    'asc' => 'Croissant',
+                    'desc' => 'Décroissant',
+                ],
+
+            ],
+
+        ],
+
+    ],
+
     'reorder_indicator' => "Faites glisser et déposez les enregistrements dans l'ordre.",
 
     'selection_indicator' => [
 
-        'selected_count' => '1 élément sélectionné.|:count éléments sélectionnés.',
+        'selected_count' => '1 élément sélectionné|:count éléments sélectionnés',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Sélectionner tout (:count)',

@@ -9,6 +9,8 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Model;
 
+use function Livewire\store;
+
 /**
  * @property Form $mountedTableActionForm
  */
@@ -24,7 +26,10 @@ trait HasActions
      */
     public ?array $mountedTableActionsData = [];
 
-    public int | string | null $mountedTableActionRecord = null;
+    /**
+     * @var int | string | null
+     */
+    public $mountedTableActionRecord = null;
 
     protected ?Model $cachedMountedTableActionRecord = null;
 
@@ -83,7 +88,7 @@ trait HasActions
         $action->resetArguments();
         $action->resetFormData();
 
-        if (filled($this->redirectTo)) {
+        if (store($this)->has('redirect')) {
             return $result;
         }
 
@@ -97,7 +102,7 @@ trait HasActions
         $this->mountedTableActionRecord = $record;
     }
 
-    public function mountTableAction(string $name, string $record = null): mixed
+    public function mountTableAction(string $name, ?string $record = null): mixed
     {
         $this->mountedTableActions[] = $name;
         $this->mountedTableActionsData[] = [];
@@ -145,7 +150,7 @@ trait HasActions
         } catch (Halt $exception) {
             return null;
         } catch (Cancel $exception) {
-            $this->unmountTableAction(shouldCloseParentActions: false);
+            $this->unmountTableAction(shouldCancelParentActions: false);
 
             return null;
         }
@@ -243,23 +248,23 @@ trait HasActions
         $this->mountedTableActionsData = [];
     }
 
-    public function unmountTableAction(bool $shouldCloseParentActions = true): void
+    public function unmountTableAction(bool $shouldCancelParentActions = true): void
     {
         $action = $this->getMountedTableAction();
 
-        if (! ($shouldCloseParentActions && $action)) {
+        if (! ($shouldCancelParentActions && $action)) {
             $this->popMountedTableAction();
-        } elseif ($action->shouldCloseAllParentActions()) {
+        } elseif ($action->shouldCancelAllParentActions()) {
             $this->resetMountedTableActionProperties();
         } else {
-            $parentActionToCloseTo = $action->getParentActionToCloseTo();
+            $parentActionToCancelTo = $action->getParentActionToCancelTo();
 
             while (true) {
                 $recentlyClosedParentAction = $this->popMountedTableAction();
 
                 if (
-                    blank($parentActionToCloseTo) ||
-                    ($recentlyClosedParentAction === $parentActionToCloseTo)
+                    blank($parentActionToCancelTo) ||
+                    ($recentlyClosedParentAction === $parentActionToCancelTo)
                 ) {
                     break;
                 }
@@ -292,16 +297,12 @@ trait HasActions
 
     protected function closeTableActionModal(): void
     {
-        $this->dispatchBrowserEvent('close-modal', [
-            'id' => "{$this->id}-table-action",
-        ]);
+        $this->dispatch('close-modal', id: "{$this->getId()}-table-action");
     }
 
     protected function openTableActionModal(): void
     {
-        $this->dispatchBrowserEvent('open-modal', [
-            'id' => "{$this->id}-table-action",
-        ]);
+        $this->dispatch('open-modal', id: "{$this->getId()}-table-action");
     }
 
     /**
@@ -312,14 +313,6 @@ trait HasActions
     protected function getTableActions(): array
     {
         return [];
-    }
-
-    /**
-     * @deprecated Override the `table()` method to configure the table.
-     */
-    protected function getTableActionsPosition(): ?string
-    {
-        return null;
     }
 
     /**

@@ -3,20 +3,21 @@
 namespace Filament\Tables\Testing;
 
 use Closure;
-use Filament\Actions\Testing\TestsActions as BaseTestsActions;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert;
-use Livewire\Testing\TestableLivewire;
+use Livewire\Features\SupportTesting\Testable;
+
+use function Livewire\store;
 
 /**
  * @method HasTable instance()
  *
- * @mixin TestableLivewire
- * @mixin BaseTestsActions
+ * @mixin Testable
+ * @mixin Testable
  */
 class TestsBulkActions
 {
@@ -24,9 +25,6 @@ class TestsBulkActions
     {
         return function (string $name, array | Collection $records): static {
             $name = $this->parseActionName($name);
-
-            /** @phpstan-ignore-next-line */
-            $this->assertTableBulkActionVisible($name);
 
             $records = array_map(
                 function ($record) {
@@ -41,21 +39,19 @@ class TestsBulkActions
 
             $this->call('mountTableBulkAction', $name, $records);
 
-            if (filled($this->instance()->redirectTo)) {
+            if (store($this->instance())->has('redirect')) {
                 return $this;
             }
 
             if ($this->instance()->mountedTableBulkAction === null) {
-                $this->assertNotDispatchedBrowserEvent('open-modal');
+                $this->assertNotDispatched('open-modal');
 
                 return $this;
             }
 
             $this->assertSet('mountedTableBulkAction', $name);
 
-            $this->assertDispatchedBrowserEvent('open-modal', [
-                'id' => "{$this->instance()->id}-table-bulk-action",
-            ]);
+            $this->assertDispatched('open-modal', id: "{$this->instance()->getId()}-table-bulk-action");
 
             return $this;
         };
@@ -87,6 +83,9 @@ class TestsBulkActions
     {
         return function (string $name, array | Collection $records, array $data = [], array $arguments = []): static {
             /** @phpstan-ignore-next-line */
+            $this->assertTableBulkActionVisible($name);
+
+            /** @phpstan-ignore-next-line */
             $this->mountTableBulkAction($name, $records);
 
             if (! $this->instance()->getMountedTableBulkAction()) {
@@ -114,14 +113,12 @@ class TestsBulkActions
 
             $this->call('callMountedTableBulkAction', $arguments);
 
-            if (filled($this->instance()->redirectTo)) {
+            if (store($this->instance())->has('redirect')) {
                 return $this;
             }
 
             if ($this->get('mountedTableBulkAction') !== $action->getName()) {
-                $this->assertDispatchedBrowserEvent('close-modal', [
-                    'id' => "{$this->instance()->id}-table-bulk-action",
-                ]);
+                $this->assertDispatched('close-modal', id: "{$this->instance()->getId()}-table-bulk-action");
             }
 
             return $this;
@@ -394,7 +391,7 @@ class TestsBulkActions
         };
     }
 
-    public function assertTableBulkActionHalted(): Closure
+    public function assertTableBulkActionMounted(): Closure
     {
         return function (string $name): static {
             $name = $this->parseActionName($name);
@@ -408,8 +405,27 @@ class TestsBulkActions
         };
     }
 
+    public function assertTableBulkActionNotMounted(): Closure
+    {
+        return function (string $name): static {
+            $name = $this->parseActionName($name);
+
+            /** @phpstan-ignore-next-line */
+            $this->assertTableBulkActionExists($name);
+
+            $this->assertNotSet('mountedTableBulkAction', $name);
+
+            return $this;
+        };
+    }
+
+    public function assertTableBulkActionHalted(): Closure
+    {
+        return $this->assertTableBulkActionMounted();
+    }
+
     /**
-     * @deprecated Use `->assertTableBulkActionHalted()` instead.
+     * @deprecated Use `assertTableBulkActionHalted()` instead.
      */
     public function assertTableBulkActionHeld(): Closure
     {

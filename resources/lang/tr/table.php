@@ -19,43 +19,7 @@ return [
 
     ],
 
-    'pagination' => [
-
-        'label' => 'Sayfalandırma Navigasyonu',
-
-        'overview' => 'Toplam :total sonuçtan :first ile :last arası görüntüleniyor',
-
-        'fields' => [
-
-            'records_per_page' => [
-                'label' => 'sayfa başına',
-
-                'options' => [
-                    'all' => 'Tümü',
-                ],
-            ],
-
-        ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => ':page. sayfaya git',
-            ],
-
-            'next' => [
-                'label' => 'Sonraki',
-            ],
-
-            'previous' => [
-                'label' => 'Önceki',
-            ],
-
-        ],
-
-    ],
-
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Sıralamayı kapat',
@@ -85,7 +49,7 @@ return [
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Filtreyi kaldır',
@@ -130,9 +94,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '1 kayıt seçildi.|:count kayıt seçildi.',
+        'selected_count' => '1 kayıt seçildi|:count kayıt seçildi',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Tüm :count kaydı seç',

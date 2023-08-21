@@ -10,8 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 
 trait InteractsWithTableQuery
@@ -83,34 +85,39 @@ trait InteractsWithTableQuery
 
         $model = $query->getModel();
 
-        $translatableContentDriver = $this->getLivewire()->makeTableTranslatableContentDriver();
+        $translatableContentDriver = $this->getLivewire()->makeFilamentTranslatableContentDriver();
 
         foreach ($this->getSearchColumns() as $searchColumn) {
             $whereClause = $isFirst ? 'where' : 'orWhere';
 
             $query->when(
                 $translatableContentDriver?->isAttributeTranslatable($model::class, attribute: $searchColumn),
-                fn (EloquentBuilder $query): EloquentBuilder => $translatableContentDriver->applySearchConstraintToQuery($query, $searchColumn, $search, $whereClause),
+                fn (EloquentBuilder $query): EloquentBuilder => $translatableContentDriver->applySearchConstraintToQuery($query, $searchColumn, $search, $whereClause, $this->isSearchForcedCaseInsensitive($query)),
                 function (EloquentBuilder $query) use ($search, $searchColumn, $whereClause): EloquentBuilder {
                     /** @var Connection $databaseConnection */
                     $databaseConnection = $query->getConnection();
 
-                    $searchOperator = match ($databaseConnection->getDriverName()) {
-                        'pgsql' => 'ilike',
-                        default => 'like',
-                    };
+                    $isSearchForcedCaseInsensitive = $this->isSearchForcedCaseInsensitive($query);
+
+                    $caseAwareSearchColumn = $isSearchForcedCaseInsensitive ?
+                        new Expression("lower({$searchColumn})") :
+                        $searchColumn;
+
+                    if ($isSearchForcedCaseInsensitive) {
+                        $search = Str::lower($search);
+                    }
 
                     return $query->when(
                         $this->queriesRelationships($query->getModel()),
                         fn (EloquentBuilder $query): EloquentBuilder => $query->{"{$whereClause}Relation"}(
                             $this->getRelationshipName(),
-                            $searchColumn,
-                            $searchOperator,
+                            $caseAwareSearchColumn,
+                            'like',
                             "%{$search}%",
                         ),
                         fn (EloquentBuilder $query): EloquentBuilder => $query->{$whereClause}(
-                            $searchColumn,
-                            $searchOperator,
+                            $caseAwareSearchColumn,
+                            'like',
                             "%{$search}%",
                         ),
                     );
@@ -144,7 +151,7 @@ trait InteractsWithTableQuery
     /**
      * @param  array<string> | null  $relationships
      */
-    protected function getSortColumnForQuery(EloquentBuilder $query, string $sortColumn, array $relationships = null): string | Builder
+    protected function getSortColumnForQuery(EloquentBuilder $query, string $sortColumn, ?array $relationships = null): string | Builder
     {
         $relationships ??= ($relationshipName = $this->getRelationshipName()) ?
             explode('.', $relationshipName) :
@@ -179,7 +186,7 @@ trait InteractsWithTableQuery
         return $this->getRelationship($record) !== null;
     }
 
-    public function getRelationship(Model $record, string $name = null): ?Relation
+    public function getRelationship(Model $record, ?string $name = null): ?Relation
     {
         if (blank($name) && (! str($this->getName())->contains('.'))) {
             return null;
@@ -205,7 +212,7 @@ trait InteractsWithTableQuery
      * @param  array<string> | null  $relationships
      * @return array<Model>
      */
-    public function getRelationshipResults(Model $record, array $relationships = null): array
+    public function getRelationshipResults(Model $record, ?array $relationships = null): array
     {
         $results = [];
 
@@ -255,7 +262,7 @@ trait InteractsWithTableQuery
         return $results;
     }
 
-    public function getRelationshipAttribute(string $name = null): string
+    public function getRelationshipAttribute(?string $name = null): string
     {
         $name ??= $this->getName();
 
@@ -306,7 +313,7 @@ trait InteractsWithTableQuery
         return implode('.', $inverseRelationships);
     }
 
-    public function getRelationshipName(string $name = null): ?string
+    public function getRelationshipName(?string $name = null): ?string
     {
         $name ??= $this->getName();
 

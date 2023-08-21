@@ -1,7 +1,11 @@
 <?php
 
 return [
+    'column_toggle' => [
 
+        'heading' => 'Столбцы',
+
+    ],
     'columns' => [
 
         'text' => [
@@ -11,53 +15,49 @@ return [
     ],
 
     'fields' => [
+        'bulk_select_page' => [
+            'label' => 'Выбрать/снять все элементы для массовых действий.',
+        ],
 
+        'bulk_select_record' => [
+            'label' => 'Выбрать/отменить :key для массовых действий.',
+        ],
         'search' => [
             'label' => 'Поиск',
             'placeholder' => 'Поиск',
+            'indicator' => 'Поиск',
         ],
 
     ],
 
-    'pagination' => [
+    'summary' => [
 
-        'label' => 'Пагинация',
+        'heading' => 'Сводка',
 
-        'overview' => 'Показано с :first по :last из :total',
+        'subheadings' => [
+            'all' => 'Все :label',
+            'group' => 'Cводка :group ',
+            'page' => 'Эта страница',
+        ],
 
-        'fields' => [
+        'summarizers' => [
 
-            'records_per_page' => [
+            'average' => [
+                'label' => 'Среднее',
+            ],
 
-                'label' => 'на страницу',
+            'count' => [
+                'label' => 'Кол.',
+            ],
 
-                'options' => [
-                    'all' => 'Все',
-                ],
-
+            'sum' => [
+                'label' => 'Сумма',
             ],
 
         ],
-
-        'buttons' => [
-
-            'go_to_page' => [
-                'label' => 'Перейти к странице :page',
-            ],
-
-            'next' => [
-                'label' => 'Следующая',
-            ],
-
-            'previous' => [
-                'label' => 'Предыдущая',
-            ],
-
-        ],
-
     ],
 
-    'buttons' => [
+    'actions' => [
 
         'disable_reordering' => [
             'label' => 'Сохранить порядок',
@@ -70,7 +70,9 @@ return [
         'filter' => [
             'label' => 'Фильтр',
         ],
-
+        'group' => [
+            'label' => 'Группировать',
+        ],
         'open_bulk_actions' => [
             'label' => 'Открыть действия',
         ],
@@ -82,12 +84,15 @@ return [
     ],
 
     'empty' => [
-        'heading' => 'Не найдено записей',
+
+        'heading' => 'Не найдено :model',
+
+        'description' => 'Создать :model для старта.',
     ],
 
     'filters' => [
 
-        'buttons' => [
+        'actions' => [
 
             'remove' => [
                 'label' => 'Удалить фильтр',
@@ -99,10 +104,12 @@ return [
             ],
 
             'reset' => [
-                'label' => 'Сбросить фильтры',
+                'label' => 'Сбросить',
             ],
 
         ],
+
+        'heading' => 'Фильтры',
 
         'indicator' => 'Активные фильтры',
 
@@ -128,13 +135,37 @@ return [
 
     ],
 
+    'grouping' => [
+
+        'fields' => [
+
+            'group' => [
+                'label' => 'Группировать по',
+                'placeholder' => 'Группировать по',
+            ],
+
+            'direction' => [
+
+                'label' => 'Направление',
+
+                'options' => [
+                    'asc' => 'По возрастанию',
+                    'desc' => 'По убыванию',
+                ],
+
+            ],
+
+        ],
+
+    ],
+
     'reorder_indicator' => 'Drag-n-drop порядок записей.',
 
     'selection_indicator' => [
 
-        'selected_count' => 'Выбрана 1 запись.|Выбрано :count записей.',
+        'selected_count' => 'Выбрана 1 запись|Выбрано :count записей',
 
-        'buttons' => [
+        'actions' => [
 
             'select_all' => [
                 'label' => 'Выбрать всё :count',
@@ -153,7 +184,7 @@ return [
         'fields' => [
 
             'column' => [
-                'label' => 'Сортировать по',
+                'label' => 'Сортировка',
             ],
 
             'direction' => [
