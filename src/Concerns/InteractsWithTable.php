@@ -4,13 +4,13 @@ namespace Filament\Tables\Concerns;
 
 use Closure;
 use Filament\Forms;
+use Filament\Support\Contracts\TranslatableContentDriver;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Livewire\WithPagination;
 
 trait InteractsWithTable
 {
@@ -27,9 +27,6 @@ trait InteractsWithTable
     use HasColumns;
     use HasFilters;
     use HasRecords;
-    use WithPagination {
-        WithPagination::resetPage as resetLivewirePage;
-    }
     use CanBeStriped;
     use CanPollRecords;
     use HasContent;
@@ -82,11 +79,6 @@ trait InteractsWithTable
                 ...($this->tableFilters ?? []),
                 ...(session()->get($filtersSessionKey) ?? []),
             ];
-        }
-
-        // https://github.com/filamentphp/filament/pull/7999
-        if ($this->tableFilters) {
-            $this->normalizeTableFilterValuesFromQueryString($this->tableFilters);
         }
 
         $this->getTableFiltersForm()->fill($this->tableFilters);
@@ -172,6 +164,7 @@ trait InteractsWithTable
             ->query($this->getTableQuery())
             ->actions($this->getTableActions())
             ->actionsColumnLabel($this->getTableActionsColumnLabel())
+            ->actionsPosition($this->getTableActionsPosition())
             ->groupedBulkActions($this->getTableBulkActions())
             ->checkIfRecordIsSelectableUsing($this->isTableRecordSelectable())
             ->columns($this->getTableColumns())
@@ -191,8 +184,10 @@ trait InteractsWithTable
             ->emptyStateHeading($this->getTableEmptyStateHeading())
             ->emptyStateIcon($this->getTableEmptyStateIcon())
             ->filters($this->getTableFilters())
+            ->filtersFormColumns($this->getTableFiltersFormColumns())
             ->filtersFormMaxHeight($this->getTableFiltersFormMaxHeight())
             ->filtersFormWidth($this->getTableFiltersFormWidth())
+            ->filtersLayout($this->getTableFiltersLayout())
             ->header($this->getTableHeader())
             ->headerActions($this->getTableHeaderActions())
             ->modelLabel($this->getTableModelLabel())
@@ -255,11 +250,22 @@ trait InteractsWithTable
     }
 
     /**
-     * @param  ?string  $pageName
+     * @return class-string<TranslatableContentDriver> | null
      */
-    public function resetPage($pageName = null): void
+    public function getTableTranslatableContentDriver(): ?string
     {
-        $this->resetLivewirePage($pageName ?? $this->getTablePaginationPageName());
+        return null;
+    }
+
+    public function makeTableTranslatableContentDriver(): ?TranslatableContentDriver
+    {
+        $driver = $this->getTableTranslatableContentDriver();
+
+        if (! $driver) {
+            return null;
+        }
+
+        return app($driver, ['locale' => $this->getActiveTableLocale() ?? app()->getLocale()]);
     }
 
     /**
@@ -268,23 +274,5 @@ trait InteractsWithTable
     protected function getTableQuery(): Builder | Relation | null
     {
         return null;
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     */
-    protected function normalizeTableFilterValuesFromQueryString(array &$data): void
-    {
-        foreach ($data as &$value) {
-            if (is_array($value)) {
-                $this->normalizeTableFilterValuesFromQueryString($value);
-            } elseif ($value === 'null') {
-                $value = null;
-            } elseif ($value === 'false') {
-                $value = false;
-            } elseif ($value === 'true') {
-                $value = true;
-            }
-        }
     }
 }

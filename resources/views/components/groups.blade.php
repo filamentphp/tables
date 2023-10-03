@@ -4,21 +4,13 @@
     'triggerAction',
 ])
 
-@php
-    $labelClasses = 'text-sm font-medium leading-6 text-gray-950 dark:text-white';
-@endphp
-
 <div
     x-data="{
-        direction: $wire.$entangle('tableGroupingDirection', true),
-        group: $wire.$entangle('tableGrouping', true),
+        direction: $wire.entangle('tableGroupingDirection'),
+        group: $wire.entangle('tableGrouping'),
     }"
     x-init="
         $watch('group', function (newGroup, oldGroup) {
-            if (newGroup && direction) {
-                return
-            }
-
             if (! newGroup) {
                 direction = null
 
@@ -34,111 +26,101 @@
     "
 >
     <x-filament::dropdown
+        {{
+    $attributes->class([
+        'sm:hidden' => ! $dropdownOnDesktop,
+    ])
+}}
         placement="bottom-start"
         shift
-        width="xs"
-        wire:key="{{ $this->getId() }}.table.grouping"
-        :attributes="
-            \Filament\Support\prepare_inherited_attributes($attributes)
-                ->class([
-                    'sm:hidden' => ! $dropdownOnDesktop,
-                ])
-        "
+        wire:key="{{ $this->id }}.table.grouping"
     >
         <x-slot name="trigger">
-            <span
-                @class([
-                    'inline-flex',
-                    '-mx-2' => $triggerAction->isIconButton(),
-                ])
-            >
-                {{ $triggerAction }}
-            </span>
+            {{ $triggerAction }}
         </x-slot>
 
-        <div class="grid gap-y-6 p-6">
-            <label class="grid gap-y-2">
-                <span class="{{ $labelClasses }}">
+        <div class="flex flex-col gap-4 px-4 pb-4 pt-3">
+            <label class="space-y-1">
+                <span
+                    class="text-sm font-medium leading-4 text-gray-700 dark:text-gray-300"
+                >
                     {{ __('filament-tables::table.grouping.fields.group.label') }}
                 </span>
 
-                <x-filament::input.wrapper>
-                    <x-filament::input.select
-                        x-model="group"
-                        x-on:change="resetCollapsedGroups()"
-                    >
-                        <option value="">-</option>
-
-                        @foreach ($groups as $group)
-                            <option value="{{ $group->getId() }}">
-                                {{ $group->getLabel() }}
-                            </option>
-                        @endforeach
-                    </x-filament::input.select>
-                </x-filament::input.wrapper>
+                <x-filament::input.select
+                    x-model="group"
+                    x-on:change="resetCollapsedGroups()"
+                    class="w-full"
+                >
+                    <option value="">-</option>
+                    @foreach ($groups as $group)
+                        <option value="{{ $group->getId() }}">
+                            {{ $group->getLabel() }}
+                        </option>
+                    @endforeach
+                </x-filament::input.select>
             </label>
 
-            <label x-cloak x-show="group" class="grid gap-y-2">
-                <span class="{{ $labelClasses }}">
+            <label x-show="group" x-cloak class="space-y-1">
+                <span
+                    class="text-sm font-medium leading-4 text-gray-700 dark:text-gray-300"
+                >
                     {{ __('filament-tables::table.grouping.fields.direction.label') }}
                 </span>
 
-                <x-filament::input.wrapper>
-                    <x-filament::input.select x-model="direction">
-                        <option value="asc">
-                            {{ __('filament-tables::table.grouping.fields.direction.options.asc') }}
-                        </option>
-
-                        <option value="desc">
-                            {{ __('filament-tables::table.grouping.fields.direction.options.desc') }}
-                        </option>
-                    </x-filament::input.select>
-                </x-filament::input.wrapper>
+                <x-filament::input.select x-model="direction" class="w-full">
+                    <option value="asc">
+                        {{ __('filament-tables::table.grouping.fields.direction.options.asc') }}
+                    </option>
+                    <option value="desc">
+                        {{ __('filament-tables::table.grouping.fields.direction.options.desc') }}
+                    </option>
+                </x-filament::input.select>
             </label>
         </div>
     </x-filament::dropdown>
 
     @if (! $dropdownOnDesktop)
-        <div class="hidden items-center gap-x-3 sm:flex">
+        <div class="hidden items-center gap-1 sm:flex">
             <label>
                 <span class="sr-only">
                     {{ __('filament-tables::table.grouping.fields.group.label') }}
                 </span>
 
-                <x-filament::input.wrapper>
-                    <x-filament::input.select
-                        x-model="group"
-                        x-on:change="resetCollapsedGroups()"
-                    >
-                        <option value="">
-                            {{ __('filament-tables::table.grouping.fields.group.placeholder') }}
+                <x-filament::input.select
+                    x-model="group"
+                    x-on:change="resetCollapsedGroups()"
+                    size="sm"
+                    class="text-sm"
+                >
+                    <option value="">
+                        {{ __('filament-tables::table.grouping.fields.group.placeholder') }}
+                    </option>
+                    @foreach ($groups as $group)
+                        <option value="{{ $group->getId() }}">
+                            {{ $group->getLabel() }}
                         </option>
-
-                        @foreach ($groups as $group)
-                            <option value="{{ $group->getId() }}">
-                                {{ $group->getLabel() }}
-                            </option>
-                        @endforeach
-                    </x-filament::input.select>
-                </x-filament::input.wrapper>
+                    @endforeach
+                </x-filament::input.select>
             </label>
 
-            <label x-cloak x-show="group">
+            <label x-show="group" x-cloak>
                 <span class="sr-only">
                     {{ __('filament-tables::table.grouping.fields.direction.label') }}
                 </span>
 
-                <x-filament::input.wrapper>
-                    <x-filament::input.select x-model="direction">
-                        <option value="asc">
-                            {{ __('filament-tables::table.grouping.fields.direction.options.asc') }}
-                        </option>
-
-                        <option value="desc">
-                            {{ __('filament-tables::table.grouping.fields.direction.options.desc') }}
-                        </option>
-                    </x-filament::input.select>
-                </x-filament::input.wrapper>
+                <x-filament::input.select
+                    x-model="direction"
+                    size="sm"
+                    class="text-sm"
+                >
+                    <option value="asc">
+                        {{ __('filament-tables::table.grouping.fields.direction.options.asc') }}
+                    </option>
+                    <option value="desc">
+                        {{ __('filament-tables::table.grouping.fields.direction.options.desc') }}
+                    </option>
+                </x-filament::input.select>
             </label>
         </div>
     @endif

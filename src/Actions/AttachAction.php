@@ -6,16 +6,14 @@ use Closure;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Support\Services\RelationshipJoiner;
 use Filament\Tables\Table;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Database\Query\Expression;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 class AttachAction extends Action
 {
@@ -33,8 +31,6 @@ class AttachAction extends Action
      * @var array<string> | Closure | null
      */
     protected array | Closure | null $recordSelectSearchColumns = null;
-
-    protected bool | Closure | null $isSearchForcedCaseInsensitive = null;
 
     public static function getDefaultName(): ?string
     {
@@ -60,7 +56,7 @@ class AttachAction extends Action
             ] : [];
         });
 
-        $this->successNotificationTitle(__('filament-actions::attach.single.notifications.attached.title'));
+        $this->successNotificationTitle(__('filament-actions::attach.single.messages.attached'));
 
         $this->color('gray');
 
@@ -70,42 +66,22 @@ class AttachAction extends Action
             /** @var BelongsToMany $relationship */
             $relationship = Relation::noConstraints(fn () => $table->getRelationship());
 
-            $relationshipQuery = $relationship->getQuery();
-
-            // By default, `BelongsToMany` relationships use an inner join to scope the results to only
-            // those that are attached in the pivot table. We need to change this to a left join so
-            // that we can still get results when the relationship is not attached to the record.
-            if ($relationship instanceof BelongsToMany) {
-                /** @var ?JoinClause $firstRelationshipJoinClause */
-                $firstRelationshipJoinClause = $relationshipQuery->getQuery()->joins[0] ?? null;
-
-                if ($firstRelationshipJoinClause) {
-                    $firstRelationshipJoinClause->type = 'left';
-                }
-
-                $relationshipQuery
-                    ->distinct() // Ensure that results are unique when fetching records to attach.
-                    ->select($relationshipQuery->getModel()->getTable() . '.*');
-            }
-
-            $isMultiple = is_array($data['recordId']);
+            $relationshipQuery = (new RelationshipJoiner())->prepareQueryForNoConstraints($relationship);
 
             $record = $relationshipQuery
-                ->{$isMultiple ? 'whereIn' : 'where'}($relationship->getQualifiedRelatedKeyName(), $data['recordId'])
-                ->{$isMultiple ? 'get' : 'first'}();
-
-            if ($record instanceof Model) {
-                $this->record($record);
-            }
+                ->{is_array($data['recordId']) ? 'whereIn' : 'where'}($relationship->getQualifiedRelatedKeyName(), $data['recordId'])
+                ->first();
 
             $this->process(function () use ($data, $record, $relationship) {
                 $relationship->attach(
                     $record,
                     Arr::only($data, $relationship->getPivotColumns()),
                 );
-            }, [
-                'relationship' => $relationship,
-            ]);
+            });
+
+            if ($record instanceof Model) {
+                $this->record($record);
+            }
 
             if ($arguments['another'] ?? false) {
                 $this->callAfter();
@@ -194,27 +170,15 @@ class AttachAction extends Action
     {
         $table = $this->getTable();
 
-        $getOptions = function (?string $search = null, ?array $searchColumns = []) use ($table): array {
+        $getOptions = function (string $search = null, ?array $searchColumns = []) use ($table): array {
             /** @var BelongsToMany $relationship */
             $relationship = Relation::noConstraints(fn () => $table->getRelationship());
 
-            $relationshipQuery = $relationship->getQuery();
+            $relationshipQuery = (new RelationshipJoiner())->prepareQueryForNoConstraints($relationship);
 
-            // By default, `BelongsToMany` relationships use an inner join to scope the results to only
-            // those that are attached in the pivot table. We need to change this to a left join so
-            // that we can still get results when the relationship is not attached to the record.
-            if ($relationship instanceof BelongsToMany) {
-                /** @var ?JoinClause $firstRelationshipJoinClause */
-                $firstRelationshipJoinClause = $relationshipQuery->getQuery()->joins[0] ?? null;
+            $titleAttribute = $relationshipQuery->qualifyColumn($this->getRecordTitleAttribute());
 
-                if ($firstRelationshipJoinClause) {
-                    $firstRelationshipJoinClause->type = 'left';
-                }
-
-                $relationshipQuery
-                    ->distinct() // Ensure that results are unique when fetching options.
-                    ->select($relationshipQuery->getModel()->getTable() . '.*');
-            }
+            $relationshipQuery->orderBy($titleAttribute);
 
             if ($this->modifyRecordSelectOptionsQueryUsing) {
                 $relationshipQuery = $this->evaluate($this->modifyRecordSelectOptionsQueryUsing, [
@@ -222,31 +186,26 @@ class AttachAction extends Action
                 ]) ?? $relationshipQuery;
             }
 
-            $titleAttribute = $this->getRecordTitleAttribute();
-            $titleAttribute = filled($titleAttribute) ? $relationshipQuery->qualifyColumn($titleAttribute) : null;
+            if (filled($search)) {
+                $search = strtolower($search);
 
-            if (filled($search) && ($searchColumns || filled($titleAttribute))) {
+                /** @var Connection $databaseConnection */
+                $databaseConnection = $relationshipQuery->getConnection();
+
+                $searchOperator = match ($databaseConnection->getDriverName()) {
+                    'pgsql' => 'ilike',
+                    default => 'like',
+                };
+
                 $searchColumns ??= [$titleAttribute];
                 $isFirst = true;
-                $isForcedCaseInsensitive = $this->isSearchForcedCaseInsensitive($relationshipQuery);
 
-                if ($isForcedCaseInsensitive) {
-                    $search = Str::lower($search);
-                }
-
-                $relationshipQuery->where(function (Builder $query) use ($isFirst, $isForcedCaseInsensitive, $searchColumns, $search): Builder {
+                $relationshipQuery->where(function (Builder $query) use ($isFirst, $searchColumns, $searchOperator, $search): Builder {
                     foreach ($searchColumns as $searchColumn) {
-                        $searchColumn = $query->qualifyColumn($searchColumn);
-
-                        $caseAwareSearchColumn = $isForcedCaseInsensitive ?
-                            new Expression("lower({$searchColumn})") :
-                            $searchColumn;
-
                         $whereClause = $isFirst ? 'where' : 'orWhere';
 
-                        $query->{$whereClause}(
-                            $caseAwareSearchColumn,
-                            'like',
+                        $query->{"{$whereClause}Raw"}(
+                            "lower({$searchColumn}) {$searchOperator} ?",
                             "%{$search}%",
                         );
 
@@ -257,7 +216,9 @@ class AttachAction extends Action
                 });
             }
 
-            $relationshipQuery
+            $relatedKeyName = $relationship->getRelatedKeyName();
+
+            return $relationshipQuery
                 ->when(
                     ! $table->allowsDuplicates(),
                     fn (Builder $query): Builder => $query->whereDoesntHave(
@@ -267,24 +228,10 @@ class AttachAction extends Action
                             $table->getRelationship()->getParent()->getKey(),
                         ),
                     ),
-                );
-
-            if (filled($titleAttribute)) {
-                if (empty($relationshipQuery->getQuery()->orders)) {
-                    $relationshipQuery->orderBy($titleAttribute);
-                }
-
-                return $relationshipQuery
-                    ->pluck($titleAttribute, $relationship->getQualifiedRelatedKeyName())
-                    ->all();
-            }
-
-            $relatedKeyName = $relationship->getRelatedKeyName();
-
-            return $relationshipQuery
+                )
                 ->get()
                 ->mapWithKeys(fn (Model $record): array => [$record->{$relatedKeyName} => $this->getRecordTitle($record)])
-                ->all();
+                ->toArray();
         };
 
         $select = Select::make('recordId')
@@ -295,23 +242,7 @@ class AttachAction extends Action
             ->getOptionLabelUsing(function ($value) use ($table): string {
                 $relationship = Relation::noConstraints(fn () => $table->getRelationship());
 
-                $relationshipQuery = $relationship->getQuery();
-
-                // By default, `BelongsToMany` relationships use an inner join to scope the results to only
-                // those that are attached in the pivot table. We need to change this to a left join so
-                // that we can still get results when the relationship is not attached to the record.
-                if ($relationship instanceof BelongsToMany) {
-                    /** @var ?JoinClause $firstRelationshipJoinClause */
-                    $firstRelationshipJoinClause = $relationshipQuery->getQuery()->joins[0] ?? null;
-
-                    if ($firstRelationshipJoinClause) {
-                        $firstRelationshipJoinClause->type = 'left';
-                    }
-
-                    $relationshipQuery
-                        ->distinct() // Ensure that results are unique when fetching options.
-                        ->select($relationshipQuery->getModel()->getTable() . '.*');
-                }
+                $relationshipQuery = (new RelationshipJoiner())->prepareQueryForNoConstraints($relationship);
 
                 return $this->getRecordTitle($relationshipQuery->find($value));
             })
@@ -325,23 +256,5 @@ class AttachAction extends Action
         }
 
         return $select;
-    }
-
-    public function forceSearchCaseInsensitive(bool | Closure | null $condition = true): static
-    {
-        $this->isSearchForcedCaseInsensitive = $condition;
-
-        return $this;
-    }
-
-    public function isSearchForcedCaseInsensitive(Builder $query): bool
-    {
-        /** @var Connection $databaseConnection */
-        $databaseConnection = $query->getConnection();
-
-        return $this->evaluate($this->isSearchForcedCaseInsensitive) ?? match ($databaseConnection->getDriverName()) {
-            'pgsql' => true,
-            default => false,
-        };
     }
 }

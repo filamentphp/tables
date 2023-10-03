@@ -5,13 +5,15 @@ namespace Filament\Tables\Concerns;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\WithPagination;
 
 trait CanPaginateRecords
 {
-    /**
-     * @var int | string | null
-     */
-    public $tableRecordsPerPage = null;
+    use WithPagination {
+        WithPagination::resetPage as livewireResetPage;
+    }
+
+    public int | string | null $tableRecordsPerPage = null;
 
     protected int | string | null $defaultTableRecordsPerPageSelectOption = null;
 
@@ -45,7 +47,7 @@ trait CanPaginateRecords
 
     public function getTablePage(): int
     {
-        return $this->getPage($this->getTablePaginationPageName());
+        return $this->page;
     }
 
     public function getDefaultTableRecordsPerPageSelectOption(): int | string
@@ -76,6 +78,11 @@ trait CanPaginateRecords
         $table = class_basename($this::class);
 
         return "tables.{$table}_per_page";
+    }
+
+    public function resetPage(string $pageName = null): void
+    {
+        $this->livewireResetPage($pageName ?? $this->getTablePaginationPageName());
     }
 
     /**

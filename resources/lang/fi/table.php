@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Kolumnit',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -26,47 +20,52 @@ return [
             'label' => 'Aseta/poista massatoiminnon valinta kohteelle :key.',
         ],
 
-        'bulk_select_group' => [
-            'label' => 'Aseta/poista massatoiminnon valinta ryhmälle :title.',
-        ],
-
-        'search' => [
+        'search_query' => [
             'label' => 'Etsi',
             'placeholder' => 'Etsi',
-            'indicator' => 'Etsi',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Yhteenveto',
+        'label' => 'Sivujen navigointi',
 
-        'subheadings' => [
-            'all' => 'Kaikki :label',
-            'group' => ':group yhteenveto',
-            'page' => 'Tämä sivu',
+        'overview' => '{1} Näytetään 1 tulos|[2,*] Näytetään :first - :last / :total tulosta',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'per sivu',
+
+                'options' => [
+                    'all' => 'Kaikki',
+                ],
+
+            ],
+
         ],
 
-        'summarizers' => [
+        'buttons' => [
 
-            'average' => [
-                'label' => 'Keskiarvo',
+            'go_to_page' => [
+                'label' => 'Mene sivulle :page',
             ],
 
-            'count' => [
-                'label' => 'Määrä',
+            'next' => [
+                'label' => 'Seuraava',
             ],
 
-            'sum' => [
-                'label' => 'Summa',
+            'previous' => [
+                'label' => 'Edellinen',
             ],
 
         ],
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Viimeistele tietueiden järjestely',
@@ -78,10 +77,6 @@ return [
 
         'filter' => [
             'label' => 'Suodata',
-        ],
-
-        'group' => [
-            'label' => 'Ryhmä',
         ],
 
         'open_bulk_actions' => [
@@ -96,15 +91,13 @@ return [
 
     'empty' => [
 
-        'heading' => 'Ei :model',
-
-        'description' => 'Luo :model aloittaaksesi.',
+        'heading' => 'Tietueita ei löytynyt',
 
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Poista suodatin',
@@ -120,8 +113,6 @@ return [
             ],
 
         ],
-
-        'heading' => 'Suodattimet',
 
         'indicator' => 'Aktiiviset suodattimet',
 
@@ -147,37 +138,13 @@ return [
 
     ],
 
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'Ryhmittele',
-                'placeholder' => 'Ryhmittele',
-            ],
-
-            'direction' => [
-
-                'label' => 'Ryhmittelyn suunta',
-
-                'options' => [
-                    'asc' => 'Nousevasti',
-                    'desc' => 'Laskevasti',
-                ],
-
-            ],
-
-        ],
-
-    ],
-
     'reorder_indicator' => 'Raahaa ja pudota tietueet järjestykseen.',
 
     'selection_indicator' => [
 
-        'selected_count' => '1 tietue valittu|:count tietuetta valittu',
+        'selected_count' => '1 tietue valittu.|:count tietuetta valittu.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Valitse kaikki :count tietuetta',

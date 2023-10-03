@@ -3,9 +3,8 @@
 namespace Filament\Tables\Concerns;
 
 use Closure;
-use Filament\Tables\Support\RelationshipJoiner;
+use Filament\Support\Services\RelationshipJoiner;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use stdClass;
@@ -28,7 +27,7 @@ trait CanSummarizeRecords
     /**
      * @return array<string, mixed>
      */
-    public function getTableSummarySelectedState(Builder $query, ?Closure $modifyQueryUsing = null): array
+    public function getTableSummarySelectedState(Builder $query, Closure $modifyQueryUsing = null): array
     {
         $selects = [];
 
@@ -78,11 +77,6 @@ trait CanSummarizeRecords
 
         if ($group !== null) {
             $groupSelectAlias = Str::random();
-
-            if ($group instanceof Expression) {
-                $group = $group->getValue($query->getGrammar());
-            }
-
             $selects[] = "{$group} as \"{$groupSelectAlias}\"";
 
             if (filled($groupingRelationshipName = $this->getTableGrouping()?->getRelationshipName())) {

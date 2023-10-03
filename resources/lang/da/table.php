@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Kolonner',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -17,165 +11,76 @@ return [
     ],
 
     'fields' => [
-        'bulk_select_page' => [
-            'label' => 'Vælg/fravælg alle rækker for masse handlinger.',
-        ],
-
-        'bulk_select_record' => [
-            'label' => 'Vælg/fravælg :key for masse handlinger.',
-        ],
 
         'search' => [
             'label' => 'Søg',
             'placeholder' => 'Søg',
-            'indicator' => 'Søg',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Resumé',
+        'label' => 'Paginering Navigation',
 
-        'subheadings' => [
-            'all' => 'Alle :label',
-            'group' => ':group resumé',
-            'page' => 'Denne side',
-        ],
-
-        'summarizers' => [
-
-            'average' => [
-                'label' => 'Gennemsnit',
-            ],
-
-            'count' => [
-                'label' => 'Antal',
-            ],
-
-            'sum' => [
-                'label' => 'Sum',
-            ],
-
-        ],
-
-    ],
-
-    'actions' => [
-        'disable_reordering' => [
-            'label' => 'Afslut omrokering',
-        ],
-
-        'enable_reordering' => [
-            'label' => 'Omroker rækker',
-        ],
-
-        'filter' => [
-            'label' => 'Filtrer',
-        ],
-
-        'group' => [
-            'label' => 'Gruppe',
-        ],
-
-        'open_bulk_actions' => [
-            'label' => 'Åbn handlinger',
-        ],
-
-        'toggle_columns' => [
-            'label' => 'Vælg kolonner',
-        ],
-    ],
-
-    'empty' => [
-        'heading' => 'Ingen resultater',
-        'description' => 'Opret en :model for at komme igang.',
-    ],
-
-    'filters' => [
-
-        'actions' => [
-
-            'remove' => [
-                'label' => 'Fjern filter',
-            ],
-
-            'remove_all' => [
-                'label' => 'Fjern alle filtre',
-                'tooltip' => 'Fjern alle filtre',
-            ],
-
-            'reset' => [
-                'label' => 'Nulstil',
-            ],
-
-        ],
-
-        'heading' => 'Filtre',
-
-        'indicator' => 'Aktive filtre',
-
-        'multi_select' => [
-            'placeholder' => 'Alle',
-        ],
-
-        'select' => [
-            'placeholder' => 'Alle',
-        ],
-
-        'trashed' => [
-
-            'label' => 'Slettede rækker',
-
-            'only_trashed' => 'Kun slettede rækker',
-
-            'with_trashed' => 'Med slettede rækker',
-
-            'without_trashed' => 'Uden slettede rækker',
-
-        ],
-
-    ],
-
-    'grouping' => [
+        'overview' => 'Viser :first til :last af :total resultater',
 
         'fields' => [
 
-            'group' => [
-                'label' => 'Gruppere på',
-                'placeholder' => 'Gruppere på',
-            ],
+            'records_per_page' => [
 
-            'direction' => [
-
-                'label' => 'Grupperingsretning',
+                'label' => 'per side',
 
                 'options' => [
-                    'asc' => 'Stigende',
-                    'desc' => 'Faldende',
+                    'all' => 'Alle',
                 ],
 
             ],
 
         ],
 
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Gå til side :page',
+            ],
+
+            'next' => [
+                'label' => 'Næste',
+            ],
+
+            'previous' => [
+                'label' => 'Forrige',
+            ],
+
+        ],
+
     ],
 
-    'reorder_indicator' => 'Træk og slip rækkerne i den ønskede rækkefølge.',
+    'buttons' => [
+
+        'filter' => [
+            'label' => 'Filtrer',
+        ],
+
+        'open_bulk_actions' => [
+            'label' => 'Åbn handlinger',
+        ],
+
+    ],
+
+    'empty' => [
+        'heading' => 'Ingen resultater',
+    ],
 
     'selection_indicator' => [
 
-        'selected_count' => '1 række valgt|:count rækker valgt',
-
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Vælg alle :count',
             ],
 
-            'deselect_all' => [
-                'label' => 'Fravælg alle',
-            ],
         ],
 
     ],

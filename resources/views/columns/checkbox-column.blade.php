@@ -1,85 +1,64 @@
 @php
-    $isDisabled = $isDisabled();
-    $state = (bool) $getState();
+    $state = $getState();
 @endphp
 
 <div
     x-data="{
         error: undefined,
-
+        state: @js((bool) $state),
         isLoading: false,
-
-        name: @js($getName()),
-
-        recordKey: @js($recordKey),
-
-        state: @js($state),
     }"
     x-init="
-        () => {
-            Livewire.hook('commit', ({ component, commit, succeed, fail, respond }) => {
-                succeed(({ snapshot, effect }) => {
-                    $nextTick(() => {
-                        if (component.id !== @js($this->getId())) {
-                            return
-                        }
+        Livewire.hook('message.processed', (component) => {
+            if (component.component.id !== @js($this->id)) {
+                return
+            }
 
-                        if (! $refs.newState) {
-                            return
-                        }
+            if (! $refs.newState) {
+                return
+            }
 
-                        const newState = $refs.newState.value === '1' ? true : false
+            let newState = $refs.newState.value === '1' ? true : false
 
-                        if (state === newState) {
-                            return
-                        }
+            if (state === newState) {
+                return
+            }
 
-                        state = newState
-                    })
-                })
-            })
-        }
+            state = newState
+        })
     "
     {{
         $attributes
             ->merge($getExtraAttributes(), escape: false)
-            ->class([
-                'fi-ta-checkbox flex items-center',
-                'px-3 py-4' => ! $isInline(),
-            ])
+            ->class(['filament-tables-checkbox-column'])
     }}
 >
     <input type="hidden" value="{{ $state ? 1 : 0 }}" x-ref="newState" />
 
-    <x-filament::input.checkbox
-        alpine-valid="! error"
-        :disabled="$isDisabled"
-        :x-bind:disabled="$isDisabled ? null : 'isLoading'"
+    <input
         x-model="state"
+        @disabled($isDisabled())
+        type="checkbox"
         x-on:change="
             isLoading = true
-
-            const response = await $wire.updateTableColumnState(
-                name,
-                recordKey,
+            response = await $wire.updateTableColumnState(
+                @js($getName()),
+                @js($recordKey),
                 $event.target.checked,
             )
-
             error = response?.error ?? undefined
-
             isLoading = false
         "
-        x-tooltip="
-            error === undefined
-                ? false
-                : {
-                    content: error,
-                    theme: $store.theme,
-                }
-        "
-        :attributes="
-            \Filament\Support\prepare_inherited_attributes($attributes)
+        x-tooltip="error"
+        {{
+            $attributes
                 ->merge($getExtraInputAttributes(), escape: false)
-        "
+                ->class(['ms-4 rounded text-sm text-primary-600 shadow-sm outline-none transition duration-75 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 disabled:opacity-70 dark:bg-gray-700 dark:checked:bg-primary-500'])
+        }}
+        x-bind:class="{
+            'opacity-70 pointer-events-none': isLoading,
+            'border-gray-300 dark:border-gray-600': ! error,
+            'border-danger-600 ring-1 ring-inset ring-danger-600': error,
+        }"
     />
 </div>

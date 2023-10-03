@@ -2,16 +2,14 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'الأعمدة',
-
-    ],
-
     'columns' => [
 
         'text' => [
-            'more_list_items' => 'و :count إضافية',
+            'more_list_items' => 'و :count أكثر',
+        ],
+
+        'messages' => [
+            'copied' => 'تم النسخ',
         ],
 
     ],
@@ -23,50 +21,55 @@ return [
         ],
 
         'bulk_select_record' => [
-            'label' => 'تحديد / إلغاء تحديد العنصر :key للإجراءات الجماعية.',
-        ],
-
-        'bulk_select_group' => [
-            'label' => 'تحديد / إلغاء تحديد المجموعة :title للإجراءات الجماعية.',
+            'label' => 'تحديد / إلغاء تحديد العنصر :key للإجراءات الجماعية',
         ],
 
         'search' => [
             'label' => 'بحث',
             'placeholder' => 'بحث',
-            'indicator' => 'بحث',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'الملخص',
+        'label' => 'التنقل بين الصفحات',
 
-        'subheadings' => [
-            'all' => 'كافة :label',
-            'group' => 'ملخص :group',
-            'page' => 'هذه الصفحة',
+        'overview' => '{1} عرض نتيجة واحدة|[3,10] عرض :first إلي :last من :total نتائج|[2,*] عرض :first إلي :last من :total نتيجة',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'لكل صفحة',
+
+                'options' => [
+                    'all' => 'الكل',
+                ],
+
+            ],
+
         ],
 
-        'summarizers' => [
+        'buttons' => [
 
-            'average' => [
-                'label' => 'المتوسط',
+            'go_to_page' => [
+                'label' => 'انتقل إلى صفحة :page',
             ],
 
-            'count' => [
-                'label' => 'العدد',
+            'next' => [
+                'label' => 'التالي',
             ],
 
-            'sum' => [
-                'label' => 'المجموع',
+            'previous' => [
+                'label' => 'السابق',
             ],
 
         ],
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'إنهاء إعادة ترتيب السجلات',
@@ -78,10 +81,6 @@ return [
 
         'filter' => [
             'label' => 'تصفية',
-        ],
-
-        'group' => [
-            'label' => 'مجموعة',
         ],
 
         'open_bulk_actions' => [
@@ -98,13 +97,11 @@ return [
 
         'heading' => 'لا توجد سجلات',
 
-        'description' => 'قم بإضافة :model للبدء.',
-
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'إلغاء الفلاتر',
@@ -120,8 +117,6 @@ return [
             ],
 
         ],
-
-        'heading' => 'الفلاتر',
 
         'indicator' => 'الفلاتر النشطة',
 
@@ -147,37 +142,13 @@ return [
 
     ],
 
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'تجميع حسب',
-                'placeholder' => 'تجميع حسب',
-            ],
-
-            'direction' => [
-
-                'label' => 'إتجاه التجميع',
-
-                'options' => [
-                    'asc' => 'تصاعدي',
-                    'desc' => 'تنازلي',
-                ],
-
-            ],
-
-        ],
-
-    ],
-
     'reorder_indicator' => 'قم بسحب وإسقاط السجلات بالترتيب.',
 
     'selection_indicator' => [
 
         'selected_count' => '{1} تم تحديد سجل واحد|[3,10] تم تحديد :count سجلات |[2,*] تم تحديد :count سجل',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'تحديد كل السجلات :count',

@@ -9,14 +9,12 @@ use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Testing\Assert;
-use Livewire\Features\SupportTesting\Testable;
-
-use function Livewire\store;
+use Livewire\Testing\TestableLivewire;
 
 /**
  * @method HasTable instance()
  *
- * @mixin Testable
+ * @mixin TestableLivewire
  * @mixin BaseTestsActions
  */
 class TestsActions
@@ -30,9 +28,8 @@ class TestsActions
                 $record = $this->instance()->getTableRecordKey($record);
             }
 
-            if (filled($record) && (! $this->instance()->getTableRecord($record))) {
-                return $this;
-            }
+            /** @phpstan-ignore-next-line */
+            $this->assertTableActionVisible($name, $record);
 
             foreach ($name as $actionName) {
                 $this->call(
@@ -42,28 +39,21 @@ class TestsActions
                 );
             }
 
-            if (store($this->instance())->has('redirect')) {
+            if (filled($this->instance()->redirectTo)) {
                 return $this;
             }
 
             if (! count($this->instance()->mountedTableActions)) {
-                $this->assertNotDispatched('open-modal');
+                $this->assertNotDispatchedBrowserEvent('open-modal');
 
                 return $this;
             }
 
             $this->assertSet('mountedTableActions', $name);
 
-            $this->assertDispatched('open-modal', id: "{$this->instance()->getId()}-table-action");
-
-            return $this;
-        };
-    }
-
-    public function unmountTableAction(): Closure
-    {
-        return function (): static {
-            $this->call('unmountTableAction');
+            $this->assertDispatchedBrowserEvent('open-modal', [
+                'id' => "{$this->instance()->id}-table-action",
+            ]);
 
             return $this;
         };
@@ -95,9 +85,6 @@ class TestsActions
     {
         return function (string | array $name, $record = null, array $data = [], array $arguments = []): static {
             /** @phpstan-ignore-next-line */
-            $this->assertTableActionVisible($name, $record);
-
-            /** @phpstan-ignore-next-line */
             $this->mountTableAction($name, $record);
 
             if (! $this->instance()->getMountedTableAction()) {
@@ -125,12 +112,14 @@ class TestsActions
 
             $this->call('callMountedTableAction', $arguments);
 
-            if (store($this->instance())->has('redirect')) {
+            if (filled($this->instance()->redirectTo)) {
                 return $this;
             }
 
             if (! count($this->instance()->mountedTableActions)) {
-                $this->assertDispatched('close-modal', id: "{$this->instance()->getId()}-table-action");
+                $this->assertDispatchedBrowserEvent('close-modal', [
+                    'id' => "{$this->instance()->id}-table-action",
+                ]);
             }
 
             return $this;
@@ -229,22 +218,15 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewireClass = $this->instance()::class;
-            $prettyName = implode(' > ', $name);
-
-            if (filled($record) && (! $record instanceof Model)) {
-                $recordKey = $record;
-
+            if (! $record instanceof Model) {
                 $record = $this->instance()->getTableRecord($record);
-
-                Assert::assertNotNull(
-                    $record,
-                    message: "Failed asserting that a table action with name [{$prettyName}] is visible on the [{$livewireClass}] component for record [{$recordKey}].",
-                );
             }
 
             $action = $this->instance()->getTable()->getAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
+            $prettyName = implode(' > ', $name);
 
             Assert::assertFalse(
                 $action->isHidden(),
@@ -265,14 +247,8 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            if (filled($record) && (! $record instanceof Model)) {
+            if (! $record instanceof Model) {
                 $record = $this->instance()->getTableRecord($record);
-
-                if (! $record) {
-                    Assert::assertNull($record);
-
-                    return $this;
-                }
             }
 
             $action = $this->instance()->getTable()->getAction($name);
@@ -300,22 +276,15 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            $livewireClass = $this->instance()::class;
-            $prettyName = implode(' > ', $name);
-
-            if (filled($record) && (! $record instanceof Model)) {
-                $recordKey = $record;
-
+            if (! $record instanceof Model) {
                 $record = $this->instance()->getTableRecord($record);
-
-                Assert::assertNotNull(
-                    $record,
-                    message: "Failed asserting that a table action with name [{$prettyName}] is enabled on the [{$livewireClass}] component for record [{$recordKey}].",
-                );
             }
 
             $action = $this->instance()->getTable()->getAction($name);
             $action->record($record);
+
+            $livewireClass = $this->instance()::class;
+            $prettyName = implode(' > ', $name);
 
             Assert::assertFalse(
                 $action->isDisabled(),
@@ -336,14 +305,8 @@ class TestsActions
             /** @phpstan-ignore-next-line */
             $this->assertTableActionExists($name);
 
-            if (filled($record) && (! $record instanceof Model)) {
+            if (! $record instanceof Model) {
                 $record = $this->instance()->getTableRecord($record);
-
-                if (! $record) {
-                    Assert::assertNull($record);
-
-                    return $this;
-                }
             }
 
             $action = $this->instance()->getTable()->getAction($name);
@@ -657,7 +620,7 @@ class TestsActions
         };
     }
 
-    public function assertTableActionMounted(): Closure
+    public function assertTableActionHalted(): Closure
     {
         return function (string | array $name): static {
             $name = $this->parseNestedActionName($name);
@@ -671,27 +634,8 @@ class TestsActions
         };
     }
 
-    public function assertTableActionNotMounted(): Closure
-    {
-        return function (string | array $name): static {
-            $name = $this->parseNestedActionName($name);
-
-            /** @phpstan-ignore-next-line */
-            $this->assertTableActionExists($name);
-
-            $this->assertNotSet('mountedTableActions', $name);
-
-            return $this;
-        };
-    }
-
-    public function assertTableActionHalted(): Closure
-    {
-        return $this->assertTableActionMounted();
-    }
-
     /**
-     * @deprecated Use `assertTableActionHalted()` instead.
+     * @deprecated Use `->assertTableActionHalted()` instead.
      */
     public function assertTableActionHeld(): Closure
     {

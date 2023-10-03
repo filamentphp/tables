@@ -4,7 +4,6 @@ namespace Filament\Tables\Table\Concerns;
 
 use Closure;
 use Filament\Forms\Form;
-use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Actions\Action;
 
 trait CanToggleColumns
@@ -54,7 +53,7 @@ trait CanToggleColumns
     public function getToggleColumnsTriggerAction(): Action
     {
         $action = Action::make('toggleColumns')
-            ->label(__('filament-tables::table.actions.toggle_columns.label'))
+            ->label(__('filament-tables::table.buttons.toggle_columns.label'))
             ->iconButton()
             ->icon('heroicon-m-view-columns')
             ->color('gray')
@@ -68,7 +67,7 @@ trait CanToggleColumns
         }
 
         if ($action->getView() === Action::BUTTON_VIEW) {
-            $action->defaultSize(ActionSize::Small);
+            $action->defaultSize('sm');
         }
 
         return $action;

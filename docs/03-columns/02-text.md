@@ -105,7 +105,7 @@ The `money()` method allows you to easily format monetary values, in any currenc
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('price')
-    ->money('EUR')
+    ->money('eur')
 ```
 
 ## Limiting text length
@@ -133,7 +133,7 @@ TextColumn::make('description')
             return null;
         }
 
-        // Only render the tooltip if the column content exceeds the length limit.
+        // Only render the tooltip if the column contents exceeds the length limit.
         return $state;
     })
 ```
@@ -240,6 +240,17 @@ TextColumn::make('status')
     ->formatStateUsing(fn (string $state): string => __("statuses.{$state}"))
 ```
 
+## Adding a placeholder if the cell is empty
+
+Sometimes you may want to display a placeholder if the cell's value is empty:
+
+```php
+use Filament\Tables\Columns\TextColumn;
+
+TextColumn::make('updated_at')
+    ->placeholder('Never')
+```
+
 ## Customizing the color
 
 You may set a color for the text, either `danger`, `gray`, `info`, `primary`, `success` or `warning`:
@@ -269,57 +280,54 @@ TextColumn::make('email')
 You may set the position of an icon using `iconPosition()`:
 
 ```php
-use Filament\Support\Enums\IconPosition;
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('email')
     ->icon('heroicon-m-envelope')
-    ->iconPosition(IconPosition::After) // `IconPosition::Before` or `IconPosition::After`
+    ->iconPosition('after') // `before` or `after`
 ```
 
 <AutoScreenshot name="tables/columns/text/icon-after" alt="Text column with icon after" version="3.x" />
 
 ## Customizing the text size
 
-You may make the text larger using `size(TextColumnSize::Large)`:
+You may make the text larger using `size('lg')`:
 
 ```php
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('title')
-    ->size(TextColumn\TextColumnSize::Large)
+    ->size('lg')
 ```
 
 <AutoScreenshot name="tables/columns/text/large" alt="Text column in a large font size" version="3.x" />
 
 ## Customizing the font weight
 
-Text columns have regular font weight by default, but you may change this to any of the following options: `FontWeight::Thin`, `FontWeight::ExtraLight`, `FontWeight::Light`, `FontWeight::Medium`, `FontWeight::SemiBold`, `FontWeight::Bold`, `FontWeight::ExtraBold` or `FontWeight::Black`.
+Text columns have regular font weight by default but you may change this to any of the the following options: `thin`, `extralight`, `light`, `medium`, `semibold`, `bold`, `extrabold` or `black`.
 
-For instance, you may make the font bold using `weight(FontWeight::Bold)`:
+For instance, you may make the font bold using `weight('bold')`:
 
 ```php
-use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('title')
-    ->weight(FontWeight::Bold)
+    ->weight('bold')
 ```
 
 <AutoScreenshot name="tables/columns/text/bold" alt="Text column in a bold font" version="3.x" />
 
 ## Customizing the font family
 
-You can change the text font family to any of the following options: `FontFamily::Sans`, `FontFamily::Serif` or `FontFamily::Mono`.
+You can change the text font family to any of the following options: `sans`, `serif` or `mono`.
 
-For instance, you may make the font mono using `fontFamily(FontFamily::Mono)`:
+For instance, you may make the font mono using `fontFamily('mono')`:
 
 ```php
-use Filament\Support\Enums\FontFamily;
 use Filament\Tables\Columns\TextColumn;
 
 TextColumn::make('email')
-    ->fontFamily(FontFamily::Mono)
+    ->fontFamily('mono')
 ```
 
 <AutoScreenshot name="tables/columns/text/mono" alt="Text column in a monospaced font" version="3.x" />
@@ -338,29 +346,6 @@ TextColumn::make('email')
 ```
 
 <AutoScreenshot name="tables/columns/text/copyable" alt="Text column with a button to copy it" version="3.x" />
-
-### Customizing the text that is copied to the clipboard
-
-You can customize the text that gets copied to the clipboard using the `copyableState() method:
-
-```php
-use Filament\Tables\Columns\TextColumn;
-
-TextColumn::make('url')
-    ->copyable()
-    ->copyableState(fn (string $state): string => "URL: {$state}")
-```
-
-In this function, you can access the whole table row with `$record`:
-
-```php
-use App\Models\Post;
-use Filament\Tables\Columns\TextColumn;
-
-TextColumn::make('url')
-    ->copyable()
-    ->copyableState(fn (Post $record): string => "URL: {$record->url}")
-```
 
 ## Displaying the row index
 
@@ -382,7 +367,7 @@ TextColumn::make('index')->state(
 ),
 ```
 
-As `$rowLoop` is [Laravel Blade's `$loop` object](https://laravel.com/docs/blade#the-loop-variable), you can reference all other `$loop` properties.
+As `$rowLoop` is Laravel Blade's `$loop` object, you can reference all other `$loop` properties.
 
 As a shortcut, you may use the `rowIndex()` method:
 

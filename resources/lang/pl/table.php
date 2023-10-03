@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Kolumny',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -29,40 +23,49 @@ return [
         'search' => [
             'label' => 'Szukaj',
             'placeholder' => 'Szukaj',
-            'indicator' => 'Szukaj',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Podsumowanie',
+        'label' => 'Paginacja',
 
-        'subheadings' => [
-            'all' => 'Wszystkie :label',
-            'group' => 'Grupa :group',
-            'page' => 'Bieżąca strona',
+        'overview' => 'Pozycje od :first do :last z :total łącznie',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'na stronę',
+
+                'options' => [
+                    'all' => 'Wszystkie',
+                ],
+
+            ],
+
         ],
 
-        'summarizers' => [
+        'buttons' => [
 
-            'average' => [
-                'label' => 'Średnia',
+            'go_to_page' => [
+                'label' => 'Przejdź do strony :page',
             ],
 
-            'count' => [
-                'label' => 'Ilość',
+            'next' => [
+                'label' => 'Następna',
             ],
 
-            'sum' => [
-                'label' => 'Suma',
+            'previous' => [
+                'label' => 'Poprzednia',
             ],
 
         ],
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Zakończ zmienianie kolejności',
@@ -76,12 +79,8 @@ return [
             'label' => 'Filtr',
         ],
 
-        'group' => [
-            'label' => 'Grupa',
-        ],
-
         'open_bulk_actions' => [
-            'label' => 'Akcje masowe',
+            'label' => 'Otwórz akcje',
         ],
 
         'toggle_columns' => [
@@ -94,13 +93,11 @@ return [
 
         'heading' => 'Nie znaleziono rekordów',
 
-        'description' => 'Utwórz rekord aby rozpocząć.',
-
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Usuń filtr',
@@ -116,8 +113,6 @@ return [
             ],
 
         ],
-
-        'heading' => 'Filtry',
 
         'indicator' => 'Aktywne filtry',
 
@@ -143,37 +138,13 @@ return [
 
     ],
 
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'Grupuj według',
-                'placeholder' => 'Grupuj według',
-            ],
-
-            'direction' => [
-
-                'label' => 'Kolejność grup',
-
-                'options' => [
-                    'asc' => 'Rosnąco',
-                    'desc' => 'Malejąco',
-                ],
-
-            ],
-
-        ],
-
-    ],
-
     'reorder_indicator' => 'Zmień kolejność przeciągając.',
 
     'selection_indicator' => [
 
-        'selected_count' => '{1} 1 rekord zaznaczony|[2,4]:count rekordy zaznaczone|[5,*]:count rekordów zaznaczonych',
+        'selected_count' => '{1} 1 rekord zaznaczony.|[2,4]:count rekordy zaznaczone.|[5,*]:count rekordów zaznaczonych.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Zaznacz wszystkie :count',

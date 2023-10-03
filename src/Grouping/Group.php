@@ -2,13 +2,9 @@
 
 namespace Filament\Tables\Grouping;
 
-use BackedEnum;
-use Carbon\Carbon;
 use Closure;
-use DateTimeInterface;
 use Filament\Support\Components\Component;
 use Filament\Support\Contracts\HasLabel as LabelInterface;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -21,8 +17,6 @@ class Group extends Component
 
     protected ?Closure $getDescriptionFromRecordUsing = null;
 
-    protected ?Closure $getKeyFromRecordUsing = null;
-
     protected ?Closure $getTitleFromRecordUsing = null;
 
     protected ?Closure $groupQueryUsing = null;
@@ -30,8 +24,6 @@ class Group extends Component
     protected ?Closure $orderQueryUsing = null;
 
     protected ?Closure $scopeQueryUsing = null;
-
-    protected ?Closure $scopeQueryByKeyUsing = null;
 
     protected ?string $label;
 
@@ -41,19 +33,14 @@ class Group extends Component
 
     protected bool $isTitlePrefixedWithLabel = true;
 
-    protected bool $isDate = false;
-
-    final public function __construct(?string $id = null)
+    final public function __construct(string $id = null)
     {
         $this->id($id);
     }
 
-    public static function make(?string $id = null): static
+    public static function make(string $id = null): static
     {
-        $static = app(static::class, ['id' => $id]);
-        $static->configure();
-
-        return $static;
+        return app(static::class, ['id' => $id]);
     }
 
     public function collapsible(bool $condition = true): static
@@ -66,13 +53,6 @@ class Group extends Component
     public function column(?string $column): static
     {
         $this->column = $column;
-
-        return $this;
-    }
-
-    public function date(bool $condition = true): static
-    {
-        $this->isDate = $condition;
 
         return $this;
     }
@@ -115,13 +95,6 @@ class Group extends Component
         return $this;
     }
 
-    public function getKeyFromRecordUsing(?Closure $callback): static
-    {
-        $this->getKeyFromRecordUsing = $callback;
-
-        return $this;
-    }
-
     public function groupQueryUsing(?Closure $callback): static
     {
         $this->groupQueryUsing = $callback;
@@ -139,13 +112,6 @@ class Group extends Component
     public function scopeQueryUsing(?Closure $callback): static
     {
         $this->scopeQueryUsing = $callback;
-
-        return $this;
-    }
-
-    public function scopeQueryByKeyUsing(?Closure $callback): static
-    {
-        $this->scopeQueryByKeyUsing = $callback;
 
         return $this;
     }
@@ -206,44 +172,15 @@ class Group extends Component
         );
     }
 
-    public function getStringKey(Model $record): ?string
+    public function getKey(Model $record): ?string
     {
-        $key = $this->getKey($record);
+        $key = Arr::get($record, $this->getColumn());
 
-        if ($key instanceof BackedEnum) {
-            $key = $key->value;
-        }
-
-        if (filled($key) && $this->isDate()) {
-            if (! ($key instanceof DateTimeInterface)) {
-                $key = Carbon::parse($key);
-            }
-
-            $key = $key->format('Y-m-d');
+        if ($key instanceof LabelInterface) {
+            $key = $key->getLabel();
         }
 
         return filled($key) ? strval($key) : null;
-    }
-
-    public function getKey(Model $record): mixed
-    {
-        $column = $this->getColumn();
-
-        if ($this->getKeyFromRecordUsing) {
-            return $this->evaluate(
-                $this->getKeyFromRecordUsing,
-                namedInjections: [
-                    'column' => $column,
-                    'record' => $record,
-                ],
-                typedInjections: [
-                    Model::class => $record,
-                    $record::class => $record,
-                ],
-            );
-        }
-
-        return Arr::get($record, $this->getColumn());
     }
 
     public function getTitle(Model $record): ?string
@@ -251,7 +188,7 @@ class Group extends Component
         $column = $this->getColumn();
 
         if ($this->getTitleFromRecordUsing) {
-            $title = $this->evaluate(
+            return $this->evaluate(
                 $this->getTitleFromRecordUsing,
                 namedInjections: [
                     'column' => $column,
@@ -262,20 +199,12 @@ class Group extends Component
                     $record::class => $record,
                 ],
             );
-        } else {
-            $title = Arr::get($record, $column);
         }
+
+        $title = Arr::get($record, $column);
 
         if ($title instanceof LabelInterface) {
             $title = $title->getLabel();
-        }
-
-        if (filled($title) && $this->isDate()) {
-            if (! ($title instanceof DateTimeInterface)) {
-                $title = Carbon::parse($title);
-            }
-
-            $title = $title->format(Table::$defaultDateDisplayFormat);
         }
 
         return $title;
@@ -291,16 +220,10 @@ class Group extends Component
         }
 
         if ($relationship = $this->getRelationship($model)) {
-            $column = $relationship->getRelated()->qualifyColumn($this->getRelationshipAttribute());
-        } else {
-            $column = $this->getColumn();
+            return $query->groupBy($relationship->getRelated()->qualifyColumn($this->getRelationshipAttribute()));
         }
 
-        if ($this->isDate()) {
-            return $query->groupByRaw("date({$column})");
-        }
-
-        return $query->groupBy($column);
+        return $query->groupBy($this->getColumn());
     }
 
     public function orderQuery(EloquentBuilder $query, string $direction): EloquentBuilder
@@ -319,7 +242,7 @@ class Group extends Component
     /**
      * @param  array<string> | null  $relationships
      */
-    protected function getSortColumnForQuery(EloquentBuilder $query, string $sortColumn, ?array $relationships = null, ?Relation $lastRelationship = null): string | Builder
+    protected function getSortColumnForQuery(EloquentBuilder $query, string $sortColumn, array $relationships = null, Relation $lastRelationship = null): string | Builder
     {
         $relationships ??= ($relationshipName = $this->getRelationshipName()) ?
             explode('.', $relationshipName) :
@@ -352,11 +275,13 @@ class Group extends Component
 
     public function scopeQuery(EloquentBuilder $query, Model $record): EloquentBuilder
     {
+        $column = $this->getColumn();
+
         if ($this->scopeQueryUsing) {
             return $this->evaluate(
                 $this->scopeQueryUsing,
                 namedInjections: [
-                    'column' => $this->getColumn(),
+                    'column' => $column,
                     'query' => $query,
                     'record' => $record,
                 ],
@@ -367,46 +292,20 @@ class Group extends Component
             ) ?? $query;
         }
 
-        $this->scopeQueryByKey($query, $this->getKey($record));
-
-        return $query;
-    }
-
-    public function scopeQueryByKey(EloquentBuilder $query, string $key): EloquentBuilder
-    {
-        $column = $this->getColumn();
-
-        if ($this->scopeQueryByKeyUsing) {
-            return $this->evaluate(
-                $this->scopeQueryByKeyUsing,
-                namedInjections: [
-                    'column' => $column,
-                    'key' => $key,
-                    'query' => $query,
-                ],
-            ) ?? $query;
-        }
+        $value = Arr::get($record, $column);
 
         if ($relationshipName = $this->getRelationshipName()) {
-            return $query->whereHas(
+            return $query->whereRelation(
                 $relationshipName,
-                fn (EloquentBuilder $query) => $this->applyDefaultScopeToQuery($query, $this->getRelationshipAttribute(), $key),
+                $this->getRelationshipAttribute(),
+                $value,
             );
-        }
-
-        return $this->applyDefaultScopeToQuery($query, $column, $key);
-    }
-
-    protected function applyDefaultScopeToQuery(EloquentBuilder $query, string $column, mixed $value): EloquentBuilder
-    {
-        if ($this->isDate()) {
-            return $query->whereDate($column, $value);
         }
 
         return $query->where($column, $value);
     }
 
-    public function getRelationship(Model $record, ?string $name = null): ?Relation
+    public function getRelationship(Model $record, string $name = null): ?Relation
     {
         if (blank($name) && (! str($this->getColumn())->contains('.'))) {
             return null;
@@ -428,7 +327,7 @@ class Group extends Component
         return $relationship;
     }
 
-    public function getRelationshipAttribute(?string $name = null): string
+    public function getRelationshipAttribute(string $name = null): string
     {
         $name ??= $this->getColumn();
 
@@ -439,7 +338,7 @@ class Group extends Component
         return (string) str($name)->afterLast('.');
     }
 
-    public function getRelationshipName(?string $name = null): ?string
+    public function getRelationshipName(string $name = null): ?string
     {
         $name ??= $this->getColumn();
 
@@ -448,10 +347,5 @@ class Group extends Component
         }
 
         return (string) str($name)->beforeLast('.');
-    }
-
-    public function isDate(): bool
-    {
-        return $this->isDate;
     }
 }

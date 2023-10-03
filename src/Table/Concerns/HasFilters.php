@@ -4,10 +4,9 @@ namespace Filament\Tables\Table\Concerns;
 
 use Closure;
 use Filament\Forms\Form;
-use Filament\Support\Enums\ActionSize;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\BaseFilter;
+use Filament\Tables\Filters\Layout;
 
 trait HasFilters
 {
@@ -19,13 +18,13 @@ trait HasFilters
     /**
      * @var int | array<string, int | null> | Closure
      */
-    protected int | array | Closure | null $filtersFormColumns = null;
+    protected int | array | Closure $filtersFormColumns = 1;
 
     protected string | Closure | null $filtersFormMaxHeight = null;
 
     protected string | Closure | null $filtersFormWidth = null;
 
-    protected FiltersLayout | Closure | null $filtersLayout = null;
+    protected string | Closure | null $filtersLayout = null;
 
     protected ?Closure $modifyFiltersTriggerActionUsing = null;
 
@@ -43,22 +42,7 @@ trait HasFilters
     /**
      * @param  array<BaseFilter>  $filters
      */
-    public function filters(array $filters, FiltersLayout | string | Closure | null $layout = null): static
-    {
-        $this->filters = [];
-        $this->pushFilters($filters);
-
-        if ($layout) {
-            $this->filtersLayout($layout);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param  array<BaseFilter>  $filters
-     */
-    public function pushFilters(array $filters): static
+    public function filters(array $filters, string | Closure $layout = null): static
     {
         foreach ($filters as $filter) {
             $filter->table($this);
@@ -66,13 +50,15 @@ trait HasFilters
             $this->filters[$filter->getName()] = $filter;
         }
 
+        $this->filtersLayout($layout);
+
         return $this;
     }
 
     /**
      * @param  int | array<string, int | null> | Closure  $columns
      */
-    public function filtersFormColumns(int | array | Closure | null $columns): static
+    public function filtersFormColumns(int | array | Closure $columns): static
     {
         $this->filtersFormColumns = $columns;
 
@@ -93,7 +79,7 @@ trait HasFilters
         return $this;
     }
 
-    public function filtersLayout(FiltersLayout | Closure | null $filtersLayout): static
+    public function filtersLayout(string | Closure | null $filtersLayout): static
     {
         $this->filtersLayout = $filtersLayout;
 
@@ -138,7 +124,7 @@ trait HasFilters
     public function getFiltersTriggerAction(): Action
     {
         $action = Action::make('openFilters')
-            ->label(__('filament-tables::table.actions.filter.label'))
+            ->label(__('filament-tables::table.buttons.filter.label'))
             ->iconButton()
             ->icon('heroicon-m-funnel')
             ->color('gray')
@@ -152,7 +138,7 @@ trait HasFilters
         }
 
         if ($action->getView() === Action::BUTTON_VIEW) {
-            $action->defaultSize(ActionSize::Small);
+            $action->defaultSize('sm');
         }
 
         return $action;
@@ -164,7 +150,7 @@ trait HasFilters
     public function getFiltersFormColumns(): int | array
     {
         return $this->evaluate($this->filtersFormColumns) ?? match ($this->getFiltersLayout()) {
-            FiltersLayout::AboveContent, FiltersLayout::AboveContentCollapsible, FiltersLayout::BelowContent => [
+            Layout::AboveContent, Layout::BelowContent => [
                 'sm' => 2,
                 'lg' => 3,
                 'xl' => 4,
@@ -189,9 +175,9 @@ trait HasFilters
         };
     }
 
-    public function getFiltersLayout(): FiltersLayout
+    public function getFiltersLayout(): string
     {
-        return $this->evaluate($this->filtersLayout) ?? FiltersLayout::Dropdown;
+        return $this->evaluate($this->filtersLayout) ?? Layout::Dropdown;
     }
 
     public function isFilterable(): bool

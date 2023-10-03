@@ -19,7 +19,45 @@ return [
 
     ],
 
-    'actions' => [
+    'pagination' => [
+
+        'label' => 'გვერდებზე ნავიგაცია',
+
+        'overview' => '{1} ნაჩვენებია ერთი შედეგი|[2,*] ნაჩვენებია :first-დან :last-მდე :total-დან',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'ჩანაწერი თითო გვერდზე',
+
+                'options' => [
+                    'all' => 'ყველა',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => '{1} :page-ელ გვერდზე გადასვლა|[2,*] მე-:page გვერდზე გადასვლა',
+            ],
+
+            'next' => [
+                'label' => 'შემდეგი',
+            ],
+
+            'previous' => [
+                'label' => 'წინა',
+            ],
+
+        ],
+
+    ],
+
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'ჩანაწერების გადანაცვლების დასრულება',
@@ -51,7 +89,7 @@ return [
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'ფილტრის მოხსნა',
@@ -96,9 +134,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => 'მონიშნულია :count ჩანაწერი',
+        'selected_count' => 'მონიშნულია :count ჩანაწერი.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => '{1} მონიშნე ყველა|[2,*] მონიშნე :count-ივე',

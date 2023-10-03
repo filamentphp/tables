@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Kolom',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -18,51 +12,52 @@ return [
 
     'fields' => [
 
-        'bulk_select_page' => [
-            'label' => 'Buat/batalkan pilihan semua item untuk tindakan masal.',
-        ],
-
-        'bulk_select_record' => [
-            'label' => 'Buat/batalkan pilihan item :key untuk tindakan masal.',
-        ],
-
         'search' => [
             'label' => 'Cari',
             'placeholder' => 'Cari',
-            'indicator' => 'Pencarian',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Rangkuman',
+        'label' => 'Navigasi halaman',
 
-        'subheadings' => [
-            'all' => 'Semua :label',
-            'group' => 'Rangkuman :group',
-            'page' => 'Halaman ini',
+        'overview' => 'Menampilkan :first sampai :last dari :total hasil',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'per halaman',
+
+                'options' => [
+                    'all' => 'Semua',
+                ],
+
+            ],
+
         ],
 
-        'summarizers' => [
+        'buttons' => [
 
-            'average' => [
-                'label' => 'Rata-rata',
+            'go_to_page' => [
+                'label' => 'Ke halaman :page',
             ],
 
-            'count' => [
-                'label' => 'Jumlah',
+            'next' => [
+                'label' => 'Selanjutnya',
             ],
 
-            'sum' => [
-                'label' => 'Total',
+            'previous' => [
+                'label' => 'Sebelumnya',
             ],
 
         ],
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Selesaikan pengurutan ulang data',
@@ -76,10 +71,6 @@ return [
             'label' => 'Filter',
         ],
 
-        'group' => [
-            'label' => 'Grup',
-        ],
-
         'open_bulk_actions' => [
             'label' => 'Tindakan',
         ],
@@ -91,16 +82,12 @@ return [
     ],
 
     'empty' => [
-
         'heading' => 'Tidak ada data yang ditemukan',
-
-        'description' => 'Buat :model untuk memulai.',
-
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Hapus filter',
@@ -116,8 +103,6 @@ return [
             ],
 
         ],
-
-        'heading' => 'Filter',
 
         'indicator' => 'Filter aktif',
 
@@ -143,37 +128,13 @@ return [
 
     ],
 
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'Kelompokkan berdasar',
-                'placeholder' => 'Kelompokkan berdasar',
-            ],
-
-            'direction' => [
-
-                'label' => 'Urutan grup',
-
-                'options' => [
-                    'asc' => 'Naik',
-                    'desc' => 'Turun',
-                ],
-
-            ],
-
-        ],
-
-    ],
-
     'reorder_indicator' => 'Seret dan lepaskan data ke dalam urutan.',
 
     'selection_indicator' => [
 
-        'selected_count' => ':count data dipilih',
+        'selected_count' => ':count data dipilih.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Pilih semua (:count)',

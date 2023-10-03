@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Colunas',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -27,42 +21,51 @@ return [
         ],
 
         'search' => [
-            'label' => 'Pesquisar',
-            'placeholder' => 'Pesquisar',
-            'indicator' => 'Pesquisar',
+            'label' => 'Procurar',
+            'placeholder' => 'Procurar',
         ],
 
     ],
 
-    'summary' => [
+    'pagination' => [
 
-        'heading' => 'Resumo',
+        'label' => 'Paginação',
 
-        'subheadings' => [
-            'all' => 'Todos :label',
-            'group' => ':group resumo',
-            'page' => 'Esta página',
+        'overview' => '{1} Exibindo 1 resultado|[2,*] Exibindo :first a :last de :total resultados',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'por página',
+
+                'options' => [
+                    'all' => 'Todas',
+                ],
+
+            ],
+
         ],
 
-        'summarizers' => [
+        'buttons' => [
 
-            'average' => [
-                'label' => 'Média',
+            'go_to_page' => [
+                'label' => 'Ir para página :page',
             ],
 
-            'count' => [
-                'label' => 'Contagem',
+            'next' => [
+                'label' => 'Próximo',
             ],
 
-            'sum' => [
-                'label' => 'Soma',
+            'previous' => [
+                'label' => 'Anterior',
             ],
 
         ],
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Concluir a reordenação de registros',
@@ -74,10 +77,6 @@ return [
 
         'filter' => [
             'label' => 'Filtrar',
-        ],
-
-        'group' => [
-            'label' => 'Agrupar',
         ],
 
         'open_bulk_actions' => [
@@ -94,12 +93,11 @@ return [
 
         'heading' => 'Sem registros',
 
-        'description' => 'Crie um :model para começar.',
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Remover filtro',
@@ -115,8 +113,6 @@ return [
             ],
 
         ],
-
-        'heading' => 'Filtros',
 
         'indicator' => 'Filtros ativos',
 
@@ -142,37 +138,13 @@ return [
 
     ],
 
-    'grouping' => [
-
-        'fields' => [
-
-            'group' => [
-                'label' => 'Agrupar por',
-                'placeholder' => 'Agrupar por',
-            ],
-
-            'direction' => [
-
-                'label' => 'Direção do agrupamento',
-
-                'options' => [
-                    'asc' => 'Ascendente',
-                    'desc' => 'Descendente',
-                ],
-
-            ],
-
-        ],
-
-    ],
-
     'reorder_indicator' => 'Arraste e solte os registros na ordem.',
 
     'selection_indicator' => [
 
-        'selected_count' => '1 registro selecionado|:count registros selecionados',
+        'selected_count' => '1 registro selecionado.|:count registros selecionados.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Selecione todos os :count',

@@ -2,12 +2,6 @@
 
 return [
 
-    'column_toggle' => [
-
-        'heading' => 'Columns',
-
-    ],
-
     'columns' => [
 
         'text' => [
@@ -26,14 +20,48 @@ return [
             'label' => 'Select/deselect item :key for bulk actions.',
         ],
 
-        'bulk_select_group' => [
-            'label' => 'Select/deselect group :title for bulk actions.',
-        ],
-
         'search' => [
             'label' => 'Search',
             'placeholder' => 'Search',
             'indicator' => 'Search',
+        ],
+
+    ],
+
+    'pagination' => [
+
+        'label' => 'Pagination navigation',
+
+        'overview' => '{1} Showing 1 result|[2,*] Showing :first to :last of :total results',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'per page',
+
+                'options' => [
+                    'all' => 'All',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => 'Go to page :page',
+            ],
+
+            'next' => [
+                'label' => 'Next',
+            ],
+
+            'previous' => [
+                'label' => 'Previous',
+            ],
+
         ],
 
     ],
@@ -66,7 +94,7 @@ return [
 
     ],
 
-    'actions' => [
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'Finish reordering records',
@@ -96,15 +124,13 @@ return [
 
     'empty' => [
 
-        'heading' => 'No :model',
-
-        'description' => 'Create a :model to get started.',
+        'heading' => 'No records found',
 
     ],
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'Remove filter',
@@ -116,12 +142,10 @@ return [
             ],
 
             'reset' => [
-                'label' => 'Reset',
+                'label' => 'Reset filters',
             ],
 
         ],
-
-        'heading' => 'Filters',
 
         'indicator' => 'Active filters',
 
@@ -175,9 +199,9 @@ return [
 
     'selection_indicator' => [
 
-        'selected_count' => '1 record selected|:count records selected',
+        'selected_count' => '1 record selected.|:count records selected.',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'Select all :count',

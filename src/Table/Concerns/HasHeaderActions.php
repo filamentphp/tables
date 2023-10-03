@@ -6,7 +6,7 @@ use Closure;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Actions\HeaderActionsPosition;
+use Filament\Tables\Actions\Position;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
@@ -17,9 +17,9 @@ trait HasHeaderActions
      */
     protected array $headerActions = [];
 
-    protected HeaderActionsPosition | Closure | null $headerActionsPosition = null;
+    protected string | Closure | null $headerActionsPosition = null;
 
-    public function headerActionsPosition(HeaderActionsPosition | Closure | null $position = null): static
+    public function headerActionsPosition(string | Closure $position = null): static
     {
         $this->headerActionsPosition = $position;
 
@@ -29,22 +29,7 @@ trait HasHeaderActions
     /**
      * @param  array<Action | BulkAction | ActionGroup> | ActionGroup  $actions
      */
-    public function headerActions(array | ActionGroup $actions, HeaderActionsPosition | Closure | null $position = null): static
-    {
-        $this->headerActions = [];
-        $this->pushHeaderActions($actions);
-
-        if ($position) {
-            $this->headerActionsPosition($position);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param  array<Action | BulkAction | ActionGroup> | ActionGroup  $actions
-     */
-    public function pushHeaderActions(array | ActionGroup $actions): static
+    public function headerActions(array | ActionGroup $actions, string | Closure $position = null): static
     {
         foreach (Arr::wrap($actions) as $action) {
             $action->table($this);
@@ -58,8 +43,12 @@ trait HasHeaderActions
                     }
                 }
             } elseif ($action instanceof Action) {
+                $action->defaultSize('sm');
+
                 $this->cacheAction($action);
             } elseif ($action instanceof BulkAction) {
+                $action->defaultSize('sm');
+
                 $this->cacheBulkAction($action);
             } else {
                 throw new InvalidArgumentException('Table header actions must be an instance of ' . Action::class . ', ' . BulkAction::class . ' or ' . ActionGroup::class . '.');
@@ -68,10 +57,12 @@ trait HasHeaderActions
             $this->headerActions[] = $action;
         }
 
+        $this->headerActionsPosition($position);
+
         return $this;
     }
 
-    public function getHeaderActionsPosition(): HeaderActionsPosition
+    public function getHeaderActionsPosition(): string
     {
         $position = $this->evaluate($this->headerActionsPosition);
 
@@ -79,7 +70,7 @@ trait HasHeaderActions
             return $position;
         }
 
-        return HeaderActionsPosition::Adaptive;
+        return Position::End;
     }
 
     /**

@@ -1,9 +1,5 @@
 <div
-    {{
-        $attributes
-            ->merge($getExtraAttributes(), escape: false)
-            ->class(['fi-ta-range-summary grid gap-y-1 px-3 py-4'])
-    }}
+    {{ $attributes->merge($getExtraAttributes(), escape: false)->class(['filament-tables-range-summary px-4 py-3 text-sm']) }}
 >
     @php
         $state = $formatState($getState());
@@ -12,20 +8,18 @@
     @endphp
 
     @if (filled($label = $getLabel()))
-        <span class="text-sm font-medium text-gray-950 dark:text-white">
-            {{ $label }}
-        </span>
+        <span class="text-gray-500 dark:text-gray-400">{{ $label }}:</span>
     @endif
 
-    @if (filled($from) || filled($to))
-        <span class="text-sm text-gray-500 dark:text-gray-400">
-            {{ $from }}
+    <span>
+        {{ $from }}
+    </span>
 
-            @if (filled($from) && filled($to))
-                -
-            @endif
-
-            {{ $to }}
-        </span>
+    @if (filled($from) && filled($to))
+        <span class="text-gray-500 dark:text-gray-400">-</span>
     @endif
+
+    <span>
+        {{ $to }}
+    </span>
 </div>

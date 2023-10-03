@@ -59,11 +59,6 @@ class BulkAction extends MountableAction implements Groupable, HasTable
         return "mountBulkAction('{$this->getName()}')";
     }
 
-    public function getLivewireTarget(): ?string
-    {
-        return "mountTableBulkAction('{$this->getName()}')";
-    }
-
     /**
      * @return array<mixed>
      */
@@ -97,10 +92,5 @@ class BulkAction extends MountableAction implements Groupable, HasTable
         array_unshift($arguments, $this->getTable()->getModel());
 
         return $arguments;
-    }
-
-    public function getInfolistName(): string
-    {
-        return 'mountedTableBulkActionInfolist';
     }
 }

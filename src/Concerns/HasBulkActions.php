@@ -4,7 +4,6 @@ namespace Filament\Tables\Concerns;
 
 use Closure;
 use Filament\Forms\Form;
-use Filament\Infolists\Infolist;
 use Filament\Support\Exceptions\Cancel;
 use Filament\Support\Exceptions\Halt;
 use Filament\Tables\Actions\BulkAction;
@@ -13,8 +12,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-
-use function Livewire\store;
 
 /**
  * @property Form $mountedTableBulkActionForm
@@ -81,7 +78,7 @@ trait HasBulkActions
         } catch (Cancel $exception) {
         }
 
-        if (store($this)->has('redirect')) {
+        if (filled($this->redirectTo)) {
             return $result;
         }
 
@@ -97,15 +94,12 @@ trait HasBulkActions
     }
 
     /**
-     * @param  array<int | string> | null  $selectedRecords
+     * @param  array<int | string>  $selectedRecords
      */
-    public function mountTableBulkAction(string $name, ?array $selectedRecords = null): mixed
+    public function mountTableBulkAction(string $name, array $selectedRecords): mixed
     {
         $this->mountedTableBulkAction = $name;
-
-        if ($selectedRecords !== null) {
-            $this->selectedTableRecords = $selectedRecords;
-        }
+        $this->selectedTableRecords = $selectedRecords;
 
         $action = $this->getMountedTableBulkAction();
 
@@ -188,12 +182,9 @@ trait HasBulkActions
 
     public function deselectAllTableRecords(): void
     {
-        $this->dispatch('deselectAllTableRecords');
+        $this->emitSelf('deselectAllTableRecords');
     }
 
-    /**
-     * @return array<string>
-     */
     public function getAllSelectableTableRecordKeys(): array
     {
         $query = $this->getFilteredTableQuery();
@@ -211,50 +202,6 @@ trait HasBulkActions
 
         $records = $this->getTable()->selectsCurrentPageOnly() ?
             $this->getTableRecords() :
-            $query->get();
-
-        return $records->reduce(
-            function (array $carry, Model $record): array {
-                if (! $this->getTable()->isRecordSelectable($record)) {
-                    return $carry;
-                }
-
-                $carry[] = (string) $record->getKey();
-
-                return $carry;
-            },
-            initial: [],
-        );
-    }
-
-    /**
-     * @return array<string>
-     */
-    public function getGroupedSelectableTableRecordKeys(string $group): array
-    {
-        $query = $this->getFilteredTableQuery();
-
-        $tableGrouping = $this->getTableGrouping();
-
-        $tableGrouping->scopeQueryByKey($query, $group);
-
-        if (! $this->getTable()->checksIfRecordIsSelectable()) {
-            $records = $this->getTable()->selectsCurrentPageOnly() ?
-                $this->getTableRecords()->filter(
-                    fn (Model $record) => $tableGrouping->getStringKey($record) === $group,
-                ) :
-                $query;
-
-            return $records
-                ->pluck($query->getModel()->getQualifiedKeyName())
-                ->map(fn ($key): string => (string) $key)
-                ->all();
-        }
-
-        $records = $this->getTable()->selectsCurrentPageOnly() ?
-            $this->getTableRecords()->filter(
-                fn (Model $record) => $tableGrouping->getStringKey($record) === $group,
-            ) :
             $query->get();
 
         return $records->reduce(
@@ -312,10 +259,6 @@ trait HasBulkActions
                 $column->applyRelationshipAggregates($query);
             }
 
-            if ($table->shouldDeselectAllRecordsWhenFiltered()) {
-                $this->filterTableQuery($query);
-            }
-
             return $this->cachedSelectedTableRecords = $query->get();
         }
 
@@ -339,12 +282,16 @@ trait HasBulkActions
 
     protected function closeTableBulkActionModal(): void
     {
-        $this->dispatch('close-modal', id: "{$this->getId()}-table-bulk-action");
+        $this->dispatchBrowserEvent('close-modal', [
+            'id' => "{$this->id}-table-bulk-action",
+        ]);
     }
 
     protected function openTableBulkActionModal(): void
     {
-        $this->dispatch('open-modal', id: "{$this->getId()}-table-bulk-action");
+        $this->dispatchBrowserEvent('open-modal', [
+            'id' => "{$this->id}-table-bulk-action",
+        ]);
     }
 
     /**
@@ -408,10 +355,5 @@ trait HasBulkActions
     public function isTableRecordSelectable(): ?Closure
     {
         return null;
-    }
-
-    public function mountedTableBulkActionInfolist(): Infolist
-    {
-        return $this->getMountedTableBulkAction()->getInfolist();
     }
 }

@@ -32,15 +32,6 @@ trait CanGroupRecords
         $this->resetPage();
     }
 
-    public function getTableGroupingDirection(): ?string
-    {
-        return match ($this->tableGroupingDirection) {
-            'asc' => 'asc',
-            'desc' => 'desc',
-            default => null,
-        };
-    }
-
     protected function applyGroupingToTableQuery(Builder $query): Builder
     {
         if ($this->isTableReordering()) {
@@ -53,6 +44,6 @@ trait CanGroupRecords
             return $query;
         }
 
-        return $group->orderQuery($query, $this->getTableGroupingDirection() ?? 'asc');
+        return $group->orderQuery($query, $this->tableGroupingDirection ?? 'asc');
     }
 }

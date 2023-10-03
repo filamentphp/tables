@@ -47,7 +47,6 @@ class Action extends MountableAction implements Groupable, HasRecord, HasTable
     protected function resolveDefaultClosureDependencyForEvaluationByName(string $parameterName): array
     {
         return match ($parameterName) {
-            'model' => [$this->getModel()],
             'record' => [$this->getRecord()],
             'table' => [$this->getTable()],
             default => parent::resolveDefaultClosureDependencyForEvaluationByName($parameterName),
@@ -71,7 +70,7 @@ class Action extends MountableAction implements Groupable, HasRecord, HasTable
         };
     }
 
-    public function getRecordTitle(?Model $record = null): string
+    public function getRecordTitle(Model $record = null): string
     {
         $record ??= $this->getRecord();
 
@@ -109,10 +108,5 @@ class Action extends MountableAction implements Groupable, HasRecord, HasTable
         return $action
             ->table($this->getTable())
             ->record($this->getRecord());
-    }
-
-    public function getInfolistName(): string
-    {
-        return 'mountedTableActionInfolist';
     }
 }

@@ -4,7 +4,6 @@ namespace Filament\Tables\Commands\Concerns;
 
 use Doctrine\DBAL\Types;
 use Filament\Tables;
-use Illuminate\Support\Str;
 
 trait CanGenerateTables
 {
@@ -66,7 +65,7 @@ trait CanGenerateTables
                 'sku',
                 'uuid',
             ])) {
-                $columnData['label'] = [Str::upper($columnName)];
+                $columnData['label'] = [strtoupper($columnName)];
             }
 
             if ($column->getType() instanceof Types\BooleanType) {

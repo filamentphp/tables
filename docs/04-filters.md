@@ -2,7 +2,6 @@
 title: Filters
 ---
 import AutoScreenshot from "@components/AutoScreenshot.astro"
-import LaracastsBanner from "@components/LaracastsBanner.astro"
 
 ## Overview
 
@@ -142,19 +141,6 @@ SelectFilter::make('author')
     ->relationship('author', 'name')
 ```
 
-### Preloading the select filter relationship options
-
-If you'd like to populate the searchable options from the database when the page is loaded, instead of when the user searches, you can use the `preload()` method:
-
-```php
-use Filament\Tables\Filters\SelectFilter;
-
-SelectFilter::make('author')
-    ->relationship('author', 'name')
-    ->searchable()
-    ->preload()
-```
-
 ##### Customizing the select filter relationship query
 
 You may customize the database query that retrieves options using the third parameter of the `relationship()` method:
@@ -165,18 +151,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 SelectFilter::make('author')
     ->relationship('author', 'name', fn (Builder $query) => $query->withTrashed())
-```
-
-#### Searching select filter options
-
-You may enable a search input to allow easier access to many options, using the `searchable()` method:
-
-```php
-use Filament\Tables\Filters\SelectFilter;
-
-SelectFilter::make('author')
-    ->relationship('author', 'name')
-    ->searchable()
 ```
 
 ### Ternary filters
@@ -249,13 +223,7 @@ TernaryFilter::make('trashed')
 
 ### Custom filter forms
 
-<LaracastsBanner
-    title="Build a Custom Table Filter"
-    description="Watch the Build Advanced Components for Filament series on Laracasts - it will teach you how to build components, and you'll get to know all the internal tools to help you."
-    url="https://laracasts.com/series/build-advanced-components-for-filament/episodes/11"
-/>
-
-You may use components from the [Form Builder](../forms/fields/getting-started) to create custom filter forms. The data from the custom filter form is available in the `$data` array of the `query()` callback:
+You may use components from the [form builder](../forms/fields) to create custom filter forms. The data from the custom filter form is available in the `$data` array of the `query()` callback:
 
 ```php
 use Filament\Forms\Components\DatePicker;
@@ -313,8 +281,6 @@ Filter::make('is_admin')
     ->label('Administrators only?')
     ->indicator('Administrators')
 ```
-
-If you are using a [custom filter form](#custom-filter-forms), you should use [`indicateUsing()`](#custom-active-indicators) to display an active indicator.
 
 ### Custom active indicators
 
@@ -403,7 +369,7 @@ public function table(Table $table): Table
 
 ## Controlling the maximum height of the filters dropdown
 
-To add a maximum height to the filters' dropdown content, so that they scroll, you may use the `filtersFormMaxHeight()` method, passing a [CSS length](https://developer.mozilla.org/en-US/docs/Web/CSS/length):
+To add a maximum height to the filters dropdown content, so that they scroll, you may use the `filtersFormMaxHeight()` method, passing a [CSS length](https://developer.mozilla.org/en-US/docs/Web/CSS/length):
 
 ```php
 use Filament\Tables\Table;
@@ -423,7 +389,7 @@ public function table(Table $table): Table
 To render the filters above the table content instead of in a dropdown, you may use:
 
 ```php
-use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Layout;
 use Filament\Tables\Table;
 
 public function table(Table $table): Table
@@ -431,7 +397,7 @@ public function table(Table $table): Table
     return $table
         ->filters([
             // ...
-        ], layout: FiltersLayout::AboveContent);
+        ], layout: Layout::AboveContent);
 }
 ```
 
@@ -442,14 +408,14 @@ public function table(Table $table): Table
 To allow the filters above the table content to be collapsed, you may use:
 
 ```php
-use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Layout;
 
 public function table(Table $table): Table
 {
     return $table
         ->filters([
             // ...
-        ], layout: FiltersLayout::AboveContentCollapsible);
+        ], layout: Layout::AboveContentCollapsible);
 }
 ```
 
@@ -458,7 +424,7 @@ public function table(Table $table): Table
 To render the filters below the table content instead of in a dropdown, you may use:
 
 ```php
-use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Layout;
 use Filament\Tables\Table;
 
 public function table(Table $table): Table
@@ -466,7 +432,7 @@ public function table(Table $table): Table
     return $table
         ->filters([
             // ...
-        ], layout: FiltersLayout::BelowContent);
+        ], layout: Layout::BelowContent);
 }
 ```
 
@@ -528,7 +494,7 @@ TernaryFilter::make('trashed')
 
 ## Customizing the filters dropdown trigger action
 
-To customize the filters' dropdown trigger buttons, you may use the `filtersTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../actions/trigger-button) can be used:
+To customize the filters dropdown trigger button, you may use the `filtersTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../actions/trigger-button) can be used:
 
 ```php
 use Filament\Tables\Actions\Action;
@@ -549,83 +515,3 @@ public function table(Table $table): Table
 ```
 
 <AutoScreenshot name="tables/filters/custom-trigger-action" alt="Table with custom filters trigger action" version="3.x" />
-
-## Table filter utility injection
-
-The vast majority of methods used to configure filters accept functions as parameters instead of hardcoded values:
-
-```php
-use App\Models\Author;
-use Filament\Tables\Filters\SelectFilter;
-
-SelectFilter::make('author')
-    ->options(fn (): array => Author::query()->pluck('name', 'id')->all())
-```
-
-This alone unlocks many customization possibilities.
-
-The package is also able to inject many utilities to use inside these functions, as parameters. All customization methods that accept functions as arguments can inject utilities.
-
-These injected utilities require specific parameter names to be used. Otherwise, Filament doesn't know what to inject.
-
-### Injecting the current filter instance
-
-If you wish to access the current filter instance, define a `$filter` parameter:
-
-```php
-use Filament\Tables\Filters\BaseFilter;
-
-function (BaseFilter $filter) {
-    // ...
-}
-```
-
-### Injecting the current Livewire component instance
-
-If you wish to access the current Livewire component instance that the table belongs to, define a `$livewire` parameter:
-
-```php
-use Filament\Tables\Contracts\HasTable;
-
-function (HasTable $livewire) {
-    // ...
-}
-```
-
-### Injecting the current table instance
-
-If you wish to access the current table configuration instance that the filter belongs to, define a `$table` parameter:
-
-```php
-use Filament\Tables\Table;
-
-function (Table $table) {
-    // ...
-}
-```
-
-### Injecting multiple utilities
-
-The parameters are injected dynamically using reflection, so you are able to combine multiple parameters in any order:
-
-```php
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
-
-function (HasTable $livewire, Table $table) {
-    // ...
-}
-```
-
-### Injecting dependencies from Laravel's container
-
-You may inject anything from Laravel's container like normal, alongside utilities:
-
-```php
-use Filament\Tables\Table;
-use Illuminate\Http\Request;
-
-function (Request $request, Table $table) {
-    // ...
-}
-```

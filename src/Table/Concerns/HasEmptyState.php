@@ -42,18 +42,7 @@ trait HasEmptyState
     /**
      * @param  array<Action | ActionGroup> | ActionGroup  $actions
      */
-    public function emptyStateActions(array | ActionGroup $actions, bool $shouldOverwriteExistingActions = false): static
-    {
-        $this->emptyStateActions = [];
-        $this->pushEmptyStateActions($actions, $shouldOverwriteExistingActions);
-
-        return $this;
-    }
-
-    /**
-     * @param  array<Action | ActionGroup> | ActionGroup  $actions
-     */
-    public function pushEmptyStateActions(array | ActionGroup $actions, bool $shouldOverwriteExistingActions = false): static
+    public function emptyStateActions(array | ActionGroup $actions): static
     {
         foreach (Arr::wrap($actions) as $action) {
             $action->table($this);
@@ -62,9 +51,9 @@ trait HasEmptyState
                 /** @var array<string, Action> $flatActions */
                 $flatActions = $action->getFlatActions();
 
-                $this->mergeCachedFlatActions($flatActions, $shouldOverwriteExistingActions);
+                $this->mergeCachedFlatActions($flatActions);
             } elseif ($action instanceof Action) {
-                $this->cacheAction($action, $shouldOverwriteExistingActions);
+                $this->cacheAction($action);
             } else {
                 throw new InvalidArgumentException('Table empty state actions must be an instance of ' . Action::class . ' or ' . ActionGroup::class . '.');
             }
@@ -109,9 +98,7 @@ trait HasEmptyState
 
     public function getEmptyStateHeading(): string | Htmlable
     {
-        return $this->evaluate($this->emptyStateHeading) ?? __('filament-tables::table.empty.heading', [
-            'model' => $this->getPluralModelLabel(),
-        ]);
+        return $this->evaluate($this->emptyStateHeading) ?? __('filament-tables::table.empty.heading');
     }
 
     public function getEmptyStateIcon(): string

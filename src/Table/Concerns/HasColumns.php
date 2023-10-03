@@ -10,6 +10,8 @@ use InvalidArgumentException;
 
 trait HasColumns
 {
+    protected ?ColumnLayoutComponent $collapsibleColumnsLayout = null;
+
     /**
      * @var array<string, Column>
      */
@@ -20,28 +22,12 @@ trait HasColumns
      */
     protected array $columnsLayout = [];
 
-    protected ?ColumnLayoutComponent $collapsibleColumnsLayout = null;
-
     protected bool $hasColumnsLayout = false;
 
     /**
      * @param  array<Column | ColumnLayoutComponent>  $components
      */
     public function columns(array $components): static
-    {
-        $this->columns = [];
-        $this->columnsLayout = [];
-        $this->collapsibleColumnsLayout = null;
-        $this->hasColumnsLayout = false;
-        $this->pushColumns($components);
-
-        return $this;
-    }
-
-    /**
-     * @param  array<Column | ColumnLayoutComponent>  $components
-     */
-    public function pushColumns(array $components): static
     {
         foreach ($components as $component) {
             $component->table($this);

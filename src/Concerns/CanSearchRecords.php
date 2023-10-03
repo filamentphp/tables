@@ -38,10 +38,10 @@ trait CanSearchRecords
     /**
      * @param  string | null  $value
      */
-    public function updatedTableColumnSearches($value = null, ?string $key = null): void
+    public function updatedTableColumnSearches($value = null, string $key = null): void
     {
-        if (blank($value) && filled($key)) {
-            Arr::forget($this->tableColumnSearches, $key);
+        if (blank($value) && ! str($key)->contains('.')) {
+            unset($this->tableColumnSearches[$key]);
         }
 
         if ($this->getTable()->persistsColumnSearchesInSession()) {
@@ -87,7 +87,7 @@ trait CanSearchRecords
                 continue;
             }
 
-            foreach ($this->extractTableSearchWords($search) as $searchWord) {
+            foreach (explode(' ', $search) as $searchWord) {
                 $query->where(function (Builder $query) use ($column, $searchWord) {
                     $isFirst = true;
 
@@ -103,23 +103,15 @@ trait CanSearchRecords
         return $query;
     }
 
-    /**
-     * @return array<string>
-     */
-    protected function extractTableSearchWords(string $search): array
-    {
-        return explode(' ', preg_replace('/\s+/', ' ', $search));
-    }
-
     protected function applyGlobalSearchToTableQuery(Builder $query): Builder
     {
-        $search = $this->getTableSearch();
+        $search = trim(strtolower($this->getTableSearch()));
 
         if (blank($search)) {
             return $query;
         }
 
-        foreach ($this->extractTableSearchWords($search) as $searchWord) {
+        foreach (explode(' ', $search) as $searchWord) {
             $query->where(function (Builder $query) use ($searchWord) {
                 $isFirst = true;
 
@@ -144,9 +136,12 @@ trait CanSearchRecords
         return $query;
     }
 
-    public function getTableSearch(): ?string
+    /**
+     * @return ?string
+     */
+    public function getTableSearch()
     {
-        return filled($this->tableSearch) ? trim(strval($this->tableSearch)) : null;
+        return $this->tableSearch;
     }
 
     public function hasTableSearch(): bool
@@ -253,7 +248,7 @@ trait CanSearchRecords
             // Nested array keys are flattened into `dot.syntax`.
             $searches[
                 implode('.', array_slice($path, 0, $iterator->getDepth() + 1))
-            ] = trim(strval($value));
+            ] = trim(strtolower($value));
         }
 
         return $searches;

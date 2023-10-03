@@ -19,7 +19,45 @@ return [
 
     ],
 
-    'actions' => [
+    'pagination' => [
+
+        'label' => 'পৃষ্ঠা সংখ্যাগুলো',
+
+        'overview' => ':total এর, :first থেকে :last পর্যন্ত দেখানো হচ্ছে',
+
+        'fields' => [
+
+            'records_per_page' => [
+
+                'label' => 'প্রতি পৃষ্ঠা',
+
+                'options' => [
+                    'all' => 'সব',
+                ],
+
+            ],
+
+        ],
+
+        'buttons' => [
+
+            'go_to_page' => [
+                'label' => ':page পৃষ্টায় যান',
+            ],
+
+            'next' => [
+                'label' => 'পরবর্তী',
+            ],
+
+            'previous' => [
+                'label' => 'পূর্ববর্তী',
+            ],
+
+        ],
+
+    ],
+
+    'buttons' => [
 
         'disable_reordering' => [
             'label' => 'রেকর্ড পুনর্বিন্যাস সম্পন্ন করুন',
@@ -49,7 +87,7 @@ return [
 
     'filters' => [
 
-        'actions' => [
+        'buttons' => [
 
             'remove' => [
                 'label' => 'অনুসন্ধান সরান',
@@ -96,7 +134,7 @@ return [
 
         'selected_count' => '১ টি রেকর্ড নির্বাচিত। | :count টি রেকর্ড নির্বাচিত।',
 
-        'actions' => [
+        'buttons' => [
 
             'select_all' => [
                 'label' => 'সব নির্বাচিত করুন',
