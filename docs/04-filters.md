@@ -340,11 +340,12 @@ Filter::make('created_at')
 
 ### Multiple active indicators
 
-You may even render multiple indicators at once, by returning an array. If you have different fields associated with different indicators, you should use the field's name as the array key, to ensure that the correct field is reset when the filter is removed:
+You may even render multiple indicators at once, by returning an array of `Indicator` objects. If you have different fields associated with different indicators, you should set the field using the `removeField()` method on the `Indicator` object to ensure that the correct field is reset when the filter is removed:
 
 ```php
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 
 Filter::make('created_at')
     ->form([
@@ -356,11 +357,13 @@ Filter::make('created_at')
         $indicators = [];
 
         if ($data['from'] ?? null) {
-            $indicators['from'] = 'Created from ' . Carbon::parse($data['from'])->toFormattedDateString();
+            $indicators[] = Indicator::make('Created from ' . Carbon::parse($data['from'])->toFormattedDateString())
+                ->removeField('from');
         }
 
         if ($data['until'] ?? null) {
-            $indicators['until'] = 'Created until ' . Carbon::parse($data['until'])->toFormattedDateString();
+            $indicators[] = Indicator::make('Created until ' . Carbon::parse($data['until'])->toFormattedDateString())
+                ->removeField('until');
         }
 
         return $indicators;
