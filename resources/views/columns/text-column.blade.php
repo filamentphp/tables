@@ -11,7 +11,6 @@
     $isBadge = $isBadge();
     $isBulleted = $isBulleted();
     $isListWithLineBreaks = $isListWithLineBreaks();
-    $isLimitedListExpandable = $isLimitedListExpandable();
     $url = $getUrl();
 
     $arrayState = $getState();
@@ -22,14 +21,9 @@
 
     if (is_array($arrayState)) {
         if ($listLimit = $getListLimit()) {
-            $limitedArrayStateCount = (count($arrayState) > $listLimit) ? (count($arrayState) - $listLimit) : 0;
-
-            if (! $isListWithLineBreaks) {
-                $arrayState = array_slice($arrayState, 0, $listLimit);
-            }
+            $limitedArrayState = array_slice($arrayState, $listLimit);
+            $arrayState = array_slice($arrayState, 0, $listLimit);
         }
-
-        $listLimit ??= count($arrayState);
 
         if ((! $isListWithLineBreaks) && (! $isBadge)) {
             $arrayState = implode(
@@ -73,13 +67,9 @@
                 'flex flex-wrap items-center gap-1.5' => $isBadge,
                 'whitespace-normal' => $canWrap,
             ])
-            @if ($isListWithLineBreaks && $isLimitedListExpandable)
-                x-data="{ isLimited: true }"
-            @endif
         >
             @foreach ($arrayState as $state)
-                @if (filled($formattedState = $formatState($state)) &&
-                     (! ($isListWithLineBreaks && (! $isLimitedListExpandable) && ($loop->index > $listLimit))))
+                @if (filled($formattedState = $formatState($state)))
                     @php
                         $color = $getColor($state);
                         $copyableState = $getCopyableState($state) ?? $state;
@@ -117,11 +107,6 @@
                                     timeout: @js($copyMessageDuration),
                                 })
                             "
-                        @endif
-                        @if ($isListWithLineBreaks && ($loop->index > $listLimit))
-                            x-cloak
-                            x-show="! isLimited"
-                            x-transition
                         @endif
                         @class([
                             'flex' => ! $isBulleted,
@@ -205,32 +190,11 @@
                 @endif
             @endforeach
 
-            @if ($limitedArrayStateCount ?? 0)
-                <{{ $isListWithLineBreaks ? 'li' : 'div' }}>
-                    @if ($isLimitedListExpandable)
-                        <x-filament::link
-                            color="gray"
-                            tag="button"
-                            x-on:click.prevent="isLimited = false"
-                            x-show="isLimited"
-                        >
-                            {{ trans_choice('filament-tables::table.columns.text.actions.expand_list', $limitedArrayStateCount) }}
-                        </x-filament::link>
-
-                        <x-filament::link
-                            color="gray"
-                            tag="button"
-                            x-cloak
-                            x-on:click.prevent="isLimited = true"
-                            x-show="! isLimited"
-                        >
-                            {{ trans_choice('filament-tables::table.columns.text.actions.collapse_list', $limitedArrayStateCount) }}
-                        </x-filament::link>
-                    @else
-                        <span class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ trans_choice('filament-tables::table.columns.text.more_list_items', $limitedArrayStateCount) }}
-                        </span>
-                    @endif
+            @if ($limitedArrayStateCount = count($limitedArrayState ?? []))
+                <{{ $isListWithLineBreaks ? 'li' : 'div' }}
+                    class="text-sm text-gray-500 dark:text-gray-400"
+                >
+                    {{ trans_choice('filament-tables::table.columns.text.more_list_items', $limitedArrayStateCount) }}
                 </{{ $isListWithLineBreaks ? 'li' : 'div' }}>
             @endif
         </{{ $isListWithLineBreaks ? 'ul' : 'div' }}>
