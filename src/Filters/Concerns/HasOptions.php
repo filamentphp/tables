@@ -5,7 +5,6 @@ namespace Filament\Tables\Filters\Concerns;
 use Closure;
 use Filament\Support\Contracts\HasLabel as LabelInterface;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Support\Collection;
 
 trait HasOptions
 {
@@ -83,5 +82,20 @@ trait HasOptions
         $this->getSearchResultsUsing = $callback;
 
         return $this;
+    }
+
+    public function getOptionLabelUsingCallback(): ?Closure
+    {
+        return $this->getOptionLabelUsing;
+    }
+
+    public function getOptionLabelsUsingCallback(): ?Closure
+    {
+        return $this->getOptionLabelsUsing;
+    }
+
+    public function getSearchResultsUsingCallback(): ?Closure
+    {
+        return $this->getSearchResultsUsing;
     }
 }
