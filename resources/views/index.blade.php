@@ -10,6 +10,7 @@
     $actionsAlignment = $getActionsAlignment();
     $actionsPosition = $getActionsPosition();
     $actionsColumnLabel = $getActionsColumnLabel();
+    $activeFiltersCount = $getActiveFiltersCount();
     $columns = $getVisibleColumns();
     $collapsibleColumnsLayout = $getCollapsibleColumnsLayout();
     $content = $getContent();
@@ -149,7 +150,7 @@
                             x-on:click="areFiltersOpen = ! areFiltersOpen"
                             class="ms-auto"
                         >
-                            {{ $filtersTriggerAction->badge(count(\Illuminate\Support\Arr::flatten($filterIndicators))) }}
+                            {{ $filtersTriggerAction->badge($activeFiltersCount) }}
                         </span>
                     @endif
                 </div>
@@ -200,8 +201,8 @@
 
                         @if ($isGlobalSearchVisible)
                             <x-filament-tables::search-field
-                                :placeholder="$getSearchPlaceholder()"
                                 :debounce="$getSearchDebounce()"
+                                :placeholder="$getSearchPlaceholder()"
                             />
                         @endif
 
@@ -210,8 +211,8 @@
                         @if ($hasFiltersDialog || $hasColumnToggleDropdown)
                             @if ($hasFiltersDialog)
                                 <x-filament-tables::filters.dialog
+                                    :active-filters-count="$activeFiltersCount"
                                     :form="$getFiltersForm()"
-                                    :indicators-count="count(\Illuminate\Support\Arr::flatten($filterIndicators))"
                                     :layout="$filtersLayout"
                                     :max-height="$getFiltersFormMaxHeight()"
                                     :trigger-action="$filtersTriggerAction"
@@ -818,8 +819,8 @@
                                 >
                                     @if ($column->isIndividuallySearchable())
                                         <x-filament-tables::search-field
-                                            wire-model="tableColumnSearches.{{ $column->getName() }}"
                                             :debounce="$getSearchDebounce()"
+                                            wire-model="tableColumnSearches.{{ $column->getName() }}"
                                         />
                                     @endif
                                 </x-filament-tables::cell>
