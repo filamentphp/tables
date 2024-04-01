@@ -4,7 +4,7 @@ title: Testing
 
 ## Overview
 
-All examples in this guide will be written using [Pest](https://pestphp.com). However, you can easily adapt this to PHPUnit.
+All examples in this guide will be written using [Pest](https://pestphp.com). To use Pest's Livewire plugin for testing, you can follow the installation instructions in the Pest documentation on plugins: [Livewire plugin for Pest](https://pestphp.com/docs/plugins#livewire). However, you can easily adapt this to PHPUnit.
 
 Since the Table Builder works on Livewire components, you can use the [Livewire testing helpers](https://livewire.laravel.com/docs/testing). However, we have many custom testing helpers that you can use for tables:
 
@@ -171,7 +171,7 @@ use function Pest\Livewire\livewire;
 
 it('has an author column', function () {
     livewire(PostResource\Pages\ListPosts::class)
-        ->assertTableColumnExists(`author`);
+        ->assertTableColumnExists('author');
 });
 ```
 
@@ -200,8 +200,8 @@ use function Pest\Livewire\livewire;
 
 it('shows the correct columns', function () {
     livewire(PostResource\Pages\ListPosts::class)
-        ->assertTableColumnVisible(`created_at`)
-        ->assertTableColumnHidden(`author`);
+        ->assertTableColumnVisible('created_at')
+        ->assertTableColumnHidden('author');
 });
 ```
 
