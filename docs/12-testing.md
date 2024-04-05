@@ -241,7 +241,7 @@ it('displays author in red', function () {
 
 ### Select Columns
 
-If you have a select column, you can ensure it has the correct options with `assertSelectColumnHasOptions()` and `assertSelectColumnDoesNotHaveOptions()`:
+If you have a select column, you can ensure it has the correct options with `assertTableSelectColumnHasOptions()` and `assertTableSelectColumnDoesNotHaveOptions()`:
 
 ```php
 use function Pest\Livewire\livewire;
@@ -250,8 +250,8 @@ it('has the correct statuses', function () {
     $post = Post::factory()->create();
 
     livewire(PostsTable::class)
-        ->assertSelectColumnHasOptions('status', ['unpublished' => 'Unpublished', 'published' => 'Published'], $post)
-        ->assertSelectColumnDoesNotHaveOptions('status', ['archived' => 'Archived'], $post);
+        ->assertTableSelectColumnHasOptions('status', ['unpublished' => 'Unpublished', 'published' => 'Published'], $post)
+        ->assertTableSelectColumnDoesNotHaveOptions('status', ['archived' => 'Archived'], $post);
 });
 ```
 
@@ -300,7 +300,7 @@ To reset all filters to their original state, call `resetTableFilters()`:
 ```php
 use function Pest\Livewire\livewire;
 
-it('can reset table filters`', function () {
+it('can reset table filters', function () {
     $posts = Post::factory()->count(10)->create();
 
     livewire(PostResource\Pages\ListPosts::class)
