@@ -1,3 +1,7 @@
+@php
+    $locale = app()->getLocale();
+@endphp
+
 @props([
     'allSelectableRecordsCount',
     'deselectAllRecordsAction' => 'deselectAllRecords',
@@ -30,7 +34,7 @@
         <span
             x-text="
                 window.pluralize(@js(__('filament-tables::table.selection_indicator.selected_count')), {{ $selectedRecordsPropertyName }}.length, {
-                    count: {{ $selectedRecordsPropertyName }}.length,
+                    count: new Intl.NumberFormat(@js($locale)).format({{ $selectedRecordsPropertyName }}.length),
                 })
             "
             class="text-sm font-medium leading-6 text-gray-700 dark:text-gray-200"
@@ -49,7 +53,7 @@
                 {{-- Make sure the Alpine attributes get re-evaluated after a Livewire request: --}}
                 :wire:key="$this->getId() . 'table.selection.indicator.actions.select-all.' . $allSelectableRecordsCount . '.' . $page"
             >
-                {{ trans_choice('filament-tables::table.selection_indicator.actions.select_all.label', $allSelectableRecordsCount, ['count' => \Illuminate\Support\Number::format($allSelectableRecordsCount)]) }}
+                {{ trans_choice('filament-tables::table.selection_indicator.actions.select_all.label', $allSelectableRecordsCount, ['count' => \Illuminate\Support\Number::format($allSelectableRecordsCount, locale: $locale)]) }}
             </x-filament::link>
 
             <x-filament::link
