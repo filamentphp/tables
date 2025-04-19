@@ -36,7 +36,7 @@ trait CanReorderRecords
 
             $model = app($this->getTable()->getModel());
             $modelKeyName = $model->getKeyName();
-            $wrappedModelKeyName = $model->getConnection()->getSchemaGrammar()->wrap($modelKeyName);
+            $wrappedModelKeyName = $model->getConnection()?->getQueryGrammar()?->wrap($modelKeyName) ?? $modelKeyName;
 
             $model
                 ->newModelQuery()
