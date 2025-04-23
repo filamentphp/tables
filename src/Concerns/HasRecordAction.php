@@ -15,7 +15,7 @@ trait HasRecordAction
      */
     protected function getTableRecordActionUsing(): ?Closure
     {
-        return function (Model | array $record): ?string {
+        return function (Model $record): ?string {
             return $this->getTableRecordAction();
         };
     }

@@ -3,7 +3,7 @@
 namespace Filament\Tables\Table\Concerns;
 
 use Closure;
-use Filament\Actions\Action;
+use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Model;
 
 trait HasRecordAction
@@ -17,20 +17,17 @@ trait HasRecordAction
         return $this;
     }
 
-    /**
-     * @param  Model | array<string, mixed>  $record
-     */
-    public function getRecordAction(Model | array $record): ?string
+    public function getRecordAction(Model $record): ?string
     {
         $action = $this->evaluate(
             $this->recordAction,
             namedInjections: [
                 'record' => $record,
             ],
-            typedInjections: $record instanceof Model ? [
+            typedInjections: [
                 Model::class => $record,
                 $record::class => $record,
-            ] : [],
+            ],
         );
 
         if (! $action) {

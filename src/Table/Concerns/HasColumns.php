@@ -3,9 +3,11 @@
 namespace Filament\Tables\Table\Concerns;
 
 use Closure;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\ColumnGroup;
 use Filament\Tables\Columns\Layout\Component as ColumnLayoutComponent;
+use InvalidArgumentException;
 
 trait HasColumns
 {
@@ -87,6 +89,10 @@ trait HasColumns
 
             if (($action === null) || ($action instanceof Closure)) {
                 continue;
+            }
+
+            if (! $action instanceof Action) {
+                throw new InvalidArgumentException('Table column actions must be an instance of ' . Action::class . '.');
             }
 
             $this->cacheAction($action->table($this));

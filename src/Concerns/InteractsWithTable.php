@@ -2,6 +2,10 @@
 
 namespace Filament\Tables\Concerns;
 
+use Closure;
+use Filament\Forms;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -43,13 +47,17 @@ trait InteractsWithTable
 
     public function bootedInteractsWithTable(): void
     {
-        $this->table = $this->table($this->makeTable());
+        $this->table = Action::configureUsing(
+            Closure::fromCallable([$this, 'configureTableAction']),
+            fn (): Table => BulkAction::configureUsing(
+                Closure::fromCallable([$this, 'configureTableBulkAction']),
+                fn (): Table => $this->table($this->makeTable()),
+            ),
+        );
 
-        $this->cacheSchema('toggleTableColumnForm', $this->getTableColumnToggleForm());
+        $this->cacheForm('toggleTableColumnForm', $this->getTableColumnToggleForm());
 
-        $this->cacheSchema('tableFiltersForm', $this->getTableFiltersForm());
-
-        $this->cacheMountedActions($this->mountedActions);
+        $this->cacheForm('tableFiltersForm', $this->getTableFiltersForm());
 
         if (! $this->shouldMountInteractsWithTable) {
             return;
@@ -177,17 +185,7 @@ trait InteractsWithTable
 
     public function table(Table $table): Table
     {
-        return $table;
-    }
-
-    public function getTable(): Table
-    {
-        return $this->table;
-    }
-
-    protected function makeTable(): Table
-    {
-        return Table::make($this)
+        return $table
             ->query($this->getTableQuery())
             ->actions($this->getTableActions())
             ->actionsColumnLabel($this->getTableActionsColumnLabel())
@@ -233,6 +231,16 @@ trait InteractsWithTable
             ->striped($this->isTableStriped());
     }
 
+    public function getTable(): Table
+    {
+        return $this->table;
+    }
+
+    protected function makeTable(): Table
+    {
+        return Table::make($this);
+    }
+
     protected function getTableQueryStringIdentifier(): ?string
     {
         return null;
@@ -245,6 +253,17 @@ trait InteractsWithTable
         }
 
         return $property;
+    }
+
+    /**
+     * @return array<string, Forms\Form>
+     */
+    protected function getInteractsWithTableForms(): array
+    {
+        return [
+            'mountedTableActionForm' => $this->getMountedTableActionForm(),
+            'mountedTableBulkActionForm' => $this->getMountedTableBulkActionForm(),
+        ];
     }
 
     public function getActiveTableLocale(): ?string
@@ -288,6 +307,8 @@ trait InteractsWithTable
 
     public function resetTable(): void
     {
+        $this->cacheForms();
+
         $this->bootedInteractsWithTable();
 
         $this->resetTableFiltersForm();

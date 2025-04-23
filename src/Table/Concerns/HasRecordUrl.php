@@ -26,37 +26,31 @@ trait HasRecordUrl
         return $this;
     }
 
-    /**
-     * @param  Model | array<string, mixed>  $record
-     */
-    public function getRecordUrl(Model | array $record): ?string
+    public function getRecordUrl(Model $record): ?string
     {
         return $this->evaluate(
             $this->recordUrl,
             namedInjections: [
                 'record' => $record,
             ],
-            typedInjections: ($record instanceof Model) ? [
+            typedInjections: [
                 Model::class => $record,
                 $record::class => $record,
-            ] : [],
+            ],
         );
     }
 
-    /**
-     * @param  Model | array<string, mixed>  $record
-     */
-    public function shouldOpenRecordUrlInNewTab(Model | array $record): bool
+    public function shouldOpenRecordUrlInNewTab(Model $record): bool
     {
         return (bool) $this->evaluate(
             $this->shouldOpenRecordUrlInNewTab,
             namedInjections: [
                 'record' => $record,
             ],
-            typedInjections: ($record instanceof Model) ? [
+            typedInjections: [
                 Model::class => $record,
                 $record::class => $record,
-            ] : [],
+            ],
         );
     }
 }

@@ -3,15 +3,24 @@
 namespace Filament\Tables\Concerns;
 
 use Closure;
-use Filament\Actions\Action;
-use Filament\Actions\BulkAction;
-use Filament\Schemas\Schema;
+use Filament\Forms\Form;
+use Filament\Infolists\Infolist;
+use Filament\Support\Exceptions\Cancel;
+use Filament\Support\Exceptions\Halt;
+use Filament\Tables\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
+use function Livewire\store;
+
+/**
+ * @property Form $mountedTableBulkActionForm
+ */
 trait HasBulkActions
 {
     /**
@@ -19,60 +28,209 @@ trait HasBulkActions
      */
     public array $selectedTableRecords = [];
 
-    protected Collection $cachedSelectedTableRecords;
+    public ?string $mountedTableBulkAction = null;
 
     /**
-     * @deprecated Use the `callMountedAction()` method instead.
-     *
+     * @var array<string, mixed> | null
+     */
+    public ?array $mountedTableBulkActionData = [];
+
+    protected EloquentCollection | Collection $cachedSelectedTableRecords;
+
+    protected function configureTableBulkAction(BulkAction $action): void {}
+
+    /**
      * @param  array<string, mixed>  $arguments
      */
     public function callMountedTableBulkAction(array $arguments = []): mixed
     {
-        return $this->callMountedAction($arguments);
+        $action = $this->getMountedTableBulkAction();
+
+        if (! $action) {
+            return null;
+        }
+
+        if ($action->isDisabled()) {
+            return null;
+        }
+
+        $action->mergeArguments($arguments);
+
+        $form = $this->getMountedTableBulkActionForm(mountedBulkAction: $action);
+
+        $result = null;
+
+        $originallyMountedAction = $this->mountedTableBulkAction;
+
+        try {
+            $action->beginDatabaseTransaction();
+
+            if ($this->mountedTableBulkActionHasForm(mountedBulkAction: $action)) {
+                $action->callBeforeFormValidated();
+
+                $form->getState(afterValidate: function (array $state) use ($action) {
+                    $action->callAfterFormValidated();
+
+                    $action->formData($state);
+
+                    $action->callBefore();
+                });
+            } else {
+                $action->callBefore();
+            }
+
+            $result = $action->call([
+                'form' => $form,
+            ]);
+
+            $result = $action->callAfter() ?? $result;
+        } catch (Halt $exception) {
+            $exception->shouldRollbackDatabaseTransaction() ?
+                $action->rollBackDatabaseTransaction() :
+                $action->commitDatabaseTransaction();
+
+            return null;
+        } catch (Cancel $exception) {
+            $exception->shouldRollbackDatabaseTransaction() ?
+                $action->rollBackDatabaseTransaction() :
+                $action->commitDatabaseTransaction();
+        } catch (ValidationException $exception) {
+            $action->rollBackDatabaseTransaction();
+
+            if (! $this->mountedTableBulkActionShouldOpenModal(mountedBulkAction: $action)) {
+                $action->resetArguments();
+                $action->resetFormData();
+
+                $this->unmountTableBulkAction();
+            }
+
+            throw $exception;
+        } catch (Throwable $exception) {
+            $action->rollBackDatabaseTransaction();
+
+            throw $exception;
+        }
+
+        $action->commitDatabaseTransaction();
+
+        if (store($this)->has('redirect')) {
+            return $result;
+        }
+
+        $action->resetArguments();
+        $action->resetFormData();
+
+        // If the action was replaced while it was being called,
+        // we don't want to unmount it.
+        if ($originallyMountedAction !== $this->mountedTableBulkAction) {
+            return null;
+        }
+
+        $this->unmountTableBulkAction();
+
+        return $result;
     }
 
     /**
-     * @deprecated Use the `mountAction()` method instead.
-     *
      * @param  array<int | string> | null  $selectedRecords
      */
     public function mountTableBulkAction(string $name, ?array $selectedRecords = null): mixed
     {
+        $this->mountedTableBulkAction = $name;
+
         if ($selectedRecords !== null) {
             $this->selectedTableRecords = $selectedRecords;
         }
 
-        return $this->mountAction($name, context: ['table' => true, 'bulk' => true]);
+        $action = $this->getMountedTableBulkAction();
+
+        if (! $action) {
+            return null;
+        }
+
+        if ($action->isDisabled()) {
+            return null;
+        }
+
+        $this->cacheMountedTableBulkActionForm(mountedBulkAction: $action);
+
+        try {
+            $hasForm = $this->mountedTableBulkActionHasForm(mountedBulkAction: $action);
+
+            if ($hasForm) {
+                $action->callBeforeFormFilled();
+            }
+
+            $action->mount([
+                'form' => $this->getMountedTableBulkActionForm(mountedBulkAction: $action),
+            ]);
+
+            if ($hasForm) {
+                $action->callAfterFormFilled();
+            }
+        } catch (Halt $exception) {
+            return null;
+        } catch (Cancel $exception) {
+            $this->resetMountedTableBulkActionProperties();
+
+            return null;
+        }
+
+        if (! $this->mountedTableBulkActionShouldOpenModal(mountedBulkAction: $action)) {
+            return $this->callMountedTableBulkAction();
+        }
+
+        $this->resetErrorBag();
+
+        $this->openTableBulkActionModal();
+
+        return null;
+    }
+
+    protected function cacheMountedTableBulkActionForm(?BulkAction $mountedBulkAction = null): void
+    {
+        $this->cacheForm(
+            'mountedTableBulkActionForm',
+            fn () => $this->getMountedTableBulkActionForm($mountedBulkAction),
+        );
     }
 
     /**
-     * @deprecated Use the `mountAction()` method instead.
-     *
      * @param  array<int | string> | null  $selectedRecords
      */
     public function replaceMountedTableBulkAction(string $name, ?array $selectedRecords = null): void
     {
-        if ($selectedRecords !== null) {
-            $this->selectedTableRecords = $selectedRecords;
-        }
+        $selectedRecords ??= $this->selectedTableRecords;
 
-        $this->replaceMountedAction($name, context: ['table' => true, 'bulk' => true]);
+        $this->resetMountedTableBulkActionProperties();
+        $this->mountTableBulkAction($name, $selectedRecords);
     }
 
-    /**
-     * @deprecated Use the `mountedActionShouldOpenModal()` method instead.
-     */
+    protected function resetMountedTableBulkActionProperties(): void
+    {
+        $this->mountedTableBulkAction = null;
+        $this->selectedTableRecords = [];
+    }
+
     public function mountedTableBulkActionShouldOpenModal(?BulkAction $mountedBulkAction = null): bool
     {
-        return $this->mountedActionShouldOpenModal($mountedBulkAction);
+        return ($mountedBulkAction ?? $this->getMountedTableBulkAction())->shouldOpenModal(
+            checkForFormUsing: $this->mountedTableBulkActionHasForm(...),
+        );
     }
 
-    /**
-     * @deprecated Use the `mountedActionHasSchema()` method instead.
-     */
+    public function unmountTableBulkAction(bool $shouldCloseModal = true): void
+    {
+        $this->resetMountedTableBulkActionProperties();
+
+        if ($shouldCloseModal) {
+            $this->closeTableBulkActionModal();
+        }
+    }
+
     public function mountedTableBulkActionHasForm(?BulkAction $mountedBulkAction = null): bool
     {
-        return $this->mountedActionHasSchema($mountedBulkAction);
+        return (bool) count($this->getMountedTableBulkActionForm(mountedBulkAction: $mountedBulkAction)?->getComponents() ?? []);
     }
 
     public function deselectAllTableRecords(): void
@@ -88,17 +246,13 @@ trait HasBulkActions
         $query = $this->getFilteredTableQuery();
 
         if (! $this->getTable()->checksIfRecordIsSelectable()) {
-            if (! $this->getTable()->hasQuery()) {
-                /** @phpstan-ignore-next-line */
-                return $this->getTableRecords()->keys()->all();
-            }
-
             $records = $this->getTable()->selectsCurrentPageOnly() ?
                 $this->getTableRecords()->pluck($query->getModel()->getKeyName()) :
                 $query->pluck($query->getModel()->getQualifiedKeyName());
 
-            /** @phpstan-ignore-next-line */
-            return $records->map(fn ($key): string => (string) $key)->all();
+            return $records
+                ->map(fn ($key): string => (string) $key)
+                ->all();
         }
 
         $records = $this->getTable()->selectsCurrentPageOnly() ?
@@ -106,12 +260,12 @@ trait HasBulkActions
             $query->get();
 
         return $records->reduce(
-            function (array $carry, Model | array $record, string $key): array {
+            function (array $carry, Model $record): array {
                 if (! $this->getTable()->isRecordSelectable($record)) {
                     return $carry;
                 }
 
-                $carry[] = ($record instanceof Model) ? ((string) $record->getKey()) : $key;
+                $carry[] = (string) $record->getKey();
 
                 return $carry;
             },
@@ -172,7 +326,7 @@ trait HasBulkActions
                 $this->getFilteredTableQuery()->get();
 
             return $records
-                ->filter(fn (Model | array $record): bool => $this->getTable()->isRecordSelectable($record))
+                ->filter(fn (Model $record): bool => $this->getTable()->isRecordSelectable($record))
                 ->count();
         }
 
@@ -184,7 +338,7 @@ trait HasBulkActions
             return $this->cachedTableRecords->total();
         }
 
-        return $this->getFilteredTableQuery()?->count() ?? $this->cachedTableRecords->count();
+        return $this->getFilteredTableQuery()->count();
     }
 
     public function getSelectedTableRecords(bool $shouldFetchSelectedRecords = true): EloquentCollection | Collection
@@ -199,17 +353,6 @@ trait HasBulkActions
             (! $shouldFetchSelectedRecords) ||
             (! ($table->getRelationship() instanceof BelongsToMany && $table->allowsDuplicates()))
         ) {
-            if (! $table->hasQuery()) {
-                $resolveSelectedRecords = $table->getResolveSelectedRecordsCallback();
-
-                return $this->cachedSelectedTableRecords = $resolveSelectedRecords ?
-                    $table->evaluate($resolveSelectedRecords, [
-                        'keys' => $this->selectedTableRecords,
-                        'records' => $this->selectedTableRecords,
-                    ]) :
-                    $this->getTableRecords()->only($this->selectedTableRecords);
-            }
-
             $query = $table->getQuery()->whereKey($this->selectedTableRecords);
             $this->applySortingToTableQuery($query);
 
@@ -247,6 +390,16 @@ trait HasBulkActions
         );
     }
 
+    protected function closeTableBulkActionModal(): void
+    {
+        $this->dispatch('close-modal', id: "{$this->getId()}-table-bulk-action");
+    }
+
+    protected function openTableBulkActionModal(): void
+    {
+        $this->dispatch('open-modal', id: "{$this->getId()}-table-bulk-action");
+    }
+
     /**
      * @deprecated Override the `table()` method to configure the table.
      */
@@ -263,20 +416,33 @@ trait HasBulkActions
         return true;
     }
 
-    /**
-     * @deprecated Use the `getMountedAction()` method instead.
-     */
-    public function getMountedTableBulkAction(): ?Action
+    public function getMountedTableBulkAction(): ?BulkAction
     {
-        return $this->getMountedAction();
+        if (! $this->mountedTableBulkAction) {
+            return null;
+        }
+
+        return $this->getTable()->getBulkAction($this->mountedTableBulkAction);
     }
 
-    /**
-     * @deprecated Use the `getMountedActionSchema()` method instead.
-     */
-    public function getMountedTableBulkActionForm(?BulkAction $mountedBulkAction = null): ?Schema
+    public function getMountedTableBulkActionForm(?BulkAction $mountedBulkAction = null): ?Form
     {
-        return $this->getMountedActionSchema(0, $mountedBulkAction);
+        $mountedBulkAction ??= $this->getMountedTableBulkAction();
+
+        if (! $mountedBulkAction) {
+            return null;
+        }
+
+        if ((! $this->isCachingForms) && $this->hasCachedForm('mountedTableBulkActionForm')) {
+            return $this->getForm('mountedTableBulkActionForm');
+        }
+
+        return $mountedBulkAction->getForm(
+            $this->makeForm()
+                ->model($this->getTable()->getModel())
+                ->statePath('mountedTableBulkActionData')
+                ->operation($this->mountedTableBulkAction),
+        );
     }
 
     /**
@@ -295,5 +461,10 @@ trait HasBulkActions
     public function isTableRecordSelectable(): ?Closure
     {
         return null;
+    }
+
+    public function mountedTableBulkActionInfolist(): Infolist
+    {
+        return $this->getMountedTableBulkAction()->getInfolist();
     }
 }

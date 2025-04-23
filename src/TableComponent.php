@@ -2,15 +2,11 @@
 
 namespace Filament\Tables;
 
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
-use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Forms;
 use Livewire\Component;
 
-abstract class TableComponent extends Component implements Contracts\HasTable, HasActions, HasSchemas
+abstract class TableComponent extends Component implements Contracts\HasTable, Forms\Contracts\HasForms
 {
     use Concerns\InteractsWithTable;
-    use InteractsWithActions;
-    use InteractsWithSchemas;
+    use Forms\Concerns\InteractsWithForms;
 }

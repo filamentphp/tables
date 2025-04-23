@@ -3,7 +3,6 @@
 namespace Filament\Tables\Columns\Concerns;
 
 use Closure;
-use Illuminate\Database\Eloquent\Model;
 
 trait CanBeSortable
 {
@@ -37,9 +36,9 @@ trait CanBeSortable
     /**
      * @return array<string>
      */
-    public function getSortColumns(Model $record): array
+    public function getSortColumns(): array
     {
-        return $this->sortColumns ?? $this->getDefaultSortColumns($record);
+        return $this->sortColumns ?? $this->getDefaultSortColumns();
     }
 
     public function isSortable(): bool
@@ -50,8 +49,8 @@ trait CanBeSortable
     /**
      * @return array{0: string}
      */
-    public function getDefaultSortColumns(Model $record): array
+    public function getDefaultSortColumns(): array
     {
-        return [$this->getFullAttributeName($record)];
+        return [str($this->getName())->afterLast('.')];
     }
 }

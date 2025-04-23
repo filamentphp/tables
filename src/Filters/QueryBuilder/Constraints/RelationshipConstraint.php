@@ -4,7 +4,6 @@ namespace Filament\Tables\Filters\QueryBuilder\Constraints;
 
 use Closure;
 use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\EqualsOperator;
 use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\HasMaxOperator;
 use Filament\Tables\Filters\QueryBuilder\Constraints\RelationshipConstraint\Operators\HasMinOperator;
@@ -21,7 +20,7 @@ class RelationshipConstraint extends Constraint
     {
         parent::setUp();
 
-        $this->icon(FilamentIcon::resolve('tables::filters.query-builder.constraints.relationship') ?? Heroicon::ArrowsPointingOut);
+        $this->icon(FilamentIcon::resolve('tables::filters.query-builder.constraints.relationship') ?? 'heroicon-m-arrows-pointing-out');
 
         $this->operators([
             HasMinOperator::make()

@@ -7,11 +7,10 @@ use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Testing\Assert;
-use Livewire\Component;
 use Livewire\Features\SupportTesting\Testable;
 
 /**
- * @method Component&HasTable instance()
+ * @method HasTable instance()
  *
  * @mixin Testable
  */
@@ -69,7 +68,7 @@ class TestsRecords
             Assert::assertSame(
                 $count,
                 $this->instance()->getAllTableRecordsCount(),
-                "Failed asserting that the [{$livewireClass}] table has [{$count}] records in total.",
+                message: "Failed asserting that the [{$livewireClass}] table has [{$count}] records in total.",
             );
 
             return $this;

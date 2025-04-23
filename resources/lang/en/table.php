@@ -229,6 +229,4 @@ return [
 
     ],
 
-    'default_model_label' => 'record',
-
 ];

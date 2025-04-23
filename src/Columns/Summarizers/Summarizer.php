@@ -3,14 +3,12 @@
 namespace Filament\Tables\Columns\Summarizers;
 
 use Closure;
-use Filament\Support\Components\Contracts\HasEmbeddedView;
 use Filament\Support\Components\ViewComponent;
 use Filament\Support\Concerns\HasExtraAttributes;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder;
 
-class Summarizer extends ViewComponent implements HasEmbeddedView
+class Summarizer extends ViewComponent
 {
     use Concerns\BelongsToColumn;
     use Concerns\CanBeHidden;
@@ -22,6 +20,11 @@ class Summarizer extends ViewComponent implements HasEmbeddedView
     protected string $evaluationIdentifier = 'summarizer';
 
     protected string $viewIdentifier = 'summarizer';
+
+    /**
+     * @var view-string
+     */
+    protected string $view = 'filament-tables::columns.summaries.text';
 
     protected ?string $id = null;
 
@@ -81,7 +84,7 @@ class Summarizer extends ViewComponent implements HasEmbeddedView
 
         if ($column->hasRelationship($query->getModel())) {
             $relationship = $column->getRelationship($query->getModel());
-            $attribute = $column->getFullAttributeName($query->getModel());
+            $attribute = $column->getRelationshipAttribute();
 
             $inverseRelationship = $column->getInverseRelationshipName($query->getModel());
 
@@ -94,10 +97,7 @@ class Summarizer extends ViewComponent implements HasEmbeddedView
                         $relatedQuery->mergeConstraintsFrom($query);
 
                         if ($baseQuery->limit !== null) {
-                            /** @var Collection $records */
-                            $records = $this->getTable()->getRecords();
-
-                            $relatedQuery->whereKey($records->modelKeys());
+                            $relatedQuery->whereKey($this->getTable()->getRecords()->modelKeys());
                         }
 
                         return $relatedQuery;
@@ -180,27 +180,5 @@ class Summarizer extends ViewComponent implements HasEmbeddedView
             'query' => [$this->getQuery()],
             default => parent::resolveDefaultClosureDependencyForEvaluationByName($parameterName),
         };
-    }
-
-    public function toEmbeddedHtml(): string
-    {
-        $attributes = $this->getExtraAttributeBag()
-            ->class(['fi-ta-text-summary']);
-
-        ob_start(); ?>
-
-        <div <?= $attributes->toHtml() ?>>
-            <?php if (filled($label = $this->getLabel())) { ?>
-                <span class="fi-ta-text-summary-label">
-                    <?= $label ?>
-                </span>
-            <?php } ?>
-
-            <span>
-                <?= $this->formatState($this->getState()) ?>
-            </span>
-        </div>
-
-        <?php return ob_get_clean();
     }
 }

@@ -25,26 +25,9 @@ trait CanOpenUrl
         return $this;
     }
 
-    public function getUrl(mixed $state = null): ?string
+    public function getUrl(): ?string
     {
-        if (func_num_args() === 1) {
-            return $this->hasStateBasedUrls()
-                ? $this->evaluate($this->url, [
-                    'state' => $state,
-                ])
-                : null;
-        }
-
-        if ($this->hasStateBasedUrls()) {
-            return null;
-        }
-
         return $this->evaluate($this->url);
-    }
-
-    public function hasStateBasedUrls(): bool
-    {
-        return $this->evaluationValueIsFunctionAndHasParameter($this->url, parameterName: 'state');
     }
 
     public function shouldOpenUrlInNewTab(): bool

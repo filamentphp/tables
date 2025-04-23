@@ -69,15 +69,12 @@ trait CanSearchRecords
 
     protected function applyColumnSearchesToTableQuery(Builder $query): Builder
     {
-        $table = $this->getTable();
-        $shouldSplitSearchTerms = $table->shouldSplitSearchTerms();
-
         foreach ($this->getTableColumnSearches() as $column => $search) {
             if (blank($search)) {
                 continue;
             }
 
-            $column = $table->getColumn($column);
+            $column = $this->getTable()->getColumn($column);
 
             if (! $column) {
                 continue;
@@ -91,20 +88,8 @@ trait CanSearchRecords
                 continue;
             }
 
-            if (! $shouldSplitSearchTerms) {
-                $isFirst = true;
-
-                $column->applySearchConstraint(
-                    $query,
-                    $search,
-                    $isFirst,
-                );
-
-                continue;
-            }
-
             foreach ($this->extractTableSearchWords($search) as $searchWord) {
-                $query->where(function (Builder $query) use ($column, $searchWord): void {
+                $query->where(function (Builder $query) use ($column, $searchWord) {
                     $isFirst = true;
 
                     $column->applySearchConstraint(
@@ -138,40 +123,8 @@ trait CanSearchRecords
             return $query;
         }
 
-        if ($this->getTable()->hasSearchUsingCallback()) {
-            $this->getTable()->callSearchUsing($query, $search);
-
-            return $query;
-        }
-
-        if (! $this->getTable()->shouldSplitSearchTerms()) {
-            $query->where(function (Builder $query) use ($search): void {
-                $isFirst = true;
-
-                foreach ($this->getTable()->getColumns() as $column) {
-                    if ($column->isHidden()) {
-                        continue;
-                    }
-
-                    if (! $column->isGloballySearchable()) {
-                        continue;
-                    }
-
-                    $column->applySearchConstraint(
-                        $query,
-                        $search,
-                        $isFirst,
-                    );
-                }
-
-                $this->getTable()->applyExtraSearchConstraints($query, $search, $isFirst);
-            });
-
-            return $query;
-        }
-
         foreach ($this->extractTableSearchWords($search) as $searchWord) {
-            $query->where(function (Builder $query) use ($searchWord): void {
+            $query->where(function (Builder $query) use ($searchWord) {
                 $isFirst = true;
 
                 foreach ($this->getTable()->getColumns() as $column) {
@@ -189,8 +142,6 @@ trait CanSearchRecords
                         $isFirst,
                     );
                 }
-
-                $this->getTable()->applyExtraSearchConstraints($query, $searchWord, $isFirst);
             });
         }
 
@@ -291,7 +242,7 @@ trait CanSearchRecords
         // The `$this->tableColumnSearches` array is potentially nested.
         // So, we iterate through it deeply:
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveArrayIterator($this->tableColumnSearches), /** @phpstan-ignore argument.type */
+            new RecursiveArrayIterator($this->tableColumnSearches),
             RecursiveIteratorIterator::SELF_FIRST
         );
 

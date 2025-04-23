@@ -2,12 +2,10 @@
 
 namespace Filament\Tables\Table\Concerns;
 
-use BackedEnum;
 use Closure;
-use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
 use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
@@ -21,7 +19,7 @@ trait HasEmptyState
 
     protected string | Htmlable | Closure | null $emptyStateHeading = null;
 
-    protected string | BackedEnum | Closure | null $emptyStateIcon = null;
+    protected string | Closure | null $emptyStateIcon = null;
 
     /**
      * @var array<Action | ActionGroup>
@@ -69,7 +67,7 @@ trait HasEmptyState
             } elseif ($action instanceof Action) {
                 $this->cacheAction($action, $shouldOverwriteExistingActions);
             } else {
-                throw new InvalidArgumentException('Table empty state actions must be an instance of [' . Action::class . '] or [' . ActionGroup::class . '].');
+                throw new InvalidArgumentException('Table empty state actions must be an instance of ' . Action::class . ' or ' . ActionGroup::class . '.');
             }
 
             $this->emptyStateActions[] = $action;
@@ -85,7 +83,7 @@ trait HasEmptyState
         return $this;
     }
 
-    public function emptyStateIcon(string | BackedEnum | Closure | null $icon): static
+    public function emptyStateIcon(string | Closure | null $icon): static
     {
         $this->emptyStateIcon = $icon;
 
@@ -117,10 +115,10 @@ trait HasEmptyState
         ]);
     }
 
-    public function getEmptyStateIcon(): string | BackedEnum
+    public function getEmptyStateIcon(): string
     {
         return $this->evaluate($this->emptyStateIcon)
             ?? FilamentIcon::resolve('tables::empty-state')
-            ?? Heroicon::OutlinedXMark;
+            ?? 'heroicon-o-x-mark';
     }
 }

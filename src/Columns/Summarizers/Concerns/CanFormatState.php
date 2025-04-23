@@ -3,9 +3,9 @@
 namespace Filament\Tables\Columns\Summarizers\Concerns;
 
 use Closure;
-use Filament\Support\Concerns\CanConfigureCommonMark;
 use Filament\Support\Enums\ArgumentValue;
 use Filament\Tables\Columns\Summarizers\Summarizer;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Number;
@@ -13,8 +13,6 @@ use Illuminate\Support\Str;
 
 trait CanFormatState
 {
-    use CanConfigureCommonMark;
-
     protected ?Closure $formatStateUsing = null;
 
     protected string | Closure | null $placeholder = null;
@@ -47,9 +45,9 @@ trait CanFormatState
         return $this;
     }
 
-    public function money(string | Closure | null $currency = null, int $divideBy = 0, string | Closure | null $locale = null, int | Closure | null $decimalPlaces = null): static
+    public function money(string | Closure | null $currency = null, int $divideBy = 0, string | Closure | null $locale = null): static
     {
-        $this->formatStateUsing(static function ($state, Summarizer $summarizer) use ($currency, $divideBy, $locale, $decimalPlaces): ?string {
+        $this->formatStateUsing(static function ($state, Summarizer $summarizer) use ($currency, $divideBy, $locale): ?string {
             if (blank($state)) {
                 return null;
             }
@@ -58,15 +56,14 @@ trait CanFormatState
                 return $state;
             }
 
-            $currency = $summarizer->evaluate($currency) ?? $summarizer->getTable()->getDefaultCurrency();
-            $locale = $summarizer->evaluate($locale) ?? $summarizer->getTable()->getDefaultNumberLocale() ?? config('app.locale');
-            $decimalPlaces = $summarizer->evaluate($decimalPlaces);
+            $currency = $summarizer->evaluate($currency) ?? Table::$defaultCurrency;
+            $locale = $summarizer->evaluate($locale) ?? Table::$defaultNumberLocale ?? config('app.locale');
 
             if ($divideBy) {
                 $state /= $divideBy;
             }
 
-            return Number::currency($state, $currency, $locale, $decimalPlaces);
+            return Number::currency($state, $currency, $locale);
         });
 
         return $this;
@@ -99,7 +96,7 @@ trait CanFormatState
                 );
             }
 
-            $locale = $summarizer->evaluate($locale) ?? $summarizer->getTable()->getDefaultNumberLocale() ?? config('app.locale');
+            $locale = $summarizer->evaluate($locale) ?? Table::$defaultNumberLocale ?? config('app.locale');
 
             return Number::format($state, $decimalPlaces, $summarizer->evaluate($maxDecimalPlaces), locale: $locale);
         });
@@ -160,7 +157,7 @@ trait CanFormatState
         }
 
         if ($isHtml && $this->isMarkdown()) {
-            $state = Str::markdown($state, $this->getCommonMarkOptions(), $this->getCommonMarkExtensions());
+            $state = Str::markdown($state);
         }
 
         $prefix = $this->getPrefix();
@@ -191,7 +188,7 @@ trait CanFormatState
                 $suffix = e($suffix);
             }
 
-            $state .= $suffix;
+            $state = $state . $suffix;
         }
 
         if (blank($state)) {

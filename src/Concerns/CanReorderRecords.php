@@ -3,7 +3,6 @@
 namespace Filament\Tables\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Facades\DB;
 
 trait CanReorderRecords
@@ -13,7 +12,7 @@ trait CanReorderRecords
     /**
      * @param  array<int | string>  $order
      */
-    public function reorderTable(array $order, int | string | null $draggedRecordKey = null): void
+    public function reorderTable(array $order): void
     {
         if (! $this->getTable()->isReorderable()) {
             return;
@@ -21,7 +20,7 @@ trait CanReorderRecords
 
         $orderColumn = (string) str($this->getTable()->getReorderColumn())->afterLast('.');
 
-        DB::transaction(function () use ($order, $orderColumn): void {
+        DB::transaction(function () use ($order, $orderColumn) {
             if (
                 (($relationship = $this->getTable()->getRelationship()) instanceof BelongsToMany) &&
                 in_array($orderColumn, $relationship->getPivotColumns())
@@ -43,7 +42,7 @@ trait CanReorderRecords
                 ->newModelQuery()
                 ->whereIn($modelKeyName, array_values($order))
                 ->update([
-                    $orderColumn => new Expression(
+                    $orderColumn => DB::raw(
                         'case ' . collect($order)
                             ->map(fn ($recordKey, int $recordIndex): string => 'when ' . $wrappedModelKeyName . ' = ' . DB::getPdo()->quote($recordKey) . ' then ' . ($recordIndex + 1))
                             ->implode(' ') . ' end'

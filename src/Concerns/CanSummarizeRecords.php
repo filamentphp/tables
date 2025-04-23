@@ -39,7 +39,7 @@ trait CanSummarizeRecords
                 continue;
             }
 
-            if ($column->hasRelationship($query->getModel())) {
+            if (filled($column->getRelationshipName())) {
                 continue;
             }
 

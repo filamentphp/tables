@@ -3,12 +3,11 @@
 namespace Filament\Tables\Filters\QueryBuilder\Forms\Components;
 
 use Exception;
-use Filament\Actions\Action;
+use Filament\Forms\ComponentContainer;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Builder;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\Repeater;
-use Filament\Schemas\Components\Component;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Filters\QueryBuilder\Concerns\HasConstraints;
 use Filament\Tables\Filters\QueryBuilder\Constraints\Constraint;
 use Illuminate\Support\Str;
@@ -42,15 +41,15 @@ class RuleBuilder extends Builder
                                 return __('filament-tables::filters/query-builder.no_rules');
                             }
 
-                            $repeater = $component->getChildSchema($uuid)
+                            $repeater = $component->getChildComponentContainer($uuid)
                                 ->getComponent(fn (Component $component): bool => $component instanceof Repeater);
 
                             if (! ($repeater instanceof Repeater)) {
                                 throw new Exception('No repeater component found.');
                             }
 
-                            $itemLabels = collect($repeater->getItems())
-                                ->map(fn (Schema $schema, string $itemUuid): string => $repeater->getItemLabel($itemUuid));
+                            $itemLabels = collect($repeater->getChildComponentContainers())
+                                ->map(fn (ComponentContainer $blockContainer, string $blockContainerUuid): string => $repeater->getItemLabel($blockContainerUuid));
 
                             if ($itemLabels->count() === 1) {
                                 return $itemLabels->first();
@@ -58,7 +57,7 @@ class RuleBuilder extends Builder
 
                             return '(' . $itemLabels->implode(') ' . __('filament-tables::filters/query-builder.form.or_groups.block.or') . ' (') . ')';
                         })
-                        ->icon(Heroicon::Bars4)
+                        ->icon('heroicon-m-bars-4')
                         ->schema(fn (): array => [
                             Repeater::make(static::OR_BLOCK_GROUPS_REPEATER_NAME)
                                 ->label(__('filament-tables::filters/query-builder.form.or_groups.label'))
@@ -70,27 +69,27 @@ class RuleBuilder extends Builder
                                 ])
                                 ->addAction(fn (Action $action) => $action
                                     ->label(__('filament-tables::filters/query-builder.actions.add_rule_group.label'))
-                                    ->icon(Heroicon::Plus))
+                                    ->icon('heroicon-s-plus'))
                                 ->labelBetweenItems(__('filament-tables::filters/query-builder.item_separators.or'))
                                 ->collapsible()
                                 ->expandAllAction(fn (Action $action) => $action->hidden())
                                 ->collapseAllAction(fn (Action $action) => $action->hidden())
-                                ->itemLabel(function (Schema $schema): string {
-                                    $builder = $schema->getComponent(fn (Component $component): bool => $component instanceof RuleBuilder);
+                                ->itemLabel(function (ComponentContainer $container, array $state): string {
+                                    $builder = $container->getComponent(fn (Component $component): bool => $component instanceof RuleBuilder);
 
                                     if (! ($builder instanceof RuleBuilder)) {
                                         throw new Exception('No rule builder component found.');
                                     }
 
-                                    $blockLabels = collect($builder->getItems())
-                                        ->map(function (Schema $schema, string $blockUuid): string {
-                                            $block = $schema->getParentComponent();
+                                    $blockLabels = collect($builder->getChildComponentContainers())
+                                        ->map(function (ComponentContainer $blockContainer, string $blockUuid): string {
+                                            $block = $blockContainer->getParentComponent();
 
                                             if (! ($block instanceof Builder\Block)) {
                                                 throw new Exception('No block component found.');
                                             }
 
-                                            return $block->getLabel($schema->getRawState(), $blockUuid);
+                                            return $block->getLabel($blockContainer->getRawState(), $blockUuid);
                                         });
 
                                     if ($blockLabels->isEmpty()) {
@@ -113,7 +112,7 @@ class RuleBuilder extends Builder
             })
             ->addAction(fn (Action $action) => $action
                 ->label(__('filament-tables::filters/query-builder.actions.add_rule.label'))
-                ->icon(Heroicon::Plus))
+                ->icon('heroicon-s-plus'))
             ->addBetweenAction(fn (Action $action) => $action->hidden())
             ->label(__('filament-tables::filters/query-builder.form.rules.label'))
             ->hiddenLabel()

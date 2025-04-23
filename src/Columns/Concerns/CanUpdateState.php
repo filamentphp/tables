@@ -58,9 +58,9 @@ trait CanUpdateState
 
         $columnName = $this->getName();
 
-        if ($this->hasRelationship($record)) {
-            $columnName = $this->getFullAttributeName($record);
-            $columnRelationshipName = $this->getRelationshipName($record);
+        if ($this->getRelationship($record)) {
+            $columnName = $this->getRelationshipAttribute();
+            $columnRelationshipName = $this->getRelationshipName();
 
             $record = Arr::get(
                 $record->load($columnRelationshipName),
@@ -68,16 +68,18 @@ trait CanUpdateState
             );
         } elseif (
             (($tableRelationship = $this->getTable()->getRelationship()) instanceof BelongsToMany) &&
-            in_array($this->getAttributeName($record), $tableRelationship->getPivotColumns())
+            in_array($columnName, $tableRelationship->getPivotColumns())
         ) {
             $record = $record->getRelationValue($tableRelationship->getPivotAccessor());
+        } else {
+            $columnName = (string) str($columnName)->replace('.', '->');
         }
 
         if (! ($record instanceof Model)) {
             return null;
         }
 
-        $record->setAttribute((string) str($columnName)->replace('.', '->'), $state);
+        $record->setAttribute($columnName, $state);
         $record->save();
 
         $this->callAfterStateUpdated($state);

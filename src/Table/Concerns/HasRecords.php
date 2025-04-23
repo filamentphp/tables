@@ -7,8 +7,8 @@ use Closure;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\Paginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 use function Filament\Support\get_model_label;
@@ -25,24 +25,6 @@ trait HasRecords
     protected string | Closure | null $recordTitle = null;
 
     protected string | Closure | null $recordTitleAttribute = null;
-
-    protected ?Closure $dataSource = null;
-
-    protected ?Closure $resolveSelectedRecordsUsing = null;
-
-    public function records(?Closure $dataSource): static
-    {
-        $this->dataSource = $dataSource;
-
-        return $this;
-    }
-
-    public function resolveSelectedRecordsUsing(?Closure $callback): static
-    {
-        $this->resolveSelectedRecordsUsing = $callback;
-
-        return $this;
-    }
 
     public function allowDuplicates(bool | Closure $condition = true): static
     {
@@ -84,43 +66,14 @@ trait HasRecords
         return $this->getLivewire()->getTableRecords();
     }
 
-    public function hasQuery(): bool
-    {
-        return ! $this->dataSource;
-    }
-
-    public function getDataSource(): ?Closure
-    {
-        return $this->dataSource;
-    }
-
-    public function getResolveSelectedRecordsCallback(): ?Closure
-    {
-        return $this->resolveSelectedRecordsUsing;
-    }
-
-    /**
-     * @param  Model | array<string, mixed>  $record
-     */
-    public function getRecordKey(Model | array $record): string
+    public function getRecordKey(Model $record): string
     {
         return $this->getLivewire()->getTableRecordKey($record);
     }
 
-    /**
-     * @return class-string<Model>|null
-     */
-    public function getModel(): ?string
+    public function getModel(): string
     {
-        $query = $this->getQuery();
-
-        $model = $query?->getModel();
-
-        if (blank($model)) {
-            return null;
-        }
-
-        return $model::class;
+        return $this->getQuery()->getModel()::class;
     }
 
     public function allowsDuplicates(): bool
@@ -130,19 +83,7 @@ trait HasRecords
 
     public function getModelLabel(): string
     {
-        $label = $this->evaluate($this->modelLabel);
-
-        if (filled($label)) {
-            return $label;
-        }
-
-        $model = $this->getModel();
-
-        if (filled($model)) {
-            return get_model_label($model);
-        }
-
-        return __('filament-tables::table.default_model_label');
+        return $this->evaluate($this->modelLabel) ?? get_model_label($this->getModel());
     }
 
     public function getPluralModelLabel(): string

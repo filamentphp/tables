@@ -43,9 +43,14 @@ export default function table() {
             })
         },
 
-        mountAction: function (...args) {
+        mountAction: function (name, record = null) {
             this.$wire.set('selectedTableRecords', this.selectedRecords, false)
-            this.$wire.mountAction(...args)
+            this.$wire.mountTableAction(name, record)
+        },
+
+        mountBulkAction: function (name) {
+            this.$wire.set('selectedTableRecords', this.selectedRecords, false)
+            this.$wire.mountTableBulkAction(name)
         },
 
         toggleSelectRecordsOnPage: function () {

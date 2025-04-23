@@ -21,11 +21,7 @@ class TablesServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('filament-tables')
-            ->hasCommands([
-                Commands\MakeColumnCommand::class,
-                Commands\MakeLivewireTableCommand::class,
-                Commands\MakeTableCommand::class,
-            ])
+            ->hasCommands($this->getCommands())
             ->hasTranslations()
             ->hasViews();
     }
@@ -33,10 +29,6 @@ class TablesServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         FilamentAsset::register([
-            AlpineComponent::make('columns/checkbox', __DIR__ . '/../dist/components/columns/checkbox.js'),
-            AlpineComponent::make('columns/select', __DIR__ . '/../dist/components/columns/select.js'),
-            AlpineComponent::make('columns/text-input', __DIR__ . '/../dist/components/columns/text-input.js'),
-            AlpineComponent::make('columns/toggle', __DIR__ . '/../dist/components/columns/toggle.js'),
             AlpineComponent::make('table', __DIR__ . '/../dist/components/table.js'),
         ], 'filament/tables');
 
@@ -54,5 +46,33 @@ class TablesServiceProvider extends PackageServiceProvider
         Testable::mixin(new TestsFilters);
         Testable::mixin(new TestsRecords);
         Testable::mixin(new TestsSummaries);
+    }
+
+    /**
+     * @return array<class-string>
+     */
+    protected function getCommands(): array
+    {
+        $commands = [
+            Commands\MakeColumnCommand::class,
+            Commands\MakeTableCommand::class,
+        ];
+
+        $aliases = [];
+
+        foreach ($commands as $command) {
+            $class = 'Filament\\Tables\\Commands\\Aliases\\' . class_basename($command);
+
+            if (! class_exists($class)) {
+                continue;
+            }
+
+            $aliases[] = $class;
+        }
+
+        return [
+            ...$commands,
+            ...$aliases,
+        ];
     }
 }

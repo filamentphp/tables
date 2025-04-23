@@ -2,10 +2,8 @@
 
 namespace Filament\Tables\Filters\QueryBuilder\Constraints\DateConstraint\Operators;
 
-use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\DatePicker;
-use Filament\Schemas\Components\Component;
 use Filament\Tables\Filters\QueryBuilder\Constraints\Operators\Operator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -40,7 +38,7 @@ class IsAfterOperator extends Operator
     }
 
     /**
-     * @return array<Component | Action | ActionGroup>
+     * @return array<Component>
      */
     public function getFormSchema(): array
     {

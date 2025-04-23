@@ -3,10 +3,9 @@
 namespace Filament\Tables\Table\Concerns;
 
 use Closure;
-use Filament\Actions\Action;
 use Filament\Support\Concerns\HasReorderAnimationDuration;
 use Filament\Support\Facades\FilamentIcon;
-use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Actions\Action;
 
 trait CanReorderRecords
 {
@@ -50,7 +49,7 @@ trait CanReorderRecords
         $action = Action::make('reorderRecords')
             ->label($isReordering ? __('filament-tables::table.actions.disable_reordering.label') : __('filament-tables::table.actions.enable_reordering.label'))
             ->iconButton()
-            ->icon($isReordering ? (FilamentIcon::resolve('tables::actions.disable-reordering') ?? Heroicon::Check) : (FilamentIcon::resolve('tables::actions.enable-reordering') ?? Heroicon::ArrowsUpDown))
+            ->icon($isReordering ? (FilamentIcon::resolve('tables::actions.disable-reordering') ?? 'heroicon-m-check') : (FilamentIcon::resolve('tables::actions.enable-reordering') ?? 'heroicon-m-arrows-up-down'))
             ->color('gray')
             ->action('toggleTableReordering')
             ->table($this);

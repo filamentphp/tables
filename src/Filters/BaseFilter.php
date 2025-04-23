@@ -4,6 +4,7 @@ namespace Filament\Tables\Filters;
 
 use Exception;
 use Filament\Support\Components\Component;
+use Illuminate\Support\Traits\Conditionable;
 
 class BaseFilter extends Component
 {
@@ -13,11 +14,12 @@ class BaseFilter extends Component
     use Concerns\CanSpanColumns;
     use Concerns\HasColumns;
     use Concerns\HasDefaultState;
+    use Concerns\HasFormSchema;
     use Concerns\HasIndicators;
     use Concerns\HasLabel;
     use Concerns\HasName;
-    use Concerns\HasSchema;
     use Concerns\InteractsWithTableQuery;
+    use Conditionable;
 
     protected string $evaluationIdentifier = 'filter';
 
