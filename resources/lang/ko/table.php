@@ -10,6 +10,10 @@ return [
 
     'columns' => [
 
+        'actions' => [
+            'label' => '작업|작업들',
+        ],
+
         'text' => [
 
             'actions' => [
@@ -76,11 +80,11 @@ return [
     'actions' => [
 
         'disable_reordering' => [
-            'label' => '재정렬 완료',
+            'label' => '순서 변경 완료',
         ],
 
         'enable_reordering' => [
-            'label' => '항목 재정렬',
+            'label' => '항목 순서 변경',
         ],
 
         'filter' => [
@@ -134,7 +138,7 @@ return [
 
         'heading' => '필터',
 
-        'indicator' => '활성된 필터',
+        'indicator' => '활성화된 필터',
 
         'multi_select' => [
             'placeholder' => '전체',
@@ -224,5 +228,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => '항목',
 
 ];

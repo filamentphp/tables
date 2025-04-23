@@ -3,11 +3,11 @@
 namespace Filament\Tables\Concerns;
 
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Arr;
 
 /**
- * @property Form $toggleTableColumnForm
+ * @property-read Schema $toggleTableColumnForm
  */
 trait CanToggleColumns
 {
@@ -41,17 +41,17 @@ trait CanToggleColumns
         ]);
     }
 
-    public function getTableColumnToggleForm(): Form
+    public function getTableColumnToggleForm(): Schema
     {
-        if ((! $this->isCachingForms) && $this->hasCachedForm('toggleTableColumnForm')) {
-            return $this->getForm('toggleTableColumnForm');
+        if ((! $this->isCachingSchemas) && $this->hasCachedSchema('toggleTableColumnForm')) {
+            return $this->getSchema('toggleTableColumnForm');
         }
 
-        return $this->makeForm()
-            ->schema($this->getTableColumnToggleFormSchema())
+        return $this->makeSchema()
             ->columns($this->getTable()->getColumnToggleFormColumns())
-            ->statePath('toggledTableColumns')
-            ->live();
+            ->live()
+            ->schema($this->getTableColumnToggleFormSchema())
+            ->statePath('toggledTableColumns');
     }
 
     /**

@@ -3,10 +3,11 @@
 namespace Filament\Tables\Filters\QueryBuilder\Constraints;
 
 use Closure;
+use Exception;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Get;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Components\Component;
 use Filament\Support\Concerns\HasIcon;
 use Filament\Tables\Filters\QueryBuilder;
@@ -45,12 +46,25 @@ class Constraint extends Component
         $this->name($name);
     }
 
-    public static function make(string $name): static
+    public static function make(?string $name = null): static
     {
-        $static = app(static::class, ['name' => $name]);
+        $constraintClass = static::class;
+
+        $name ??= static::getDefaultName();
+
+        if (blank($name)) {
+            throw new Exception("Constraint of class [$constraintClass] must have a unique name, passed to the [make()] method.");
+        }
+
+        $static = app($constraintClass, ['name' => $name]);
         $static->configure();
 
         return $static;
+    }
+
+    public static function getDefaultName(): ?string
+    {
+        return null;
     }
 
     public function getBuilderBlock(): Block
@@ -71,9 +85,9 @@ class Constraint extends Component
 
                 try {
                     $component->getContainer()->getParentComponent()
-                        ->getChildComponentContainer($uuid)
+                        ->getChildSchema($uuid)
                         ->getComponent('settings')
-                        ->getChildComponentContainer()
+                        ->getChildSchema()
                         ->validate();
                 } catch (ValidationException $exception) {
                     return $this->getLabel();
@@ -114,7 +128,7 @@ class Constraint extends Component
                         ->afterStateUpdated(fn (Select $component, Get $get) => $component
                             ->getContainer()
                             ->getComponent('settings')
-                            ->getChildComponentContainer()
+                            ->getChildSchema()
                             ->fill($get('settings'))),
                     Group::make(function ($component, Get $get): array {
                         $operator = $get(static::OPERATOR_SELECT_NAME);

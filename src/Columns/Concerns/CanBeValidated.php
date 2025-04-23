@@ -16,6 +16,11 @@ trait CanBeValidated
     protected string | Closure | null $validationAttribute = null;
 
     /**
+     * @var array<string, string | Closure>
+     */
+    protected array $validationMessages = [];
+
+    /**
      * @param  array<array-key> | Closure  $rules
      */
     public function rules(array | Closure $rules): static
@@ -28,6 +33,16 @@ trait CanBeValidated
     public function validationAttribute(string | Closure | null $label): static
     {
         $this->validationAttribute = $label;
+
+        return $this;
+    }
+
+    /**
+     * @param  array<string, string | Closure>  $messages
+     */
+    public function validationMessages(array $messages): static
+    {
+        $this->validationMessages = $messages;
 
         return $this;
     }
@@ -51,7 +66,7 @@ trait CanBeValidated
         Validator::make(
             ['input' => $input],
             ['input' => $this->getRules()],
-            [],
+            ['input' => $this->getValidationMessages()],
             ['input' => $this->getValidationAttribute()],
         )->validate();
     }
@@ -59,5 +74,19 @@ trait CanBeValidated
     public function getValidationAttribute(): string
     {
         return $this->evaluate($this->validationAttribute) ?? Str::lcfirst($this->getLabel());
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getValidationMessages(): array
+    {
+        $messages = [];
+
+        foreach ($this->validationMessages as $rule => $message) {
+            $messages[$rule] = $this->evaluate($message);
+        }
+
+        return array_filter($messages);
     }
 }

@@ -8,7 +8,6 @@ use Carbon\CarbonInterface;
 use Closure;
 use Filament\Support\Components\Component;
 use Filament\Support\Contracts\HasLabel as LabelInterface;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -279,7 +278,7 @@ class Group extends Component
                 $title = Carbon::parse($title);
             }
 
-            $title = $title->translatedFormat(Table::$defaultDateDisplayFormat);
+            $title = $title->translatedFormat($this->getTable()->getDefaultDateDisplayFormat());
         }
 
         return $title;

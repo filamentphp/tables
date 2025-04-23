@@ -3,13 +3,11 @@
 namespace Filament\Tables\Table\Concerns;
 
 use Closure;
-use Filament\Actions\Contracts\HasRecord;
-use Filament\Support\Enums\ActionSize;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\ActionGroup;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Support\Enums\Size;
 use Filament\Tables\Enums\ActionsPosition;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
 
@@ -55,21 +53,21 @@ trait HasActions
             $action->table($this);
 
             if ($action instanceof ActionGroup) {
-                /** @var array<string, Action> $flatActions */
-                $flatActions = $action->getFlatActions();
-
                 if (! $action->getDropdownPlacement()) {
                     $action->dropdownPlacement('bottom-end');
                 }
 
+                /** @var array<string, Action> $flatActions */
+                $flatActions = $action->getFlatActions();
+
                 $this->mergeCachedFlatActions($flatActions);
             } elseif ($action instanceof Action) {
-                $action->defaultSize(ActionSize::Small);
+                $action->defaultSize(Size::Small);
                 $action->defaultView($action::LINK_VIEW);
 
                 $this->cacheAction($action);
             } else {
-                throw new InvalidArgumentException('Table actions must be an instance of ' . Action::class . ' or ' . ActionGroup::class . '.');
+                throw new InvalidArgumentException('Table actions must be an instance of [' . Action::class . '] or [' . ActionGroup::class . '].');
             }
 
             $this->actions[] = $action;
@@ -107,39 +105,9 @@ trait HasActions
         return $this->actions;
     }
 
-    /**
-     * @param  string | array<string>  $name
-     */
-    public function getAction(string | array $name): ?Action
+    public function getAction(string $name): ?Action
     {
-        if (is_string($name) && str($name)->contains('.')) {
-            $name = explode('.', $name);
-        }
-
-        if (is_array($name)) {
-            $firstName = array_shift($name);
-            $modalActionNames = $name;
-
-            $name = $firstName;
-        }
-
-        $mountedRecord = $this->getLivewire()->getMountedTableActionRecord();
-
-        $action = $this->getFlatActions()[$name] ?? null;
-
-        if (! $action) {
-            return null;
-        }
-
-        if (($actionGroup = $action->getRootGroup()) instanceof HasRecord) {
-            $actionGroup->record($mountedRecord);
-        }
-
-        return $this->getMountableModalActionFromAction(
-            $action->record($mountedRecord),
-            modalActionNames: $modalActionNames ?? [],
-            mountedRecord: $mountedRecord,
-        );
+        return $this->getFlatActions()[$name] ?? null;
     }
 
     /**
@@ -180,46 +148,6 @@ trait HasActions
                 ...$this->flatActions,
             ];
         }
-    }
-
-    /**
-     * @param  array<string>  $modalActionNames
-     */
-    protected function getMountableModalActionFromAction(Action $action, array $modalActionNames, ?Model $mountedRecord = null): ?Action
-    {
-        $arguments = $this->getLivewire()->mountedTableActionsArguments ?? [];
-
-        if (
-            (($actionArguments = array_shift($arguments)) !== null) &&
-            (! $action->hasArguments())
-        ) {
-            $action->arguments($actionArguments);
-        }
-
-        foreach ($modalActionNames as $modalActionName) {
-            $action = $action->getMountableModalAction($modalActionName);
-
-            if (! $action) {
-                return null;
-            }
-
-            if ($action instanceof Action) {
-                $action->record($mountedRecord);
-            }
-
-            if (
-                (($actionArguments = array_shift($arguments)) !== null) &&
-                (! $action->hasArguments())
-            ) {
-                $action->arguments($actionArguments);
-            }
-        }
-
-        if (! $action instanceof Action) {
-            return null;
-        }
-
-        return $action;
     }
 
     public function getActionsPosition(): ActionsPosition
