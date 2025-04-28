@@ -193,7 +193,13 @@
         @apply text-(--text) dark:text-(--dark-text);
 
         &li::marker {
-            @apply text-gray-950 dark:text-white;
+            @apply text-gray-950;
+        }
+
+        @variant dark {
+            &li::marker {
+                @apply text-white;
+            }
         }
     }
 
@@ -201,7 +207,13 @@
         @apply text-gray-500 dark:text-gray-400;
 
         &li::marker {
-            @apply text-gray-950 dark:text-white;
+            @apply text-gray-950;
+        }
+
+        @variant dark {
+            &li::marker {
+                @apply text-white;
+            }
         }
     }
 

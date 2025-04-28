@@ -8,9 +8,15 @@ use Filament\Tables\Columns\Column;
 
 trait HasColor
 {
-    protected string | bool | Closure | null $color = null;
+    /**
+     * @var string | array<string> | bool | Closure | null
+     */
+    protected string | array | bool | Closure | null $color = null;
 
-    public function color(string | bool | Closure | null $color): static
+    /**
+     * @param  string | array<string> | bool | Closure | null  $color
+     */
+    public function color(string | array | bool | Closure | null $color): static
     {
         $this->color = $color;
 
@@ -43,7 +49,10 @@ trait HasColor
         return $this;
     }
 
-    public function getColor(mixed $state): ?string
+    /**
+     * @return string | array<string> | null
+     */
+    public function getColor(mixed $state): string | array | null
     {
         $color = $this->evaluate($this->color, [
             'state' => $state,

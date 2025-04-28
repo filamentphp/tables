@@ -9,9 +9,9 @@ class IconComponent implements HasColor, HasDefaultGrayColor
 {
     /**
      * @param  array<int, string>  $color
-     * @return array<string>
+     * @return array<string, int>
      */
-    public function getColorClasses(array $color): array
+    public function getColorMap(array $color): array
     {
         return [];
     }
