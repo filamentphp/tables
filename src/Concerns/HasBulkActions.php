@@ -6,11 +6,13 @@ use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 
 trait HasBulkActions
 {
@@ -19,7 +21,14 @@ trait HasBulkActions
      */
     public array $selectedTableRecords = [];
 
-    protected Collection $cachedSelectedTableRecords;
+    /**
+     * @var array<int | string>
+     */
+    public array $deselectedTableRecords = [];
+
+    public bool $isTrackingDeselectedTableRecords = false;
+
+    protected EloquentCollection | Collection | LazyCollection $cachedSelectedTableRecords;
 
     /**
      * @deprecated Use the `callMountedAction()` method instead.
@@ -46,7 +55,7 @@ trait HasBulkActions
     }
 
     /**
-     * @deprecated Use the `mountAction()` method instead.
+     * @deprecated Use the `replaceMountedAction()` method instead.
      *
      * @param  array<int | string> | null  $selectedRecords
      */
@@ -187,7 +196,7 @@ trait HasBulkActions
         return $this->getFilteredTableQuery()?->count() ?? $this->cachedTableRecords->count();
     }
 
-    public function getSelectedTableRecords(bool $shouldFetchSelectedRecords = true): EloquentCollection | Collection
+    public function getSelectedTableRecords(bool $shouldFetchSelectedRecords = true, ?int $chunkSize = null): EloquentCollection | Collection | LazyCollection
     {
         if (isset($this->cachedSelectedTableRecords)) {
             return $this->cachedSelectedTableRecords;
@@ -195,23 +204,58 @@ trait HasBulkActions
 
         $table = $this->getTable();
 
-        if (
-            (! $shouldFetchSelectedRecords) ||
-            (! ($table->getRelationship() instanceof BelongsToMany && $table->allowsDuplicates()))
-        ) {
-            if (! $table->hasQuery()) {
-                $resolveSelectedRecords = $table->getResolveSelectedRecordsCallback();
+        if ($shouldFetchSelectedRecords && $table->getRelationship() instanceof BelongsToMany && $table->allowsDuplicates()) {
+            return $this->cachedSelectedTableRecords = $this->hydratePivotRelationForTableRecords(
+                $this->getSelectedTableRecordsQuery($shouldFetchSelectedRecords, $chunkSize)->get(),
+            );
+        }
 
-                return $this->cachedSelectedTableRecords = $resolveSelectedRecords ?
-                    $table->evaluate($resolveSelectedRecords, [
-                        'keys' => $this->selectedTableRecords,
-                        'records' => $this->selectedTableRecords,
-                    ]) :
-                    $this->getTableRecords()->only($this->selectedTableRecords);
+        if (! $table->hasQuery()) {
+            $resolveSelectedRecords = $table->getResolveSelectedRecordsCallback();
+
+            return $this->cachedSelectedTableRecords = $resolveSelectedRecords ?
+                $table->evaluate($resolveSelectedRecords, [
+                    'keys' => $this->selectedTableRecords,
+                    'records' => $this->selectedTableRecords,
+                    'deselectedKeys' => $this->deselectedTableRecords,
+                    'deselectedRecords' => $this->deselectedTableRecords,
+                    'isTrackingDeselectedKeys' => $this->isTrackingDeselectedTableRecords,
+                    'isTrackingDeselectedRecords' => $this->isTrackingDeselectedTableRecords,
+                ]) :
+                ($this->isTrackingDeselectedTableRecords ? $this->getTableRecords()->except($this->deselectedTableRecords) : $this->getTableRecords()->only($this->selectedTableRecords));
+        }
+
+        $query = $this->getSelectedTableRecordsQuery($shouldFetchSelectedRecords, $chunkSize);
+
+        if (! $chunkSize) {
+            $this->applySortingToTableQuery($query);
+        }
+
+        if (! $shouldFetchSelectedRecords) {
+            return $this->cachedSelectedTableRecords = $query->pluck($query->getModel()->getQualifiedKeyName());
+        }
+
+        if ($chunkSize) {
+            return $this->cachedSelectedTableRecords = $query->lazyById($chunkSize);
+        }
+
+        return $this->cachedSelectedTableRecords = $query->get();
+    }
+
+    public function getSelectedTableRecordsQuery(bool $shouldFetchSelectedRecords = true, ?int $chunkSize = null): Builder
+    {
+        $table = $this->getTable();
+
+        if (! ($table->getRelationship() instanceof BelongsToMany && $table->allowsDuplicates())) {
+            if ($this->isTrackingDeselectedTableRecords) {
+                $query = $table->getQuery()->whereKeyNot($this->deselectedTableRecords);
+            } else {
+                $query = $table->getQuery()->whereKey($this->selectedTableRecords);
             }
 
-            $query = $table->getQuery()->whereKey($this->selectedTableRecords);
-            $this->applySortingToTableQuery($query);
+            if (! $chunkSize) {
+                $this->applySortingToTableQuery($query);
+            }
 
             if ($shouldFetchSelectedRecords) {
                 foreach ($this->getTable()->getColumns() as $column) {
@@ -224,9 +268,7 @@ trait HasBulkActions
                 $this->filterTableQuery($query);
             }
 
-            return $this->cachedSelectedTableRecords = $shouldFetchSelectedRecords ?
-                $query->get() :
-                $query->pluck($query->getModel()->getQualifiedKeyName());
+            return $query;
         }
 
         /** @var BelongsToMany $relationship */
@@ -235,16 +277,20 @@ trait HasBulkActions
         $pivotClass = $relationship->getPivotClass();
         $pivotKeyName = app($pivotClass)->getKeyName();
 
-        $relationship->wherePivotIn($pivotKeyName, $this->selectedTableRecords);
-
-        foreach ($this->getTable()->getColumns() as $column) {
-            $column->applyEagerLoading($relationship);
-            $column->applyRelationshipAggregates($relationship);
+        if ($this->isTrackingDeselectedTableRecords) {
+            $relationship->wherePivotNotIn($pivotKeyName, $this->deselectedTableRecords);
+        } else {
+            $relationship->wherePivotIn($pivotKeyName, $this->selectedTableRecords);
         }
 
-        return $this->cachedSelectedTableRecords = $this->hydratePivotRelationForTableRecords(
-            $table->selectPivotDataInQuery($relationship)->get(),
-        );
+        if ($shouldFetchSelectedRecords) {
+            foreach ($this->getTable()->getColumns() as $column) {
+                $column->applyEagerLoading($relationship);
+                $column->applyRelationshipAggregates($relationship);
+            }
+        }
+
+        return $table->selectPivotDataInQuery($relationship);
     }
 
     /**

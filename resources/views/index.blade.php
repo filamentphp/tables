@@ -116,6 +116,12 @@
         'fi-loading' => $records === null,
     ])
 >
+    <input
+        type="hidden"
+        value="{{ $allSelectableRecordsCount }}"
+        x-ref="allSelectableRecordsCount"
+    />
+
     <div
         @class([
             'fi-ta-ctn',
@@ -124,7 +130,7 @@
     >
         <div
             @if (! $hasHeader) x-cloak @endif
-            x-show="@js($hasHeader) || (selectedRecords.length && @js(count($bulkActions)))"
+            x-show="@js($hasHeader) || (getSelectedRecordsCount() && @js(count($bulkActions)))"
             class="fi-ta-header-ctn"
         >
             {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::HEADER_BEFORE, scopes: static::class) }}
@@ -199,7 +205,7 @@
 
             <div
                 @if (! $hasHeaderToolbar) x-cloak @endif
-                x-show="@js($hasHeaderToolbar) || (selectedRecords.length && @js(count($bulkActions)))"
+                x-show="@js($hasHeaderToolbar) || (getSelectedRecordsCount() && @js(count($bulkActions)))"
                 class="fi-ta-header-toolbar"
             >
                 {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_START, scopes: static::class) }}
@@ -208,7 +214,7 @@
                     {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE, scopes: static::class) }}
 
                     @if ($isReorderable)
-                        <span x-show="! selectedRecords.length">
+                        <span x-show="! getSelectedRecordsCount()">
                             {{ $reorderRecordsTriggerAction }}
                         </span>
                     @endif
@@ -218,7 +224,7 @@
                     @if ((! $isReordering) && count($bulkActions))
                         <div
                             x-cloak
-                            x-show="selectedRecords.length"
+                            x-show="getSelectedRecordsCount()"
                             class="fi-ta-actions"
                         >
                             @foreach ($bulkActions as $action)
@@ -527,8 +533,8 @@
         @elseif ($isSelectionEnabled && $isLoaded)
             <div
                 x-cloak
-                x-bind:hidden="! selectedRecords.length"
-                x-show="selectedRecords.length"
+                x-bind:hidden="! getSelectedRecordsCount()"
+                x-show="getSelectedRecordsCount()"
                 wire:key="{{ $this->getId() }}.table.selection.indicator"
                 class="fi-ta-selection-indicator"
             >
@@ -541,8 +547,8 @@
 
                     <span
                         x-text="
-                            window.pluralize(@js(__('filament-tables::table.selection_indicator.selected_count')), selectedRecords.length, {
-                                count: new Intl.NumberFormat(@js(str_replace('_', '-', app()->getLocale()))).format(selectedRecords.length),
+                            window.pluralize(@js(__('filament-tables::table.selection_indicator.selected_count')), getSelectedRecordsCount(), {
+                                count: new Intl.NumberFormat(@js(str_replace('_', '-', app()->getLocale()))).format(getSelectedRecordsCount()),
                             })
                         "
                     ></span>
@@ -556,7 +562,7 @@
                             color="primary"
                             tag="button"
                             x-on:click="selectAllRecords"
-                            :x-show="$selectsCurrentPageOnly ? '! areRecordsSelected(getRecordsOnPage())' : $allSelectableRecordsCount . ' !== selectedRecords.length'"
+                            :x-show="$selectsCurrentPageOnly ? '! areRecordsSelected(getRecordsOnPage())' : $allSelectableRecordsCount . ' !== getSelectedRecordsCount()'"
                             {{-- Make sure the Alpine attributes get re-evaluated after a Livewire request: --}}
                             :wire:key="$this->getId() . 'table.selection.indicator.actions.select-all.' . $allSelectableRecordsCount . '.' . $page"
                         >
@@ -951,7 +957,8 @@
                                             aria-label="{{ __('filament-tables::table.fields.bulk_select_record.label', ['key' => $recordKey]) }}"
                                             type="checkbox"
                                             value="{{ $recordKey }}"
-                                            x-model="selectedRecords"
+                                            x-on:click="toggleSelectedRecord(@js($recordKey))"
+                                            x-bind:checked="isRecordSelected(@js($recordKey)) ? 'checked' : null"
                                             data-group="{{ $recordGroupKey }}"
                                             wire:loading.attr="disabled"
                                             wire:target="{{ implode(',', \Filament\Tables\Table::LOADING_TARGETS) }}"
@@ -1668,7 +1675,8 @@
                                                                 aria-label="{{ __('filament-tables::table.fields.bulk_select_record.label', ['key' => $recordKey]) }}"
                                                                 type="checkbox"
                                                                 value="{{ $recordKey }}"
-                                                                x-model="selectedRecords"
+                                                                x-on:click="toggleSelectedRecord(@js($recordKey))"
+                                                                x-bind:checked="isRecordSelected(@js($recordKey)) ? 'checked' : null"
                                                                 data-group="{{ $recordGroupKey }}"
                                                                 wire:loading.attr="disabled"
                                                                 wire:target="{{ implode(',', \Filament\Tables\Table::LOADING_TARGETS) }}"
@@ -1793,7 +1801,8 @@
                                                                 aria-label="{{ __('filament-tables::table.fields.bulk_select_record.label', ['key' => $recordKey]) }}"
                                                                 type="checkbox"
                                                                 value="{{ $recordKey }}"
-                                                                x-model="selectedRecords"
+                                                                x-on:click="toggleSelectedRecord(@js($recordKey))"
+                                                                x-bind:checked="isRecordSelected(@js($recordKey)) ? 'checked' : null"
                                                                 data-group="{{ $recordGroupKey }}"
                                                                 wire:loading.attr="disabled"
                                                                 wire:target="{{ implode(',', \Filament\Tables\Table::LOADING_TARGETS) }}"

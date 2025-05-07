@@ -367,6 +367,38 @@ public function table(Table $table): Table
 }
 ```
 
+### Improving the performance of bulk actions
+
+By default, a bulk action will load all Eloquent records into memory before passing them to the `action()` function.
+
+If you are processing a large number of records, you may want to use the `chunkSelectedRecords()` method to fetch a smaller number of records at a time. This will reduce the memory usage of your application:
+
+```php
+use Filament\Actions\BulkAction;
+use Illuminate\Support\LazyCollection;
+
+BulkAction::make()
+    ->chunkSelectedRecords(250)
+    ->action(function (LazyCollection $records) {
+        // Process the records...
+    })
+```
+
+You can still loop through the `$records` collection as normal, but the collection will be a `LazyCollection` instead of a normal collection.
+
+You can also prevent Filament from fetching the Eloquent models in the first place, and instead just pass the IDs of the selected records to the `action()` function. This is useful if you are processing a large number of records, and you don't need to load them into memory:
+
+```php
+use Filament\Actions\BulkAction;
+use Illuminate\Support\Collection;
+
+BulkAction::make()
+    ->fetchSelectedRecords(false)
+    ->action(function (Collection $records) {
+        // Process the records...
+    })
+```
+
 ## Header actions
 
 Both [row actions](#row-actions) and [bulk actions](#bulk-actions) can be rendered in the header of the table. You can put them in the `$table->headerActions()` method:

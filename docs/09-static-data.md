@@ -418,6 +418,70 @@ public function table(Table $table): Table
 }
 ```
 
+However, if your user uses the "Select All" button to select all records across pagination pages, Filament will internally switch to tracking *deselected* records instead of selected records. This is an efficient mechanism in significantly large datasets. You can inject two additional parameters into the `resolveSelectedRecordsUsing()` method to handle this case: `$isTrackingDeselectedKeys` and `$deselectedKeys`.
+
+`$isTrackingDeselectedKeys` is a boolean that indicates whether the user is tracking deselected keys. If it's `true`, `$deselectedKeys` will contain the keys of the records that are currently deselected. You can use this information to filter out the deselected records from the array of records returned by the `resolveSelectedRecordsUsing()` method:
+
+```php
+use Filament\Actions\BulkAction;
+use Filament\Tables\Table;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+
+public function table(Table $table): Table
+{
+    return $table
+        ->records(function (): array {
+            // ...
+        })
+        ->resolveSelectedRecordsUsing(function (
+            array $keys,
+            bool $isTrackingDeselectedKeys,
+            array $deselectedKeys
+        ): array {
+            $records = [
+                1 => [
+                    'title' => 'First item',
+                    'slug' => 'first-item',
+                    'is_featured' => true,
+                ],
+                2 => [
+                    'title' => 'Second item',
+                    'slug' => 'second-item',
+                    'is_featured' => false,
+                ],
+                3 => [
+                    'title' => 'Third item',
+                    'slug' => 'third-item',
+                    'is_featured' => true,
+                ],
+            ];
+            
+            if ($isTrackingDeselectedKeys) {
+                return Arr::except(
+                    $records,
+                    $deselectedKeys,
+                );
+            }
+            
+            return Arr::only(
+                $records,
+                $keys,
+            );
+        })
+        ->columns([
+            // ...
+        ])
+        ->actions([
+            BulkAction::make('feature')
+                ->requiresConfirmation()
+                ->action(function (Collection $records): void {
+                    // Do something with the collection of `$records` data
+                }),
+        ]);
+}
+```
+
 ## Using an external API as a table data source
 
 [Filament's table builder](overview/#introduction) allows you to populate tables with data fetched from any external source—not just [Eloquent models](https://laravel.com/docs/eloquent). This is particularly useful when you want to display data from a REST API or a third-party service.

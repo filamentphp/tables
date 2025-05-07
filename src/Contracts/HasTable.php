@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 
 interface HasTable
 {
@@ -37,7 +38,9 @@ interface HasTable
      */
     public function getTableFilterState(string $name): ?array;
 
-    public function getSelectedTableRecords(bool $shouldFetchSelectedRecords = true): EloquentCollection | Collection;
+    public function getSelectedTableRecords(bool $shouldFetchSelectedRecords = true, ?int $chunkSize = null): EloquentCollection | Collection | LazyCollection;
+
+    public function getSelectedTableRecordsQuery(bool $shouldFetchSelectedRecords = true, ?int $chunkSize = null): Builder;
 
     public function parseTableFilterName(string $name): string;
 

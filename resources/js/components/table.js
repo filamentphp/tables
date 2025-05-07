@@ -6,7 +6,11 @@ export default function table() {
 
         isLoading: false,
 
-        selectedRecords: [],
+        selectedRecords: new Set(),
+
+        deselectedRecords: new Set(),
+
+        isTrackingDeselectedRecords: false,
 
         shouldCheckUniqueSelection: true,
 
@@ -29,8 +33,6 @@ export default function table() {
                     return
                 }
 
-                this.selectedRecords = [...new Set(this.selectedRecords)]
-
                 this.shouldCheckUniqueSelection = false
             })
 
@@ -44,7 +46,22 @@ export default function table() {
         },
 
         mountAction: function (...args) {
-            this.$wire.set('selectedTableRecords', this.selectedRecords, false)
+            this.$wire.set(
+                'isTrackingDeselectedTableRecords',
+                this.isTrackingDeselectedRecords,
+                false,
+            )
+            this.$wire.set(
+                'selectedTableRecords',
+                [...this.selectedRecords],
+                false,
+            )
+            this.$wire.set(
+                'deselectedTableRecords',
+                [...this.deselectedRecords],
+                false,
+            )
+
             this.$wire.mountAction(...args)
         },
 
@@ -94,6 +111,18 @@ export default function table() {
             return keys
         },
 
+        getSelectedRecordsCount: function () {
+            if (this.isTrackingDeselectedRecords) {
+                return (
+                    (this.$refs.allSelectableRecordsCount?.value ??
+                        this.deselectedRecords.size) -
+                    this.deselectedRecords.size
+                )
+            }
+
+            return this.selectedRecords.size
+        },
+
         getRecordsOnPage: function () {
             const keys = []
 
@@ -112,37 +141,56 @@ export default function table() {
                     continue
                 }
 
-                this.selectedRecords.push(key)
+                if (this.isTrackingDeselectedRecords) {
+                    this.deselectedRecords.delete(key)
+
+                    continue
+                }
+
+                this.selectedRecords.add(key)
             }
         },
 
         deselectRecords: function (keys) {
             for (let key of keys) {
-                let index = this.selectedRecords.indexOf(key)
+                if (this.isTrackingDeselectedRecords) {
+                    this.deselectedRecords.add(key)
 
-                if (index === -1) {
                     continue
                 }
 
-                this.selectedRecords.splice(index, 1)
+                this.selectedRecords.delete(key)
             }
         },
 
+        toggleSelectedRecord: function (key) {
+            if (this.isRecordSelected(key)) {
+                this.deselectRecords([key])
+
+                return
+            }
+
+            this.selectRecords([key])
+        },
+
         selectAllRecords: async function () {
-            this.isLoading = true
-
-            this.selectedRecords =
-                await this.$wire.getAllSelectableTableRecordKeys()
-
-            this.isLoading = false
+            this.isTrackingDeselectedRecords = true
+            this.selectedRecords = new Set()
+            this.deselectedRecords = new Set()
         },
 
         deselectAllRecords: function () {
-            this.selectedRecords = []
+            this.isTrackingDeselectedRecords = false
+            this.selectedRecords = new Set()
+            this.deselectedRecords = new Set()
         },
 
         isRecordSelected: function (key) {
-            return this.selectedRecords.includes(key)
+            if (this.isTrackingDeselectedRecords) {
+                return !this.deselectedRecords.has(key)
+            }
+
+            return this.selectedRecords.has(key)
         },
 
         areRecordsSelected: function (keys) {
