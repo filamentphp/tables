@@ -231,32 +231,32 @@ namespace Livewire\Features\SupportTesting {
         /**
          * @deprecated Use `assertActionHasIcon()` instead.
          */
-        public function assertTableActionHasIcon(string | array $name, string $icon): static {}
+        public function assertTableActionHasIcon(string | array $name, string $icon, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionDoesNotHaveIcon()` instead.
          */
-        public function assertTableActionDoesNotHaveIcon(string | array $name, string $icon): static {}
+        public function assertTableActionDoesNotHaveIcon(string | array $name, string $icon, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionHasLabel()` instead.
          */
-        public function assertTableActionHasLabel(string | array $name, string $label): static {}
+        public function assertTableActionHasLabel(string | array $name, string $label, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionDoesNotHaveLabel()` instead.
          */
-        public function assertTableActionDoesNotHaveLabel(string | array $name, string $label): static {}
+        public function assertTableActionDoesNotHaveLabel(string | array $name, string $label, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionHasColor()` instead.
          */
-        public function assertTableActionHasColor(string | array $name, string | array $color): static {}
+        public function assertTableActionHasColor(string | array $name, string | array $color, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionDoesNotHaveColor()` instead.
          */
-        public function assertTableActionDoesNotHaveColor(string | array $name, string | array $color): static {}
+        public function assertTableActionDoesNotHaveColor(string | array $name, string | array $color, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionHasIcon()` instead.
@@ -291,22 +291,22 @@ namespace Livewire\Features\SupportTesting {
         /**
          * @deprecated Use `assertActionHasUrl()` instead.
          */
-        public function assertTableActionHasUrl(string | array $name, string $url): static {}
+        public function assertTableActionHasUrl(string | array $name, string $url, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionDoesNotHaveUrl()` instead.
          */
-        public function assertTableActionDoesNotHaveUrl(string | array $name, string $url): static {}
+        public function assertTableActionDoesNotHaveUrl(string | array $name, string $url, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionShouldOpenUrlInNewTab()` instead.
          */
-        public function assertTableActionShouldOpenUrlInNewTab(string | array $name): static {}
+        public function assertTableActionShouldOpenUrlInNewTab(string | array $name, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionShouldNotOpenUrlInNewTab()` instead.
          */
-        public function assertTableActionShouldNotOpenUrlInNewTab(string | array $name): static {}
+        public function assertTableActionShouldNotOpenUrlInNewTab(string | array $name, $record = null): static {}
 
         /**
          * @deprecated Use `assertActionMounted()` instead.

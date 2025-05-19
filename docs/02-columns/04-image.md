@@ -34,15 +34,15 @@ ImageColumn::make('header_image')
 
 <UtilityInjection set="tableColumns" version="4.x">As well as allowing a static value, the `disk()` method also accepts a function to dynamically calculate it. You can inject various utilities into the function as parameters.</UtilityInjection>
 
-## Private images
+## Public images
 
-Filament can generate temporary URLs to render private images, you may set the `visibility()` to `private`:
+By default, Filament will generate temporary URLs to images in the filesystem, unless the [disk](#managing-the-image-disk) is set to `public`. If your images are stored in a public disk, you can set the `visibility()` to `public`:
 
 ```php
 use Filament\Tables\Columns\ImageColumn;
 
 ImageColumn::make('header_image')
-    ->visibility('private')
+    ->visibility('public')
 ```
 
 <UtilityInjection set="tableColumns" version="4.x">As well as allowing a static value, the `visibility()` method also accepts a function to dynamically calculate it. You can inject various utilities into the function as parameters.</UtilityInjection>

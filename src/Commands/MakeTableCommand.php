@@ -176,7 +176,7 @@ class MakeTableCommand extends Command
     protected function configureIsGenerated(): void
     {
         $this->isGenerated = $this->option('generate') || confirm(
-            label: 'Would you like to generate the table columns based on the attributes of the model?',
+            label: 'Should the table columns be generated from the current database columns?',
             default: false,
         );
     }

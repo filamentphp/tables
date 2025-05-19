@@ -730,6 +730,350 @@ These values are passed to a `LengthAwarePaginator`, which Filament uses to rend
     This is a basic example for demonstration purposes only. It's the developer's responsibility to implement proper authentication, authorization, validation, error handling, rate limiting, and other best practices when working with APIs.
 </Aside>
 
+### External API actions
+
+When using [actions](../actions/overview) in a table with an external API, the process is almost identical to working with [Eloquent models](https://laravel.com/docs/eloquent). The main difference is that the `$record` parameter in the action's callback function will be an `array` instead of a `Model` instance.
+
+Filament provides a variety of [built-in actions](../actions/overview#available-actions) that you can use in your application. However, you are not limited to these. You can create [custom actions](../actions/overview#introduction) tailored to your application's needs.
+
+The examples below demonstrate how to create and use actions with an external API using [DummyJSON](https://dummyjson.com) as a simulated API source.
+
+#### External API create action example
+
+The create action in this example provides a [modal form](../actions/modals#rendering-a-form-in-a-modal) that allows users to create a new product using an external API. When the form is submitted, a `POST` request is sent to the API to create the new product.
+
+```php
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+
+public function table(Table $table): Table
+{
+    $baseUrl = 'https://dummyjson.com';
+
+    return $table
+        ->records(fn (): array => Http::baseUrl($baseUrl)
+            ->get('products')
+            ->collect()
+            ->get('products', [])
+        )
+        ->columns([
+            TextColumn::make('title'),
+            TextColumn::make('category'),
+        ])
+        ->headerActions([
+            Action::make('create')
+                ->modalHeading('Create product')
+                ->schema([
+                    TextInput::make('title')
+                        ->required(),
+                    Select::make('category')
+                        ->options(fn (): Collection => Http::get("{$baseUrl}/products/categories")
+                            ->collect()
+                            ->pluck('name', 'slug')
+                        )
+                        ->required(),
+                ])
+                ->action(function (array $data) use ($baseUrl) {
+                    $response = Http::post("{$baseUrl}/products/add", [
+                        'title' => $data['title'],
+                        'category' => $data['category'],
+                    ]);
+
+                    if ($response->failed()) {
+                        Notification::make()
+                            ->title('Product failed to create')
+                            ->danger()
+                            ->send();
+                            
+                        return;
+                    }
+                    
+                    Notification::make()
+                        ->title('Product created')
+                        ->success()
+                        ->send();
+                }),
+        ]);
+}
+```
+
+- [`modalHeading()`](../actions/modals#customizing-the-modals-heading-description-and-submit-action-label) sets the title of the modal that appears when the action is triggered.
+- [`schema()`](../actions/modals#rendering-a-schema-in-a-modal) defines the form fields displayed in the modal.
+- `action()` defines the logic that will be executed when the user submits the form.
+
+<Aside variant="warning">
+    This is a basic example for demonstration purposes only. It's the developer's responsibility to implement proper authentication, authorization, validation, error handling, rate limiting, and other best practices when working with APIs.
+</Aside>
+
+<Aside variant="warning">
+    [`DummyJSON`](https://dummyjson.com/docs/products#products-update) API will not add it into the server. It will simulate a `POST` request and will return the new created product with a new id.
+</Aside>
+
+If you don't need a modal, you can directly redirect users to a specified URL when they click the create action button. In this case, you can define a static URL pointing to the product creation page:
+
+```php
+use Filament\Actions\Action;
+
+Action::make('create')
+    ->url(route('products.create'))
+```
+
+#### External API edit action example
+
+The edit action in this example provides a [modal form](../actions/modals#rendering-a-form-in-a-modal) for editing product details fetched from an external API. Users can update fields such as the product title and category, and the changes will be sent to the external API using a `PUT` request.
+
+```php
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Http;
+
+public function table(Table $table): Table
+{
+    $baseUrl = 'https://dummyjson.com';
+
+    return $table
+        ->records(fn (): array => Http::baseUrl($baseUrl)
+            ->get('products')
+            ->collect()
+            ->get('products', [])
+        )
+        ->columns([
+            TextColumn::make('title'),
+            TextColumn::make('category'),
+        ])
+        ->actions([
+            Action::make('edit')
+                ->icon(Heroicon::PencilSquare)
+                ->modalHeading('Edit product')
+                ->fillForm(fn (array $record) => $record)
+                ->schema([
+                    TextInput::make('title')
+                        ->required(),
+                    Select::make('category')
+                        ->options(fn (): Collection => Http::get("{$baseUrl}/products/categories")
+                            ->collect()
+                            ->pluck('name', 'slug')
+                        )
+                        ->required(),
+                ])
+                ->action(function (array $data, array $record) use ($baseUrl) {
+                    $response = Http::put("{$baseUrl}/products/{$record['id']}", [
+                        'title' => $data['title'],
+                        'category' => $data['category'],
+                    ]);
+
+                    if ($response->failed()) {
+                        Notification::make()
+                            ->title('Product failed to save')
+                            ->danger()
+                            ->send();
+                            
+                        return;
+                    }
+                    
+                    Notification::make()
+                        ->title('Product save')
+                        ->success()
+                        ->send();
+                }),
+        ]);
+}
+```
+
+- `icon()` defines the icon shown for this action in the table.
+- [`modalHeading()`](../actions/modals#customizing-the-modals-heading-description-and-submit-action-label) sets the title of the modal that appears when the action is triggered.
+- [`fillForm()`](../actions/modals#filling-the-form-with-existing-data) automatically fills the form fields with the existing values of the selected record.
+- [`schema()`](../actions/modals#rendering-a-schema-in-a-modal) defines the form fields displayed in the modal.
+- `action()` defines the logic that will be executed when the user submits the form.
+
+<Aside variant="warning">
+    This is a basic example for demonstration purposes only. It's the developer's responsibility to implement proper authentication, authorization, validation, error handling, rate limiting, and other best practices when working with APIs.
+</Aside>
+
+<Aside variant="warning">
+    [`DummyJSON`](https://dummyjson.com/docs/products#products-update) API will not update it into the server. It will simulate a `PUT`/`PATCH` request and will return updated product with modified data.
+</Aside>
+
+If you don't need a modal, you can directly redirect users to a specified URL when they click the action button. You can achieve this by defining a URL with a dynamic route that includes the `record` parameter:
+
+```php
+use Filament\Actions\Action;
+
+Action::make('edit')
+    ->url(fn (array $record): string => route('products.edit', ['product' => $record['id']]))
+```
+
+#### External API view action example
+
+The view action in this example opens a [modal](../actions/modals) displaying detailed product information fetched from an external API. This allows you to build a user interface with various components such as [text entries](../infolists/text-entry) and [images](../infolists/image-entry).
+
+```php
+use Filament\Actions\Action;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Http;
+
+public function table(Table $table): Table
+{
+    $baseUrl = 'https://dummyjson.com';
+
+    return $table
+        ->records(fn (): array => Http::baseUrl($baseUrl)
+            ->get('products', [
+                'select' => 'id,title,description,brand,category,thumbnail,price',
+            ])
+            ->collect()
+            ->get('products', [])
+        )
+        ->columns([
+            TextColumn::make('title'),
+            TextColumn::make('category'),
+        ])
+        ->actions([
+            Action::make('view')
+                ->color('gray')
+                ->icon(Heroicon::Eye)
+                ->modalHeading('View product')
+                ->schema([
+                    Section::make()
+                        ->schema([
+                            Flex::make([
+                                Grid::make(2)
+                                    ->schema([
+                                        TextEntry::make('title'),
+                                        TextEntry::make('category'),
+                                        TextEntry::make('brand'),
+                                        TextEntry::make('price')
+                                            ->money(),
+                                    ]),
+                                ImageEntry::make('thumbnail')
+                                    ->hiddenLabel()
+                                    ->grow(false),
+                            ])->from('md'),
+                            TextEntry::make('description')
+                                ->prose(),
+                        ]),
+                ])
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Close'),
+        ]);
+}
+```
+
+- `color()` sets the color of the action button.
+- `icon()` defines the icon shown for this action in the table.
+- [`modalHeading()`](../actions/modals#customizing-the-modals-heading-description-and-submit-action-label) sets the title of the modal that appears when the action is triggered.
+- [`schema()`](../actions/modals#rendering-a-schema-in-a-modal) defines the form fields displayed in the modal.
+- [`modalSubmitAction(false)`](../actions/modals#modifying-the-default-modal-footer-action-button) disables the submit button, making this a read-only view action.
+- [`modalCancelActionLabel()`](../actions/modals#modifying-the-default-modal-footer-action-button) customizes the label for the close button.
+
+<Aside variant="warning">
+    This is a basic example for demonstration purposes only. It's the developer's responsibility to implement proper authentication, authorization, validation, error handling, rate limiting, and other best practices when working with APIs.
+</Aside>
+
+<Aside variant="info">
+    The [`select`](https://dummyjson.com/docs/products#products-limit_skip) parameter is used to limit the fields returned by the API. This helps reduce payload size and improves performance when rendering the table.
+</Aside>
+
+If you don't need a modal, you can directly redirect users to a specified URL when they click the action button. You can achieve this by defining a URL with a dynamic route that includes the `record` parameter:
+
+```php
+use Filament\Actions\Action;
+
+Action::make('view')
+    ->url(fn (array $record): string => route('products.view', ['product' => $record['id']]))
+```
+
+#### External API delete action example
+
+The delete action in this example allows users to delete a product fetched from an external API.
+
+```php
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Http;
+
+public function table(Table $table): Table
+{
+    $baseUrl = 'https://dummyjson.com';
+
+    return $table
+        ->records(fn (): array => Http::baseUrl($baseUrl)
+            ->get('products')
+            ->collect()
+            ->get('products', [])
+        )
+        ->columns([
+            TextColumn::make('title'),
+            TextColumn::make('category'),
+            TextColumn::make('price')
+                ->money(),
+        ])
+        ->actions([
+            Action::make('delete')
+                ->color('danger')
+                ->icon(Heroicon::Trash)
+                ->modalIcon(Heroicon::OutlinedTrash)
+                ->modalHeading('Delete Product')
+                ->requiresConfirmation()
+                ->action(function (array $record) use ($baseUrl) {
+                    $response = Http::baseUrl($baseUrl)
+                        ->delete("products/{$record['id']}");
+
+                    if ($response->failed()) {
+                        Notification::make()
+                            ->title('Product failed to delete')
+                            ->danger()
+                            ->send();
+                            
+                        return;
+                    }
+                    
+                    Notification::make()
+                        ->title('Product deleted')
+                        ->success()
+                        ->send();
+                }),
+        ]);
+}
+```
+
+- `color()` sets the color of the action button.
+- `icon()` defines the icon shown for this action in the table.
+- [`modalIcon()`](../actions/modals#adding-an-icon-inside-the-modal) sets the icon that will appear in the confirmation modal.
+- [`modalHeading()`](../actions/modals#customizing-the-modals-heading-description-and-submit-action-label) sets the title of the modal that appears when the action is triggered.
+- [`requiresConfirmation()`](../actions/modals#confirmation-modals) ensures that the user must confirm the deletion before it is executed.
+- `action()` defines the logic that will be executed when the user confirms the submission.
+
+<Aside variant="warning">
+    This is a basic example for demonstration purposes only. It's the developer's responsibility to implement proper authentication, authorization, validation, error handling, rate limiting, and other best practices when working with APIs.
+</Aside>
+
+<Aside variant="warning">
+    [`DummyJSON`](https://dummyjson.com/docs/products#products-update) API will not delete it into the server. It will simulate a `DELETE` request and will return deleted product with `isDeleted` and `deletedOn` keys.
+</Aside>
+
 ### External API full example
 
 This example demonstrates how to combine [sorting](#external-api-sorting), [search](#external-api-searching), [category filtering](#external-api-filtering), and [pagination](#external-api-pagination) when using an external API as the data source. The API used here is [DummyJSON](https://dummyjson.com), which supports these features individually but **does not allow combining all of them in a single request**. This is because each feature uses a different endpoint:
@@ -834,6 +1178,10 @@ public function table(Table $table): Table
         ->searchable();
 }
 ```
+
+<Aside variant="warning">
+    This is a basic example for demonstration purposes only. It's the developer's responsibility to implement proper authentication, authorization, validation, error handling, rate limiting, and other best practices when working with APIs.
+</Aside>
 
 <Aside variant="warning">
     The [DummyJSON](https://dummyjson.com) API does not support combining sorting, search, and category filtering in a single request.

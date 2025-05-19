@@ -8,11 +8,13 @@ use Filament\Support\Components\ViewComponent;
 use Filament\Support\Concerns\CanAggregateRelatedModels;
 use Filament\Support\Concerns\CanGrow;
 use Filament\Support\Concerns\CanSpanColumns;
+use Filament\Support\Concerns\CanWrapHeader;
 use Filament\Support\Concerns\HasAlignment;
 use Filament\Support\Concerns\HasCellState;
 use Filament\Support\Concerns\HasExtraAttributes;
 use Filament\Support\Concerns\HasPlaceholder;
 use Filament\Support\Concerns\HasVerticalAlignment;
+use Filament\Support\Concerns\HasWidth;
 use Filament\Support\Enums\Alignment;
 use Filament\Tables\Columns\Concerns\HasTooltip;
 use Filament\Tables\Table;
@@ -27,6 +29,7 @@ class Column extends ViewComponent
     use CanAggregateRelatedModels;
     use CanGrow;
     use CanSpanColumns;
+    use CanWrapHeader;
     use Concerns\BelongsToGroup;
     use Concerns\BelongsToLayout;
     use Concerns\BelongsToTable;
@@ -39,14 +42,12 @@ class Column extends ViewComponent
     use Concerns\CanBeToggled;
     use Concerns\CanCallAction;
     use Concerns\CanOpenUrl;
-    use Concerns\CanWrapHeader;
     use Concerns\HasExtraCellAttributes;
     use Concerns\HasExtraHeaderAttributes;
     use Concerns\HasLabel;
     use Concerns\HasName;
     use Concerns\HasRecord;
     use Concerns\HasRowLoopObject;
-    use Concerns\HasWidth;
     use Concerns\InteractsWithTableQuery;
     use HasAlignment;
     use HasCellState;
@@ -54,6 +55,7 @@ class Column extends ViewComponent
     use HasPlaceholder;
     use HasTooltip;
     use HasVerticalAlignment;
+    use HasWidth;
 
     protected string $evaluationIdentifier = 'column';
 
