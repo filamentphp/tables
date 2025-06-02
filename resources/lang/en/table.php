@@ -145,7 +145,13 @@ return [
         ],
 
         'select' => [
+
             'placeholder' => 'All',
+
+            'relationship' => [
+                'empty_option_label' => 'None',
+            ],
+
         ],
 
         'trashed' => [

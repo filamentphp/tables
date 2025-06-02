@@ -6,6 +6,7 @@ use Closure;
 use Filament\Support\Concerns\CanConfigureCommonMark;
 use Filament\Support\Contracts\HasLabel as LabelInterface;
 use Filament\Support\Enums\ArgumentValue;
+use Filament\Support\Facades\FilamentTimezone;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Carbon;
@@ -438,7 +439,7 @@ trait CanFormatState
 
     public function getTimezone(): string
     {
-        return $this->evaluate($this->timezone) ?? config('app.timezone');
+        return $this->evaluate($this->timezone) ?? ($this->isDateTime() ? FilamentTimezone::get() : config('app.timezone'));
     }
 
     public function isHtml(): bool

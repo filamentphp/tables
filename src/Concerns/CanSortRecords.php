@@ -78,50 +78,51 @@ trait CanSortRecords
             return $query->orderBy($this->getTable()->getReorderColumn());
         }
 
-        if (! $this->tableSortColumn) {
-            return $this->applyDefaultSortingToTableQuery($query);
+        if (
+            $this->tableSortColumn &&
+            $column = $this->getTable()->getSortableVisibleColumn($this->tableSortColumn)
+        ) {
+            $sortDirection = $this->tableSortDirection === 'desc' ? 'desc' : 'asc';
+
+            $column->applySort($query, $sortDirection);
         }
 
-        $column = $this->getTable()->getSortableVisibleColumn($this->tableSortColumn);
-
-        if (! $column) {
-            return $this->applyDefaultSortingToTableQuery($query);
-        }
-
-        $sortDirection = $this->tableSortDirection === 'desc' ? 'desc' : 'asc';
-
-        $column->applySort($query, $sortDirection);
-
-        return $query;
-    }
-
-    protected function applyDefaultSortingToTableQuery(Builder $query): Builder
-    {
         $sortDirection = ($this->getTable()->getDefaultSortDirection() ?? $this->tableSortDirection) === 'desc' ? 'desc' : 'asc';
         $defaultSort = $this->getTable()->getDefaultSort($query, $sortDirection);
 
         if (
             is_string($defaultSort) &&
+            ($defaultSort !== $this->tableSortColumn) &&
             ($sortColumn = $this->getTable()->getSortableVisibleColumn($defaultSort))
         ) {
             $sortColumn->applySort($query, $sortDirection);
-
-            return $query;
-        }
-
-        if (is_string($defaultSort)) {
-            return $query->orderBy($defaultSort, $sortDirection);
+        } elseif (is_string($defaultSort)) {
+            $query->orderBy($defaultSort, $sortDirection);
         }
 
         if ($defaultSort instanceof Builder) {
-            return $defaultSort;
+            $query = $defaultSort;
         }
 
-        if (filled($query->toBase()->orders)) {
-            return $query;
+        $qualifiedKeyName = $query->getModel()->getQualifiedKeyName();
+
+        foreach ($query->getQuery()->orders ?? [] as $order) {
+            if (($order['column'] ?? null) === $qualifiedKeyName) {
+                return $query;
+            }
+
+            if (
+                is_string($order['column'] ?? null) &&
+                str($order['column'] ?? null)->contains('.') &&
+                str($order['column'] ?? null)->afterLast('.')->is(
+                    str($qualifiedKeyName)->afterLast('.')
+                )
+            ) {
+                return $query;
+            }
         }
 
-        return $query->orderBy($query->getModel()->getQualifiedKeyName());
+        return $query->orderBy($qualifiedKeyName);
     }
 
     /**

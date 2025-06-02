@@ -22,11 +22,16 @@ trait HasRelationship
 
     protected string | Closure | null $relationshipTitleAttribute = null;
 
-    public function relationship(string | Closure | null $name, string | Closure | null $titleAttribute, ?Closure $modifyQueryUsing = null): static
+    protected bool | Closure $hasEmptyRelationshipOption = false;
+
+    protected string | Closure | null $emptyRelationshipOptionLabel = null;
+
+    public function relationship(string | Closure | null $name, string | Closure | null $titleAttribute, ?Closure $modifyQueryUsing = null, bool | Closure $hasEmptyOption = false): static
     {
         $this->relationship = $name;
         $this->relationshipTitleAttribute = $titleAttribute;
         $this->modifyRelationshipQueryUsing = $modifyQueryUsing;
+        $this->hasEmptyRelationshipOption = $hasEmptyOption;
 
         return $this;
     }
@@ -134,5 +139,22 @@ trait HasRelationship
         }
 
         return null;
+    }
+
+    public function hasEmptyRelationshipOption(): bool
+    {
+        return (bool) $this->evaluate($this->hasEmptyRelationshipOption);
+    }
+
+    public function emptyRelationshipOptionLabel(string | Closure | null $label): static
+    {
+        $this->emptyRelationshipOptionLabel = $label;
+
+        return $this;
+    }
+
+    public function getEmptyRelationshipOptionLabel(): string
+    {
+        return $this->evaluate($this->emptyRelationshipOptionLabel) ?? __('filament-tables::table.filters.select.relationship.empty_option_label');
     }
 }

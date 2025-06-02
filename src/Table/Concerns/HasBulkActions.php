@@ -31,6 +31,14 @@ trait HasBulkActions
 
     protected bool | Closure | null $isSelectable = null;
 
+    protected bool | Closure $canTrackDeselectedRecords = true;
+
+    protected string | Closure | null $currentSelectionLivewireProperty = null;
+
+    protected bool | Closure $canSelectMultipleRecords = true;
+
+    protected bool | Closure $isSelectionDisabled = false;
+
     /**
      * @param  array<BulkAction | ActionGroup> | ActionGroup  $actions
      */
@@ -221,5 +229,53 @@ trait HasBulkActions
     public function getRecordCheckboxPosition(): RecordCheckboxPosition
     {
         return $this->evaluate($this->recordCheckboxPosition) ?? RecordCheckboxPosition::BeforeCells;
+    }
+
+    public function trackDeselectedRecords(bool | Closure $condition = true): static
+    {
+        $this->canTrackDeselectedRecords = $condition;
+
+        return $this;
+    }
+
+    public function canTrackDeselectedRecords(): bool
+    {
+        return (bool) $this->evaluate($this->canTrackDeselectedRecords);
+    }
+
+    public function currentSelectionLivewireProperty(string | Closure | null $property): static
+    {
+        $this->currentSelectionLivewireProperty = $property;
+
+        return $this;
+    }
+
+    public function getCurrentSelectionLivewireProperty(): ?string
+    {
+        return $this->evaluate($this->currentSelectionLivewireProperty);
+    }
+
+    public function multipleRecordsSelectable(bool | Closure $condition = true): static
+    {
+        $this->canSelectMultipleRecords = $condition;
+
+        return $this;
+    }
+
+    public function canSelectMultipleRecords(): bool
+    {
+        return (bool) $this->evaluate($this->canSelectMultipleRecords);
+    }
+
+    public function disabledSelection(bool | Closure $condition = true): static
+    {
+        $this->isSelectionDisabled = $condition;
+
+        return $this;
+    }
+
+    public function isSelectionDisabled(): bool
+    {
+        return (bool) $this->evaluate($this->isSelectionDisabled);
     }
 }

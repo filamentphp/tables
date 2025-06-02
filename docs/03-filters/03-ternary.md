@@ -71,9 +71,9 @@ TernaryFilter::make('email_verified_at')
     )
 ```
 
-## Filtering soft deletable records
+## Filtering soft-deletable records
 
-The `TrashedFilter` can be used to filter soft deleted records. It is a type of ternary filter that is built-in to Filament. You can use it like so:
+The `TrashedFilter` can be used to filter soft-deleted records. It is a type of ternary filter that is built-in to Filament. You can use it like so:
 
 ```php
 use Filament\Tables\Filters\TrashedFilter;

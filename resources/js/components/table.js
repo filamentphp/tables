@@ -1,281 +1,313 @@
-export default function table() {
-    return {
-        checkboxClickController: null,
+export default ({
+    canSelectMultipleRecords,
+    canTrackDeselectedRecords,
+    currentSelectionLivewireProperty,
+    $wire,
+}) => ({
+    checkboxClickController: null,
 
-        collapsedGroups: [],
+    collapsedGroups: [],
 
-        isLoading: false,
+    isLoading: false,
 
-        selectedRecords: new Set(),
+    selectedRecords: new Set(),
 
-        deselectedRecords: new Set(),
+    deselectedRecords: new Set(),
 
-        isTrackingDeselectedRecords: false,
+    isTrackingDeselectedRecords: false,
 
-        shouldCheckUniqueSelection: true,
+    shouldCheckUniqueSelection: true,
 
-        lastCheckedRecord: null,
+    lastCheckedRecord: null,
 
-        livewireId: null,
+    livewireId: null,
 
-        init: function () {
-            this.livewireId =
-                this.$root.closest('[wire\\:id]').attributes['wire:id'].value
+    entangledSelectedRecords: currentSelectionLivewireProperty
+        ? $wire.$entangle(currentSelectionLivewireProperty)
+        : null,
 
-            this.$wire.$on('deselectAllTableRecords', () =>
-                this.deselectAllRecords(),
+    init: function () {
+        this.livewireId =
+            this.$root.closest('[wire\\:id]').attributes['wire:id'].value
+
+        $wire.$on('deselectAllTableRecords', () => this.deselectAllRecords())
+
+        if (currentSelectionLivewireProperty) {
+            if (canSelectMultipleRecords) {
+                this.selectedRecords = new Set(this.entangledSelectedRecords)
+            } else {
+                this.selectedRecords = new Set(
+                    this.entangledSelectedRecords
+                        ? [this.entangledSelectedRecords]
+                        : [],
+                )
+            }
+        }
+
+        this.$nextTick(() => this.watchForCheckboxClicks())
+
+        Livewire.hook('element.init', ({ component }) => {
+            if (component.id === this.livewireId) {
+                this.watchForCheckboxClicks()
+            }
+        })
+    },
+
+    mountAction: function (...args) {
+        $wire.set(
+            'isTrackingDeselectedTableRecords',
+            this.isTrackingDeselectedRecords,
+            false,
+        )
+        $wire.set('selectedTableRecords', [...this.selectedRecords], false)
+        $wire.set('deselectedTableRecords', [...this.deselectedRecords], false)
+
+        $wire.mountAction(...args)
+    },
+
+    toggleSelectRecordsOnPage: function () {
+        const keys = this.getRecordsOnPage()
+
+        if (this.areRecordsSelected(keys)) {
+            this.deselectRecords(keys)
+
+            return
+        }
+
+        this.selectRecords(keys)
+    },
+
+    toggleSelectRecordsInGroup: async function (group) {
+        this.isLoading = true
+
+        if (this.areRecordsSelected(this.getRecordsInGroupOnPage(group))) {
+            this.deselectRecords(
+                await $wire.getGroupedSelectableTableRecordKeys(group),
             )
 
-            this.$watch('selectedRecords', () => {
-                if (!this.shouldCheckUniqueSelection) {
-                    this.shouldCheckUniqueSelection = true
+            return
+        }
 
-                    return
-                }
+        this.selectRecords(
+            await $wire.getGroupedSelectableTableRecordKeys(group),
+        )
 
-                this.shouldCheckUniqueSelection = false
-            })
+        this.isLoading = false
+    },
 
-            this.$nextTick(() => this.watchForCheckboxClicks())
+    getRecordsInGroupOnPage: function (group) {
+        const keys = []
 
-            Livewire.hook('element.init', ({ component }) => {
-                if (component.id === this.livewireId) {
-                    this.watchForCheckboxClicks()
-                }
-            })
-        },
-
-        mountAction: function (...args) {
-            this.$wire.set(
-                'isTrackingDeselectedTableRecords',
-                this.isTrackingDeselectedRecords,
-                false,
-            )
-            this.$wire.set(
-                'selectedTableRecords',
-                [...this.selectedRecords],
-                false,
-            )
-            this.$wire.set(
-                'deselectedTableRecords',
-                [...this.deselectedRecords],
-                false,
-            )
-
-            this.$wire.mountAction(...args)
-        },
-
-        toggleSelectRecordsOnPage: function () {
-            const keys = this.getRecordsOnPage()
-
-            if (this.areRecordsSelected(keys)) {
-                this.deselectRecords(keys)
-
-                return
+        for (let checkbox of this.$root?.getElementsByClassName(
+            'fi-ta-record-checkbox',
+        ) ?? []) {
+            if (checkbox.dataset.group !== group) {
+                continue
             }
 
-            this.selectRecords(keys)
-        },
+            keys.push(checkbox.value)
+        }
 
-        toggleSelectRecordsInGroup: async function (group) {
+        return keys
+    },
+
+    getSelectedRecordsCount: function () {
+        if (this.isTrackingDeselectedRecords) {
+            return (
+                (this.$refs.allSelectableRecordsCount?.value ??
+                    this.deselectedRecords.size) - this.deselectedRecords.size
+            )
+        }
+
+        return this.selectedRecords.size
+    },
+
+    getRecordsOnPage: function () {
+        const keys = []
+
+        for (let checkbox of this.$root?.getElementsByClassName(
+            'fi-ta-record-checkbox',
+        ) ?? []) {
+            keys.push(checkbox.value)
+        }
+
+        return keys
+    },
+
+    selectRecords: function (keys) {
+        if (!canSelectMultipleRecords) {
+            this.deselectAllRecords()
+
+            keys = keys.slice(0, 1)
+        }
+
+        for (let key of keys) {
+            if (this.isRecordSelected(key)) {
+                continue
+            }
+
+            if (this.isTrackingDeselectedRecords) {
+                this.deselectedRecords.delete(key)
+
+                continue
+            }
+
+            this.selectedRecords.add(key)
+        }
+
+        this.updatedSelectedRecords()
+    },
+
+    deselectRecords: function (keys) {
+        for (let key of keys) {
+            if (this.isTrackingDeselectedRecords) {
+                this.deselectedRecords.add(key)
+
+                continue
+            }
+
+            this.selectedRecords.delete(key)
+        }
+
+        this.updatedSelectedRecords()
+    },
+
+    updatedSelectedRecords: function () {
+        if (canSelectMultipleRecords) {
+            this.entangledSelectedRecords = [...this.selectedRecords]
+
+            return
+        }
+
+        this.entangledSelectedRecords = [...this.selectedRecords][0] ?? null
+    },
+
+    toggleSelectedRecord: function (key) {
+        if (this.isRecordSelected(key)) {
+            this.deselectRecords([key])
+
+            return
+        }
+
+        this.selectRecords([key])
+    },
+
+    selectAllRecords: async function () {
+        if (!canTrackDeselectedRecords) {
             this.isLoading = true
 
-            if (this.areRecordsSelected(this.getRecordsInGroupOnPage(group))) {
-                this.deselectRecords(
-                    await this.$wire.getGroupedSelectableTableRecordKeys(group),
-                )
-
-                return
-            }
-
-            this.selectRecords(
-                await this.$wire.getGroupedSelectableTableRecordKeys(group),
+            this.selectedRecords = new Set(
+                await $wire.getAllSelectableTableRecordKeys(),
             )
+
+            this.updatedSelectedRecords()
 
             this.isLoading = false
-        },
 
-        getRecordsInGroupOnPage: function (group) {
-            const keys = []
+            return
+        }
 
-            for (let checkbox of this.$root?.getElementsByClassName(
-                'fi-ta-record-checkbox',
-            ) ?? []) {
-                if (checkbox.dataset.group !== group) {
-                    continue
-                }
+        this.isTrackingDeselectedRecords = true
+        this.selectedRecords = new Set()
+        this.deselectedRecords = new Set()
 
-                keys.push(checkbox.value)
-            }
+        this.updatedSelectedRecords()
+    },
 
-            return keys
-        },
+    deselectAllRecords: function () {
+        this.isTrackingDeselectedRecords = false
+        this.selectedRecords = new Set()
+        this.deselectedRecords = new Set()
 
-        getSelectedRecordsCount: function () {
-            if (this.isTrackingDeselectedRecords) {
-                return (
-                    (this.$refs.allSelectableRecordsCount?.value ??
-                        this.deselectedRecords.size) -
-                    this.deselectedRecords.size
-                )
-            }
+        this.updatedSelectedRecords()
+    },
 
-            return this.selectedRecords.size
-        },
+    isRecordSelected: function (key) {
+        if (this.isTrackingDeselectedRecords) {
+            return !this.deselectedRecords.has(key)
+        }
 
-        getRecordsOnPage: function () {
-            const keys = []
+        return this.selectedRecords.has(key)
+    },
 
-            for (let checkbox of this.$root?.getElementsByClassName(
-                'fi-ta-record-checkbox',
-            ) ?? []) {
-                keys.push(checkbox.value)
-            }
+    areRecordsSelected: function (keys) {
+        return keys.every((key) => this.isRecordSelected(key))
+    },
 
-            return keys
-        },
+    toggleCollapseGroup: function (group) {
+        if (this.isGroupCollapsed(group)) {
+            this.collapsedGroups.splice(this.collapsedGroups.indexOf(group), 1)
 
-        selectRecords: function (keys) {
-            for (let key of keys) {
-                if (this.isRecordSelected(key)) {
-                    continue
-                }
+            return
+        }
 
-                if (this.isTrackingDeselectedRecords) {
-                    this.deselectedRecords.delete(key)
+        this.collapsedGroups.push(group)
+    },
 
-                    continue
-                }
+    isGroupCollapsed: function (group) {
+        return this.collapsedGroups.includes(group)
+    },
 
-                this.selectedRecords.add(key)
-            }
-        },
+    resetCollapsedGroups: function () {
+        this.collapsedGroups = []
+    },
 
-        deselectRecords: function (keys) {
-            for (let key of keys) {
-                if (this.isTrackingDeselectedRecords) {
-                    this.deselectedRecords.add(key)
+    watchForCheckboxClicks: function () {
+        if (this.checkboxClickController) {
+            this.checkboxClickController.abort()
+        }
 
-                    continue
-                }
+        this.checkboxClickController = new AbortController()
 
-                this.selectedRecords.delete(key)
-            }
-        },
+        const { signal } = this.checkboxClickController
 
-        toggleSelectedRecord: function (key) {
-            if (this.isRecordSelected(key)) {
-                this.deselectRecords([key])
+        this.$root?.addEventListener(
+            'click',
+            (event) =>
+                event.target?.matches('.fi-ta-record-checkbox') &&
+                this.handleCheckboxClick(event, event.target),
+            { signal },
+        )
+    },
 
-                return
-            }
+    handleCheckboxClick: function (event, checkbox) {
+        if (!this.lastChecked) {
+            this.lastChecked = checkbox
 
-            this.selectRecords([key])
-        },
+            return
+        }
 
-        selectAllRecords: async function () {
-            this.isTrackingDeselectedRecords = true
-            this.selectedRecords = new Set()
-            this.deselectedRecords = new Set()
-        },
-
-        deselectAllRecords: function () {
-            this.isTrackingDeselectedRecords = false
-            this.selectedRecords = new Set()
-            this.deselectedRecords = new Set()
-        },
-
-        isRecordSelected: function (key) {
-            if (this.isTrackingDeselectedRecords) {
-                return !this.deselectedRecords.has(key)
-            }
-
-            return this.selectedRecords.has(key)
-        },
-
-        areRecordsSelected: function (keys) {
-            return keys.every((key) => this.isRecordSelected(key))
-        },
-
-        toggleCollapseGroup: function (group) {
-            if (this.isGroupCollapsed(group)) {
-                this.collapsedGroups.splice(
-                    this.collapsedGroups.indexOf(group),
-                    1,
-                )
-
-                return
-            }
-
-            this.collapsedGroups.push(group)
-        },
-
-        isGroupCollapsed: function (group) {
-            return this.collapsedGroups.includes(group)
-        },
-
-        resetCollapsedGroups: function () {
-            this.collapsedGroups = []
-        },
-
-        watchForCheckboxClicks: function () {
-            if (this.checkboxClickController) {
-                this.checkboxClickController.abort()
-            }
-
-            this.checkboxClickController = new AbortController()
-
-            const { signal } = this.checkboxClickController
-
-            this.$root?.addEventListener(
-                'click',
-                (event) =>
-                    event.target?.matches('.fi-ta-record-checkbox') &&
-                    this.handleCheckboxClick(event, event.target),
-                { signal },
+        if (event.shiftKey) {
+            let checkboxes = Array.from(
+                this.$root?.getElementsByClassName('fi-ta-record-checkbox') ??
+                    [],
             )
-        },
 
-        handleCheckboxClick: function (event, checkbox) {
-            if (!this.lastChecked) {
+            if (!checkboxes.includes(this.lastChecked)) {
                 this.lastChecked = checkbox
 
                 return
             }
 
-            if (event.shiftKey) {
-                let checkboxes = Array.from(
-                    this.$root?.getElementsByClassName(
-                        'fi-ta-record-checkbox',
-                    ) ?? [],
-                )
+            let start = checkboxes.indexOf(this.lastChecked)
+            let end = checkboxes.indexOf(checkbox)
 
-                if (!checkboxes.includes(this.lastChecked)) {
-                    this.lastChecked = checkbox
+            let range = [start, end].sort((a, b) => a - b)
+            let values = []
 
-                    return
-                }
+            for (let i = range[0]; i <= range[1]; i++) {
+                checkboxes[i].checked = checkbox.checked
 
-                let start = checkboxes.indexOf(this.lastChecked)
-                let end = checkboxes.indexOf(checkbox)
-
-                let range = [start, end].sort((a, b) => a - b)
-                let values = []
-
-                for (let i = range[0]; i <= range[1]; i++) {
-                    checkboxes[i].checked = checkbox.checked
-
-                    values.push(checkboxes[i].value)
-                }
-
-                if (checkbox.checked) {
-                    this.selectRecords(values)
-                } else {
-                    this.deselectRecords(values)
-                }
+                values.push(checkboxes[i].value)
             }
 
-            this.lastChecked = checkbox
-        },
-    }
-}
+            if (checkbox.checked) {
+                this.selectRecords(values)
+            } else {
+                this.deselectRecords(values)
+            }
+        }
+
+        this.lastChecked = checkbox
+    },
+})

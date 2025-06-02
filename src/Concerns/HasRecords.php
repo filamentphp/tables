@@ -41,11 +41,7 @@ trait HasRecords
 
         $this->applySearchToTableQuery($query);
 
-        foreach ($this->getTable()->getColumns() as $column) {
-            if ($column->isHidden()) {
-                continue;
-            }
-
+        foreach ($this->getTable()->getVisibleColumns() as $column) {
             $column->applyRelationshipAggregates($query);
 
             if ($this->getTable()->isGroupsOnly()) {

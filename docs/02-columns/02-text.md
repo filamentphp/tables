@@ -266,6 +266,23 @@ TextColumn::make('created_at')
 
 <UtilityInjection set="tableColumns" version="4.x">As well as allowing static values, the `timezone()` method also accepts a function to dynamically calculate the timezone. You can inject various utilities into the function as parameters.</UtilityInjection>
 
+If you do not pass a `timezone()` to the column, it will use Filament's default timezone. You can set Filament's default timezone using the `FilamentTimezone::set()` method in the `boot()` method of a service provider such as `AppServiceProvider`:
+
+```php
+use Filament\Support\Facades\FilamentTimezone;
+
+public function boot(): void
+{
+    FilamentTimezone::set('America/New_York');
+}
+```
+
+This is useful if you want to set a default timezone for all text columns in your application. It is also used in other places where timezones are used in Filament.
+
+<Aside variant="warning">
+    Filament's default timezone will only apply when the column stores a time. If the column stores a date only (`date()` instead of `dateTime()`), the timezone will not be applied. This is to prevent timezone shifts when storing dates without times.
+</Aside>
+
 ### Number formatting
 
 Instead of passing a function to `formatStateUsing()`, you can use the `numeric()` method to format a column as a number:

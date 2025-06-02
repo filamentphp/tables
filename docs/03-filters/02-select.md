@@ -81,6 +81,27 @@ SelectFilter::make('author')
     ->preload()
 ```
 
+### Filtering empty relationships
+
+By default, upon selecting an option, all records that have an empty relationship will be excluded from the results. If you want to introduce an additional "None" option for the user to select, which will include all records that do not have a relationship, you can use the `hasEmptyOption()` argument of the `relationship()` method:
+
+```php
+use Filament\Tables\Filters\SelectFilter;
+
+SelectFilter::make('author')
+    ->relationship('author', 'name', hasEmptyOption: true)
+```
+
+You can rename the "None" option using the `emptyRelationshipOptionLabel()` method:
+
+```php
+use Filament\Tables\Filters\SelectFilter;
+
+SelectFilter::make('author')
+    ->relationship('author', 'name', hasEmptyOption: true)
+    ->emptyRelationshipOptionLabel('No author')
+```
+
 ### Customizing the select filter relationship query
 
 You may customize the database query that retrieves options using the third parameter of the `relationship()` method:
