@@ -640,7 +640,7 @@
                                         @if ($recordHasActions)
                                             <x-filament-tables::actions
                                                 :actions="$actions"
-                                                :alignment="(! $contentGrid) ? 'start md:end' : Alignment::Start"
+                                                :alignment="(! $contentGrid) ? 'start md:end' : $actionsAlignment ?? Alignment::Start"
                                                 :record="$record"
                                                 wrap="-sm"
                                                 :class="$recordActionsClasses"
