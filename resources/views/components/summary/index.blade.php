@@ -15,7 +15,7 @@
 @php
     use Filament\Support\Enums\Alignment;
     use Filament\Tables\Columns\Column;
-    use Filament\Tables\Enums\ActionsPosition;
+    use Filament\Tables\Enums\RecordActionsPosition;
     use Filament\Tables\Enums\RecordCheckboxPosition;
 
     if ($groupsOnly && $groupColumn) {
@@ -29,7 +29,7 @@
 
 @if ($hasPageSummary)
     <tr class="fi-ta-row fi-ta-summary-header-row fi-striped">
-        @if ($placeholderColumns && $actions && in_array($actionsPosition, [ActionsPosition::BeforeCells, ActionsPosition::BeforeColumns]))
+        @if ($placeholderColumns && $actions && in_array($actionsPosition, [RecordActionsPosition::BeforeCells, RecordActionsPosition::BeforeColumns]))
             <td></td>
         @endif
 
@@ -73,7 +73,7 @@
             @endif
         @endforeach
 
-        @if ($placeholderColumns && $actions && in_array($actionsPosition, [ActionsPosition::AfterColumns, ActionsPosition::AfterCells]))
+        @if ($placeholderColumns && $actions && in_array($actionsPosition, [RecordActionsPosition::AfterColumns, RecordActionsPosition::AfterCells]))
             <td></td>
         @endif
 

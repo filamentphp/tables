@@ -32,10 +32,10 @@ trait CanGenerateModelTables
                 ->headerActions([
                     //
                 ])
-                ->actions([
+                ->recordActions([
                     //
                 ])
-                ->bulkActions([
+                ->toolbarActions([
                     {$this->simplifyFqn(BulkActionGroup::class)}::make([
                         //
                     ]),

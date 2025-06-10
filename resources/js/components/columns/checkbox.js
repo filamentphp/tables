@@ -6,7 +6,7 @@ export default function checkboxTableColumn({ name, recordKey, state }) {
 
         state,
 
-        init: function () {
+        init() {
             Livewire.hook(
                 'commit',
                 ({ component, commit, succeed, fail, respond }) => {
@@ -68,7 +68,7 @@ export default function checkboxTableColumn({ name, recordKey, state }) {
             })
         },
 
-        getServerState: function () {
+        getServerState() {
             if (!this.$refs.serverState) {
                 return undefined
             }

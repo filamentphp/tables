@@ -5,13 +5,13 @@ import AutoScreenshot from "@components/AutoScreenshot.astro"
 
 ## Introduction
 
-Filament's tables can use [Actions](../actions). They are buttons that can be added to the [end of any table row](#row-actions), or even in the [header](#header-actions) of a table. For instance, you may want an action to "create" a new record in the header, and then "edit" and "delete" actions on each row. [Bulk actions](#bulk-actions) can be used to execute code when records in the table are selected. Additionally, actions can be added to any [table column](#column-actions), such that each cell in that column is a trigger for your action.
+Filament's tables can use [Actions](../actions). They are buttons that can be added to the [end of any table row](#record-actions), or even in the [header](#header-actions) or [toolbar](#toolbar-actions) of a table. For instance, you may want an action to "create" a new record in the header, and then "edit" and "delete" actions on each row. [Bulk actions](#bulk-actions) can be used to execute code when records in the table are selected. Additionally, actions can be added to any [table column](#column-actions), such that each cell in that column is a trigger for your action.
 
 It's highly advised that you read the documentation about [customizing action trigger buttons](../actions/overview) and [action modals](../actions/modals) to that you are aware of the full capabilities of actions.
 
-## Row actions
+## Record actions
 
-Action buttons can be rendered at the end of each table row. You can put them in the `$table->actions()` method:
+Action buttons can be rendered at the end of each table row. You can put them in the `$table->recordActions()` method:
 
 ```php
 use Filament\Tables\Table;
@@ -19,7 +19,7 @@ use Filament\Tables\Table;
 public function table(Table $table): Table
 {
     return $table
-        ->actions([
+        ->recordActions([
             // ...
         ]);
 }
@@ -46,39 +46,39 @@ All methods on the action accept callback functions, where you can access the cu
 
 <AutoScreenshot name="tables/actions/simple" alt="Table with actions" version="4.x" />
 
-### Positioning row actions before columns
+### Positioning record actions before columns
 
-By default, the row actions in your table are rendered in the final cell of each row. You may move them before the columns by using the `position` argument:
+By default, the record actions in your table are rendered in the final cell of each row. You may move them before the columns by using the `position` argument:
 
 ```php
-use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 public function table(Table $table): Table
 {
     return $table
-        ->actions([
+        ->recordActions([
             // ...
-        ], position: ActionsPosition::BeforeColumns);
+        ], position: RecordActionsPosition::BeforeColumns);
 }
 ```
 
 <AutoScreenshot name="tables/actions/before-columns" alt="Table with actions before columns" version="4.x" />
 
-### Positioning row actions before the checkbox column
+### Positioning record actions before the checkbox column
 
-By default, the row actions in your table are rendered in the final cell of each row. You may move them before the checkbox column by using the `position` argument:
+By default, the record actions in your table are rendered in the final cell of each row. You may move them before the checkbox column by using the `position` argument:
 
 ```php
-use Filament\Tables\Enums\ActionsPosition;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 public function table(Table $table): Table
 {
     return $table
-        ->actions([
+        ->recordActions([
             // ...
-        ], position: ActionsPosition::BeforeCells);
+        ], position: RecordActionsPosition::BeforeCells);
 }
 ```
 
@@ -100,7 +100,7 @@ public function table(Table $table): Table
 {
     return $table
         ->selectable()
-        ->actions([
+        ->recordActions([
             Action::make('copyToSelected')
                 ->accessSelectedRecords()
                 ->action(function (Model $record, Collection $selectedRecords) {
@@ -116,7 +116,7 @@ public function table(Table $table): Table
 
 ## Bulk actions
 
-Tables also support "bulk actions". These can be used when the user selects rows in the table. Traditionally, when rows are selected, a "bulk actions" button appears in the top left corner of the table. When the user clicks this button, they are presented with a dropdown menu of actions to choose from. You can put them in the `$table->bulkActions()` method:
+Tables also support "bulk actions". These can be used when the user selects rows in the table. Traditionally, when rows are selected, a "bulk actions" button appears. When the user clicks this button, they are presented with a dropdown menu of actions to choose from. You can put them in the `$table->toolbarActions()` or `$table->headerActions()` methods:
 
 ```php
 use Filament\Tables\Table;
@@ -124,7 +124,7 @@ use Filament\Tables\Table;
 public function table(Table $table): Table
 {
     return $table
-        ->bulkActions([
+        ->toolbarActions([
             // ...
         ]);
 }
@@ -283,7 +283,7 @@ use Filament\Tables\Table;
 public function table(Table $table): Table
 {
     return $table
-        ->bulkActions([
+        ->toolbarActions([
             BulkActionGroup::make([
                 BulkAction::make('delete')
                     ->requiresConfirmation()
@@ -341,7 +341,7 @@ use Illuminate\Database\Eloquent\Model;
 public function table(Table $table): Table
 {
     return $table
-        ->bulkActions([
+        ->toolbarActions([
             // ...
         ])
         ->checkIfRecordIsSelectableUsing(
@@ -360,7 +360,7 @@ use Filament\Tables\Table;
 public function table(Table $table): Table
 {
     return $table
-        ->bulkActions([
+        ->toolbarActions([
             // ...
         ])
         ->selectCurrentPageOnly();
@@ -401,7 +401,7 @@ BulkAction::make()
 
 ## Header actions
 
-Both [row actions](#row-actions) and [bulk actions](#bulk-actions) can be rendered in the header of the table. You can put them in the `$table->headerActions()` method:
+Both actions and [bulk actions](#bulk-actions) can be rendered in the header of the table. You can put them in the `$table->headerActions()` method:
 
 ```php
 use Filament\Tables\Table;
@@ -418,6 +418,26 @@ public function table(Table $table): Table
 This is useful for things like "create" actions, which are not related to any specific table row, or bulk actions that need to be more visible.
 
 <AutoScreenshot name="tables/actions/header" alt="Table with header actions" version="4.x" />
+
+## Toolbar actions
+
+Both actions and [bulk actions](#bulk-actions) can be rendered in the toolbar of the table. You can put them in the `$table->toolbarActions()` method:
+
+```php
+use Filament\Tables\Table;
+
+public function table(Table $table): Table
+{
+    return $table
+        ->toolbarActions([
+            // ...
+        ]);
+}
+```
+
+This is useful for things like "create" actions, which are not related to any specific table row, or bulk actions that need to be more visible.
+
+<AutoScreenshot name="tables/actions/toolbar" alt="Table with toolbar actions" version="4.x" />
 
 ## Column actions
 
@@ -437,7 +457,7 @@ use Filament\Tables\Table;
 public function table(Table $table): Table
 {
     return $table
-        ->actions([
+        ->recordActions([
             ActionGroup::make([
                 ViewAction::make(),
                 EditAction::make(),

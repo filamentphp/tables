@@ -6,7 +6,7 @@ export default function textInputTableColumn({ name, recordKey, state }) {
 
         state,
 
-        init: function () {
+        init() {
             Livewire.hook(
                 'commit',
                 ({ component, commit, succeed, fail, respond }) => {
@@ -68,7 +68,7 @@ export default function textInputTableColumn({ name, recordKey, state }) {
             })
         },
 
-        getServerState: function () {
+        getServerState() {
             if (!this.$refs.serverState) {
                 return undefined
             }
@@ -81,7 +81,7 @@ export default function textInputTableColumn({ name, recordKey, state }) {
                   )
         },
 
-        getNormalizedState: function () {
+        getNormalizedState() {
             const state = Alpine.raw(this.state)
 
             if ([null, undefined].includes(state)) {

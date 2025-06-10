@@ -26,7 +26,7 @@ export default ({
         ? $wire.$entangle(currentSelectionLivewireProperty)
         : null,
 
-    init: function () {
+    init() {
         this.livewireId =
             this.$root.closest('[wire\\:id]').attributes['wire:id'].value
 
@@ -53,7 +53,7 @@ export default ({
         })
     },
 
-    mountAction: function (...args) {
+    mountAction(...args) {
         $wire.set(
             'isTrackingDeselectedTableRecords',
             this.isTrackingDeselectedRecords,
@@ -65,7 +65,7 @@ export default ({
         $wire.mountAction(...args)
     },
 
-    toggleSelectRecordsOnPage: function () {
+    toggleSelectRecordsOnPage() {
         const keys = this.getRecordsOnPage()
 
         if (this.areRecordsSelected(keys)) {
@@ -77,7 +77,7 @@ export default ({
         this.selectRecords(keys)
     },
 
-    toggleSelectRecordsInGroup: async function (group) {
+    async toggleSelectRecordsInGroup(group) {
         this.isLoading = true
 
         if (this.areRecordsSelected(this.getRecordsInGroupOnPage(group))) {
@@ -95,7 +95,7 @@ export default ({
         this.isLoading = false
     },
 
-    getRecordsInGroupOnPage: function (group) {
+    getRecordsInGroupOnPage(group) {
         const keys = []
 
         for (let checkbox of this.$root?.getElementsByClassName(
@@ -111,7 +111,7 @@ export default ({
         return keys
     },
 
-    getSelectedRecordsCount: function () {
+    getSelectedRecordsCount() {
         if (this.isTrackingDeselectedRecords) {
             return (
                 (this.$refs.allSelectableRecordsCount?.value ??
@@ -122,7 +122,7 @@ export default ({
         return this.selectedRecords.size
     },
 
-    getRecordsOnPage: function () {
+    getRecordsOnPage() {
         const keys = []
 
         for (let checkbox of this.$root?.getElementsByClassName(
@@ -134,7 +134,7 @@ export default ({
         return keys
     },
 
-    selectRecords: function (keys) {
+    selectRecords(keys) {
         if (!canSelectMultipleRecords) {
             this.deselectAllRecords()
 
@@ -158,7 +158,7 @@ export default ({
         this.updatedSelectedRecords()
     },
 
-    deselectRecords: function (keys) {
+    deselectRecords(keys) {
         for (let key of keys) {
             if (this.isTrackingDeselectedRecords) {
                 this.deselectedRecords.add(key)
@@ -172,7 +172,7 @@ export default ({
         this.updatedSelectedRecords()
     },
 
-    updatedSelectedRecords: function () {
+    updatedSelectedRecords() {
         if (canSelectMultipleRecords) {
             this.entangledSelectedRecords = [...this.selectedRecords]
 
@@ -182,7 +182,7 @@ export default ({
         this.entangledSelectedRecords = [...this.selectedRecords][0] ?? null
     },
 
-    toggleSelectedRecord: function (key) {
+    toggleSelectedRecord(key) {
         if (this.isRecordSelected(key)) {
             this.deselectRecords([key])
 
@@ -192,7 +192,7 @@ export default ({
         this.selectRecords([key])
     },
 
-    selectAllRecords: async function () {
+    async selectAllRecords() {
         if (!canTrackDeselectedRecords) {
             this.isLoading = true
 
@@ -214,7 +214,7 @@ export default ({
         this.updatedSelectedRecords()
     },
 
-    deselectAllRecords: function () {
+    deselectAllRecords() {
         this.isTrackingDeselectedRecords = false
         this.selectedRecords = new Set()
         this.deselectedRecords = new Set()
@@ -222,7 +222,7 @@ export default ({
         this.updatedSelectedRecords()
     },
 
-    isRecordSelected: function (key) {
+    isRecordSelected(key) {
         if (this.isTrackingDeselectedRecords) {
             return !this.deselectedRecords.has(key)
         }
@@ -230,11 +230,11 @@ export default ({
         return this.selectedRecords.has(key)
     },
 
-    areRecordsSelected: function (keys) {
+    areRecordsSelected(keys) {
         return keys.every((key) => this.isRecordSelected(key))
     },
 
-    toggleCollapseGroup: function (group) {
+    toggleCollapseGroup(group) {
         if (this.isGroupCollapsed(group)) {
             this.collapsedGroups.splice(this.collapsedGroups.indexOf(group), 1)
 
@@ -244,15 +244,15 @@ export default ({
         this.collapsedGroups.push(group)
     },
 
-    isGroupCollapsed: function (group) {
+    isGroupCollapsed(group) {
         return this.collapsedGroups.includes(group)
     },
 
-    resetCollapsedGroups: function () {
+    resetCollapsedGroups() {
         this.collapsedGroups = []
     },
 
-    watchForCheckboxClicks: function () {
+    watchForCheckboxClicks() {
         if (this.checkboxClickController) {
             this.checkboxClickController.abort()
         }
@@ -270,7 +270,7 @@ export default ({
         )
     },
 
-    handleCheckboxClick: function (event, checkbox) {
+    handleCheckboxClick(event, checkbox) {
         if (!this.lastChecked) {
             this.lastChecked = checkbox
 

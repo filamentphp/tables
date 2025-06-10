@@ -33,9 +33,11 @@ class Table extends ViewComponent
     use Table\Concerns\HasQuery;
     use Table\Concerns\HasQueryStringIdentifier;
     use Table\Concerns\HasRecordAction;
+    use Table\Concerns\HasRecordActions;
     use Table\Concerns\HasRecordClasses;
     use Table\Concerns\HasRecords;
     use Table\Concerns\HasRecordUrl;
+    use Table\Concerns\HasToolbarActions;
 
     /**
      * @var view-string

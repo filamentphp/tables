@@ -403,7 +403,7 @@ class SelectFilter extends BaseFilter
                     if (isset($baseRelationshipQuery->limit)) {
                         $component->optionsLimit($baseRelationshipQuery->limit);
                         $this->optionsLimit($baseRelationshipQuery->limit);
-                    } else {
+                    } elseif ($component->isSearchable() && filled($component->getSearchColumns())) {
                         $relationshipQuery->limit($component->getOptionsLimit());
                     }
 

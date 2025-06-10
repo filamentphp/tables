@@ -120,7 +120,7 @@ You can use any [schema component](../schemas) to build the UI for a filter. For
 
 ### Defining table actions
 
-Filament's tables can use [actions](../actions/overview). They are buttons that can be added to the [end of any table row](actions#row-actions), or even in the [header](actions#header-actions) of a table. For instance, you may want an action to "create" a new record in the header, and then "edit" and "delete" actions on each row. [Bulk actions](actions#bulk-actions) can be used to execute code when records in the table are selected.
+Filament's tables can use [actions](../actions/overview). They are buttons that can be added to the [end of any table row](actions#record-actions), or even in the [header](actions#header-actions) of a table. For instance, you may want an action to "create" a new record in the header, and then "edit" and "delete" actions on each row. [Bulk actions](actions#bulk-actions) can be used to execute code when records in the table are selected.
 
 ```php
 use App\Models\Post;
@@ -134,7 +134,7 @@ public function table(Table $table): Table
         ->columns([
             // ...
         ])
-        ->actions([
+        ->recordActions([
             Action::make('feature')
                 ->action(function (Post $record) {
                     $record->is_featured = true;
@@ -148,7 +148,7 @@ public function table(Table $table): Table
                 })
                 ->visible(fn (Post $record): bool => $record->is_featured),
         ])
-        ->bulkActions([
+        ->toolbarActions([
             BulkActionGroup::make([
                 DeleteBulkAction::make(),
             ]),

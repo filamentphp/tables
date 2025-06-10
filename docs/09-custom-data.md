@@ -1,5 +1,5 @@
 ---
-title: Static data
+title: Custom data
 ---
 import Aside from "@components/Aside.astro"
 
@@ -9,7 +9,7 @@ import Aside from "@components/Aside.astro"
 
 However, this setup isn't always possible or practical. You might need to display data that isn't stored in a database—or data that is stored, but not accessible via Eloquent.
 
-In such cases, you can use static data instead. Pass a function to the `records()` method of the table builder that returns an array of data. This function is called when the table renders, and the value it returns is used to populate the table.
+In such cases, you can use custom data instead. Pass a function to the `records()` method of the table builder that returns an array of data. This function is called when the table renders, and the value it returns is used to populate the table.
 
 ```php
 use Filament\Tables\Columns\IconColumn;
@@ -66,7 +66,7 @@ TextColumn::make('is_featured')
 
 ### Sorting
 
-Filament's built-in [sorting](columns#sorting) function uses SQL to sort data. When working with static data, you'll need to handle sorting yourself.
+Filament's built-in [sorting](columns#sorting) function uses SQL to sort data. When working with custom data, you'll need to handle sorting yourself.
 
 To access the currently sorted column and direction, you can inject `$sortColumn` and `$sortDirection` into the `records()` function. These variables are `null` if no sorting is applied.
 
@@ -107,7 +107,7 @@ public function table(Table $table): Table
 
 ### Searching
 
-Filament's built-in [searching](columns#searching) function uses SQL to search data. When working with static data, you'll need to handle searching yourself.
+Filament's built-in [searching](columns#searching) function uses SQL to search data. When working with custom data, you'll need to handle searching yourself.
 
 To access the current search query, you can inject `$search` into the `records()` function. This variable is `null` if no search query is currently being used.
 
@@ -152,7 +152,7 @@ In this example, specific columns like `title` do not need to be `searchable()` 
 
 #### Searching individual columns
 
-The [individual column searches](#searching-individually) feature provides a way to render a search field separately for each column, allowing more precise filtering. When using static data, you need to implement this feature yourself.
+The [individual column searches](#searching-individually) feature provides a way to render a search field separately for each column, allowing more precise filtering. When using custom data, you need to implement this feature yourself.
 
 Instead of injecting `$search` into the `records()` function, you can inject an array of `$columnSearches`, which contains the search queries for each column.
 
@@ -193,7 +193,7 @@ public function table(Table $table): Table
 
 ## Filters
 
-Filament also provides a way to filter data using [filters](filters). When working with static data, you'll need to handle filtering yourself. 
+Filament also provides a way to filter data using [filters](filters). When working with custom data, you'll need to handle filtering yourself. 
 
 Filament gives you access to an array of filter data by injecting `$filters` into the `records()` function. The array contains the names of the filters as keys and the values of the filter forms themselves.
 
@@ -290,7 +290,7 @@ Filter values aren't directly accessible via `$filters['filterName']`. Instead, 
 
 ## Pagination
 
-Filament's built-in [pagination](overview#pagination) feature uses SQL to paginate the data. When working with static data, you'll need to handle pagination yourself. 
+Filament's built-in [pagination](overview#pagination) feature uses SQL to paginate the data. When working with custom data, you'll need to handle pagination yourself. 
 
 The `$page` and `$recordsPerPage` arguments are injected into the `records()` function, and you can use them to paginate the data. A `LengthAwarePaginator` should be returned from the `records()` function, and Filament will handle the pagination links and other pagination features for you:
 
@@ -323,7 +323,7 @@ public function table(Table $table): Table
 }
 ```
 
-In this example, the `forPage()` method is used to paginate the data. This probably isn't the most efficient way to paginate data from a query or API, but it is a simple way to demonstrate how to paginate data from a static array.
+In this example, the `forPage()` method is used to paginate the data. This probably isn't the most efficient way to paginate data from a query or API, but it is a simple way to demonstrate how to paginate data from a custom array.
 
 <Aside variant="info">
     It might seem like Filament should paginate the data for you, but in many cases, it's better to let your data source—like a custom query or API call—handle the pagination instead.
@@ -361,7 +361,7 @@ public function table(Table $table): Table
             TextColumn::make('title'),
             TextColumn::make('slug'),
         ])
-        ->actions([
+        ->recordActions([
             Action::make('view')
                 ->color('gray')
                 ->icon(Heroicon::Eye)
@@ -408,7 +408,7 @@ public function table(Table $table): Table
         ->columns([
             // ...
         ])
-        ->actions([
+        ->recordActions([
             BulkAction::make('feature')
                 ->requiresConfirmation()
                 ->action(function (Collection $records): void {
@@ -472,7 +472,7 @@ public function table(Table $table): Table
         ->columns([
             // ...
         ])
-        ->actions([
+        ->recordActions([
             BulkAction::make('feature')
                 ->requiresConfirmation()
                 ->action(function (Collection $records): void {
@@ -815,7 +815,7 @@ public function table(Table $table): Table
     [`DummyJSON`](https://dummyjson.com/docs/products#products-update) API will not add it into the server. It will simulate a `POST` request and will return the new created product with a new id.
 </Aside>
 
-If you don't need a modal, you can directly redirect users to a specified URL when they click the create action button. In this case, you can define a static URL pointing to the product creation page:
+If you don't need a modal, you can directly redirect users to a specified URL when they click the create action button. In this case, you can define a custom URL pointing to the product creation page:
 
 ```php
 use Filament\Actions\Action;
@@ -853,7 +853,7 @@ public function table(Table $table): Table
             TextColumn::make('title'),
             TextColumn::make('category'),
         ])
-        ->actions([
+        ->recordActions([
             Action::make('edit')
                 ->icon(Heroicon::PencilSquare)
                 ->modalHeading('Edit product')
@@ -947,7 +947,7 @@ public function table(Table $table): Table
             TextColumn::make('title'),
             TextColumn::make('category'),
         ])
-        ->actions([
+        ->recordActions([
             Action::make('view')
                 ->color('gray')
                 ->icon(Heroicon::Eye)
@@ -1030,7 +1030,7 @@ public function table(Table $table): Table
             TextColumn::make('price')
                 ->money(),
         ])
-        ->actions([
+        ->recordActions([
             Action::make('delete')
                 ->color('danger')
                 ->icon(Heroicon::Trash)

@@ -4,6 +4,7 @@ namespace Filament\Tables\Columns;
 
 use Filament\Forms\Components\Concerns\HasExtraInputAttributes;
 use Filament\Support\Components\Contracts\HasEmbeddedView;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentView;
 use Filament\Tables\Columns\Contracts\Editable;
@@ -44,6 +45,7 @@ class CheckboxColumn extends Column implements Editable, HasEmbeddedView
             ], escape: false)
             ->class([
                 'fi-ta-checkbox',
+                ((($alignment = $this->getAlignment()) instanceof Alignment) ? "fi-align-{$alignment->value}" : (is_string($alignment) ? $alignment : '')),
                 'fi-inline' => $this->isInline(),
             ]);
 

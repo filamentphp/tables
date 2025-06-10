@@ -5,6 +5,7 @@ namespace Filament\Tables\Columns;
 use Filament\Forms\Components\Concerns\HasToggleColors;
 use Filament\Forms\Components\Concerns\HasToggleIcons;
 use Filament\Support\Components\Contracts\HasEmbeddedView;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\IconSize;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentView;
@@ -57,6 +58,7 @@ class ToggleColumn extends Column implements Editable, HasEmbeddedView
             ], escape: false)
             ->class([
                 'fi-ta-toggle',
+                ((($alignment = $this->getAlignment()) instanceof Alignment) ? "fi-align-{$alignment->value}" : (is_string($alignment) ? $alignment : '')),
                 'fi-inline' => $this->isInline(),
             ]);
 

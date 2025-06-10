@@ -2,7 +2,7 @@
 
 namespace Filament\Tables\Enums;
 
-enum ActionsPosition
+enum RecordActionsPosition
 {
     case AfterCells;
 
