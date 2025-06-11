@@ -123,7 +123,7 @@
     }
 
     & .fi-ta-header-cell-sort-btn {
-        @apply flex w-full items-center justify-start gap-x-1;
+        @apply flex w-full cursor-pointer items-center justify-start gap-x-1;
     }
 
     & .fi-icon {

@@ -235,4 +235,6 @@ return [
 
     ],
 
+    'default_model_label' => 'registro',
+
 ];

@@ -2,6 +2,7 @@
 
 namespace Filament\Tables\Columns;
 
+use BackedEnum;
 use Filament\Forms\Components\Concerns\CanDisableOptions;
 use Filament\Forms\Components\Concerns\CanSelectPlaceholder;
 use Filament\Forms\Components\Concerns\HasEnum;
@@ -95,7 +96,7 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
             wire:ignore.self
             <?= $attributes->toHtml() ?>
         >
-            <input type="hidden" value="<?= str($state)->replace('"', '\\"') ?>" x-ref="serverState" />
+            <input type="hidden" value="<?= str(($state instanceof BackedEnum) ? $state->value : $state)->replace('"', '\\"') ?>" x-ref="serverState" />
 
             <div
                 x-bind:class="{
@@ -110,7 +111,7 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                             theme: $store.theme,
                         }
                 "
-                x-on:click.stop.prevent=""
+                x-on:click.prevent.stop=""
                 class="fi-input-wrp"
             >
                 <select
