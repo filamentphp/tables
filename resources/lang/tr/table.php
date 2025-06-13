@@ -10,8 +10,19 @@ return [
 
     'columns' => [
 
+        'actions' => [
+            'label' => 'İşlem|İşlemler',
+        ],
+
         'text' => [
+
+            'actions' => [
+                'collapse_list' => ':count kayıt az göster',
+                'expand_list' => ':count kayıt daha göster',
+            ],
+
             'more_list_items' => 've :count daha',
+
         ],
 
     ],
@@ -106,6 +117,10 @@ return [
 
         'actions' => [
 
+            'apply' => [
+                'label' => 'Filtreleri uygula',
+            ],
+
             'remove' => [
                 'label' => 'Filtreyi kaldır',
             ],
@@ -130,14 +145,20 @@ return [
         ],
 
         'select' => [
+
             'placeholder' => 'Tümü',
+
+            'relationship' => [
+                'empty_option_label' => 'Yok',
+            ],
+
         ],
 
         'trashed' => [
 
             'label' => 'Silinmiş kayıtlar',
 
-            'only_trashed' => 'Yalnızca silinmiş kayıtlar',
+            'only_trashed' => 'Sadece silinmiş kayıtlar',
 
             'with_trashed' => 'Silinmiş kayıtlarla birlikte',
 
@@ -213,5 +234,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'kayıt',
 
 ];

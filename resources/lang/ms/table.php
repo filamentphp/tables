@@ -145,6 +145,10 @@ return [
 
         'select' => [
             'placeholder' => 'Semua',
+
+            'relationship' => [
+                'empty_option_label' => 'Tiada',
+            ],
         ],
 
         'trashed' => [
@@ -227,5 +231,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'rekod',
 
 ];

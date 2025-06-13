@@ -1917,7 +1917,9 @@
                         @endif
                     </table>
                 @elseif ($records === null)
-                    <div class="fi-ta-table-loading-spacer"></div>
+                    <div class="fi-ta-table-loading-ctn">
+                        {{ \Filament\Support\generate_loading_indicator_html(size: \Filament\Support\Enums\IconSize::TwoExtraLarge) }}
+                    </div>
                 @endif
             </div>
         @endif
