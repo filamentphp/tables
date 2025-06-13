@@ -6,7 +6,7 @@
     }
 
     & .fi-ta-header-ctn {
-        @apply divide-y divide-gray-200 dark:divide-white/10;
+        @apply -mt-px;
     }
 
     & .fi-ta-header {
@@ -38,7 +38,7 @@
     }
 
     & .fi-ta-header-toolbar {
-        @apply flex flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-6;
+        @apply flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 px-4 py-3 sm:px-6 dark:border-white/10;
 
         & > * {
             @apply flex items-center gap-x-4;
@@ -110,7 +110,7 @@
     }
 
     & .fi-ta-filters-above-content-ctn {
-        @apply grid px-4 py-4 sm:px-6;
+        @apply grid border-t border-gray-200 px-4 py-4 sm:px-6 dark:border-white/10;
 
         & .fi-ta-filters-trigger-action-ctn {
             @apply ms-auto;
@@ -186,6 +186,6 @@
     }
 
     & .fi-ta-table-loading-ctn {
-        @apply h-32 flex items-center justify-center;
+        @apply flex h-32 items-center justify-center;
     }
 }
