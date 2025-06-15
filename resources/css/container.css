@@ -78,13 +78,9 @@
             }
         }
 
-        & .fi-ta-col-toggle {
-            & .fi-ta-col-toggle-form-ctn {
-                @apply grid gap-y-4 p-6;
-
-                & .fi-ta-col-toggle-heading {
-                    @apply text-base leading-6 font-semibold text-gray-950 dark:text-white;
-                }
+        & .fi-ta-col-manager-dropdown {
+            & .fi-ta-col-manager {
+                @apply p-6;
             }
         }
     }

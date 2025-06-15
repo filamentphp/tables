@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Sloupce',
 
@@ -98,7 +98,7 @@ return [
             'label' => 'Otevřít panel akcí',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Skrýt/zobrazit sloupce',
         ],
 

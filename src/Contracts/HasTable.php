@@ -76,8 +76,6 @@ interface HasTable
 
     public function isTableColumnToggledHidden(string $name): bool;
 
-    public function getTableColumnToggleForm(): Schema;
-
     /**
      * @return Model | array<string, mixed> | null
      */

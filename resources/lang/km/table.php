@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'ជួរឈរ',
 
@@ -95,7 +95,7 @@ return [
             'label' => 'សកម្មភាពភាគច្រើន',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'បិទ/បើកជួរឈរ',
         ],
 

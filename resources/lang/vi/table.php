@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Cột',
 
@@ -99,7 +99,7 @@ return [
             'label' => 'Tác vụ hàng loạt',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Chuyển đổi cột',
         ],
 

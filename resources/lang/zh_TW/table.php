@@ -21,7 +21,7 @@ return [
             'label' => '打開動作',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => '顯示／隱藏直列',
         ],
 

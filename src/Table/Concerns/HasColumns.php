@@ -15,6 +15,11 @@ trait HasColumns
     protected array $columns = [];
 
     /**
+     * @var array<string, ColumnGroup>
+     */
+    protected array $columnGroups = [];
+
+    /**
      * @var array<Column | ColumnLayoutComponent | ColumnGroup>
      */
     protected array $columnsLayout = [];
@@ -31,6 +36,7 @@ trait HasColumns
     public function columns(array $components): static
     {
         $this->columns = [];
+        $this->columnGroups = [];
         $this->columnsLayout = [];
         $this->collapsibleColumnsLayout = null;
         $this->hasColumnsLayout = false;
@@ -55,6 +61,8 @@ trait HasColumns
 
             if ($component instanceof ColumnGroup) {
                 $this->hasColumnGroups = true;
+
+                $this->columnGroups[$component->getLabel()] = $component;
 
                 $this->columns = [
                     ...$this->columns,
@@ -104,6 +112,14 @@ trait HasColumns
     }
 
     /**
+     * @return array<string, ColumnGroup>
+     */
+    public function getColumnGroups(): array
+    {
+        return $this->columnGroups;
+    }
+
+    /**
      * @return array<string, Column>
      */
     public function getVisibleColumns(): array
@@ -117,6 +133,11 @@ trait HasColumns
     public function getColumn(string $name): ?Column
     {
         return $this->getColumns()[$name] ?? null;
+    }
+
+    public function getColumnGroup(string $name): ?ColumnGroup
+    {
+        return $this->getColumnGroups()[$name] ?? null;
     }
 
     /**

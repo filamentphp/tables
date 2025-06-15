@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'คอลัมน์',
 
@@ -95,7 +95,7 @@ return [
             'label' => 'การดำเนินการเป็นกลุ่ม',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'สลับคอลัมน์',
         ],
 

@@ -2,7 +2,7 @@
 
 return [
 
-    'column_manager' => [
+    'column_toggle' => [
 
         'heading' => 'Kolone',
 
@@ -30,15 +30,15 @@ return [
     'fields' => [
 
         'bulk_select_page' => [
-            'label' => 'Odaberi/poništi odabir svih stavki za skupne radnje.',
+            'label' => 'Izaberi/poništi izbor svih stavki za grupne radnje.',
         ],
 
         'bulk_select_record' => [
-            'label' => 'Odaberi/poništi odabir stavke :key za skupne radnje.',
+            'label' => 'Izaberi/poništi izabrane stavke :key za grupne radnje.',
         ],
 
         'bulk_select_group' => [
-            'label' => 'Odaberi/poništi odabir grupe :title za skupne radnje.',
+            'label' => 'Izaberi/poništi izabrane grupe :title za grupne radnje.',
         ],
 
         'search' => [
@@ -62,7 +62,7 @@ return [
         'summarizers' => [
 
             'average' => [
-                'label' => 'Prosjek',
+                'label' => 'Prosek',
             ],
 
             'count' => [
@@ -70,7 +70,7 @@ return [
             ],
 
             'sum' => [
-                'label' => 'Zbroj',
+                'label' => 'Zbir',
             ],
 
         ],
@@ -80,11 +80,11 @@ return [
     'actions' => [
 
         'disable_reordering' => [
-            'label' => 'Završi mijenjanje redoslijeda zapisa',
+            'label' => 'Onemogući promenu redosleda zapisa',
         ],
 
         'enable_reordering' => [
-            'label' => 'Mijenjanje redoslijeda zapisa',
+            'label' => 'Promena redosleda zapisa',
         ],
 
         'filter' => [
@@ -96,11 +96,11 @@ return [
         ],
 
         'open_bulk_actions' => [
-            'label' => 'Skupne radnje',
+            'label' => 'Grupne radnje',
         ],
 
-        'column_manager' => [
-            'label' => 'Prikaži/sakrij stupce',
+        'toggle_columns' => [
+            'label' => 'Prikaži/sakrij kolone',
         ],
 
     ],
@@ -109,7 +109,7 @@ return [
 
         'heading' => 'Nema :model',
 
-        'description' => 'Stvori :model kako bi započeo.',
+        'description' => 'Stvorite :model da biste počeli.',
 
     ],
 
@@ -118,7 +118,7 @@ return [
         'actions' => [
 
             'apply' => [
-                'label' => 'Primijeni filter',
+                'label' => 'Primeni filter',
             ],
 
             'remove' => [
@@ -146,17 +146,21 @@ return [
 
         'select' => [
             'placeholder' => 'Sve',
+
+            'relationship' => [
+                'empty_option_label' => 'Ništa',
+            ],
         ],
 
         'trashed' => [
 
-            'label' => 'Obrisani zapisi',
+            'label' => 'Izbrisani zapisi',
 
-            'only_trashed' => 'Samo obrisani zapisi',
+            'only_trashed' => 'Samo izbrisani zapisi',
 
-            'with_trashed' => 'S obrisanih zapisa',
+            'with_trashed' => 'Sa izbrisanim zapisima',
 
-            'without_trashed' => 'Bez obrisanih zapisa',
+            'without_trashed' => 'Bez izbrisanih zapisa',
 
         ],
 
@@ -167,13 +171,13 @@ return [
         'fields' => [
 
             'group' => [
-                'label' => 'Grupiraj prema',
-                'placeholder' => 'Grupiraj prema',
+                'label' => 'Grupišite po',
+                'placeholder' => 'Grupišite po',
             ],
 
             'direction' => [
 
-                'label' => 'Smjer grupiranja',
+                'label' => 'Smer grupisanja',
 
                 'options' => [
                     'asc' => 'Uzlazno',
@@ -186,20 +190,20 @@ return [
 
     ],
 
-    'reorder_indicator' => 'Povuci i ispusti zapise u redoslijed.',
+    'reorder_indicator' => 'Povuci i ispusti zapise u redosledu.',
 
     'selection_indicator' => [
 
-        'selected_count' => '1 odabrani zapis|:count odabranih zapisa',
+        'selected_count' => '1 izabrani zapis|:count izabranih zapisa',
 
         'actions' => [
 
             'select_all' => [
-                'label' => 'Odaberi svih :count',
+                'label' => 'Izaberite sve :count',
             ],
 
             'deselect_all' => [
-                'label' => 'Odznači sve',
+                'label' => 'Označite sve',
             ],
 
         ],
@@ -211,12 +215,12 @@ return [
         'fields' => [
 
             'column' => [
-                'label' => 'Sortiraj prema',
+                'label' => 'Sortiraj po',
             ],
 
             'direction' => [
 
-                'label' => 'Smjer sortiranja',
+                'label' => 'Smer sortiranja',
 
                 'options' => [
                     'asc' => 'Uzlazno',
@@ -228,5 +232,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'zapis',
 
 ];

@@ -2,7 +2,6 @@
 
 namespace Filament\Tables\Concerns;
 
-use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Schemas\Schema;
@@ -333,13 +332,5 @@ trait HasBulkActions
     protected function getTableBulkActions(): array
     {
         return [];
-    }
-
-    /**
-     * @deprecated Override the `table()` method to configure the table.
-     */
-    public function isTableRecordSelectable(): ?Closure
-    {
-        return null;
     }
 }

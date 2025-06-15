@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'ستون‌ها',
 
@@ -95,7 +95,7 @@ return [
             'label' => 'عملیات گروهی',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'باز / بستن ستون‌ها',
         ],
 

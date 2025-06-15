@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Kolumny',
 
@@ -99,7 +99,7 @@ return [
             'label' => 'Akcje masowe',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Wybierz kolumny',
         ],
 

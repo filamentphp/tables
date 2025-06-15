@@ -799,7 +799,9 @@ TextColumn::make('role')
     ->visible(FeatureFlag::active())
 ```
 
-### Toggling column visibility
+### Allowing users to manage columns
+
+#### Toggling column visibility
 
 Users may hide or show columns themselves in the table. To make a column toggleable, use the `toggleable()` method:
 
@@ -810,9 +812,9 @@ TextColumn::make('email')
     ->toggleable()
 ```
 
-<AutoScreenshot name="tables/columns/toggleable" alt="Table with toggleable column" version="4.x" />
+<AutoScreenshot name="tables/columns/column-manager" alt="Table with column manager" version="4.x" />
 
-#### Making toggleable columns hidden by default
+##### Making toggleable columns hidden by default
 
 By default, toggleable columns are visible. To make them hidden instead:
 
@@ -823,9 +825,45 @@ TextColumn::make('id')
     ->toggleable(isToggledHiddenByDefault: true)
 ```
 
-#### Customizing the toggle columns dropdown trigger action
+#### Reordering columns
 
-To customize the toggle dropdown trigger button, you may use the `toggleColumnsTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../actions/overview) can be used:
+You may allow columns to be reordered in the table using the `reorderableColumns()` method:
+
+```php
+use Filament\Tables\Table;
+
+public function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            // ...
+        ])
+        ->reorderableColumns();
+}
+```
+
+<AutoScreenshot name="tables/columns/column-manager-reorderable" alt="Table with reorderable column manager" version="4.x" />
+
+#### Live column manager
+
+By default, column manager changes (toggling and reordering columns) are deferred and do not affect the table, until the user clicks an "Apply" button. To disable this and make the filters "live" instead, use the `deferColumnManager(false)` method:
+
+```php
+use Filament\Tables\Table;
+
+public function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            // ...
+        ])
+        ->reorderableColumns()
+        ->deferColumnManager(false);
+}
+
+#### Customizing the column manager dropdown trigger action
+
+To customize the column manager dropdown trigger button, you may use the `columnManagerTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../actions/overview) can be used:
 
 ```php
 use Filament\Actions\Action;
@@ -837,10 +875,10 @@ public function table(Table $table): Table
         ->filters([
             // ...
         ])
-        ->toggleColumnsTriggerAction(
+        ->columnManagerTriggerAction(
             fn (Action $action) => $action
                 ->button()
-                ->label('Toggle columns'),
+                ->label('Column Manager'),
         );
 }
 ```

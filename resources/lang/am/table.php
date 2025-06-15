@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'አምዶች',
     ],
@@ -90,7 +90,7 @@ return [
 
             'label' => 'የጅምላ ድርጊቶች',
         ],
-        'toggle_columns' => [
+        'column_manager' => [
 
             'label' => 'ዓምዶችን ቀያይር',
         ],

@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Стовпці',
 
@@ -99,7 +99,7 @@ return [
             'label' => 'Відкрити дії',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Переключити стовпці',
         ],
 

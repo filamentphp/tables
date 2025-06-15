@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Colonne',
 
@@ -98,7 +98,7 @@ return [
             'label' => 'Azioni',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Mostra/Nascondi colonne',
         ],
 

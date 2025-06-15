@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Kolonner',
 
@@ -95,7 +95,7 @@ return [
             'label' => 'Massehandlinger',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Veksle kolonner',
         ],
 

@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Kolumnit',
 
@@ -99,7 +99,7 @@ return [
             'label' => 'Avaa toiminnot',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Näytä kolumnit',
         ],
 

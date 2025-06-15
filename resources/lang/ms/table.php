@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Kolum',
 
@@ -98,7 +98,7 @@ return [
             'label' => 'Tindakan terbuka',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Togol lajur',
         ],
 

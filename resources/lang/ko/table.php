@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => '열',
 
@@ -99,7 +99,7 @@ return [
             'label' => '일괄 작업',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => '열 전환',
         ],
 

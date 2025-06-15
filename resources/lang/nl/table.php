@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Kolommen',
 
@@ -98,7 +98,7 @@ return [
             'label' => 'Acties openen',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Kolommen in-/uitschakelen',
         ],
 

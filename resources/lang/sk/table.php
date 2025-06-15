@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Stĺpce',
 
@@ -99,7 +99,7 @@ return [
             'label' => 'Hromadné akcie',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Prepnúť stĺpce',
         ],
 

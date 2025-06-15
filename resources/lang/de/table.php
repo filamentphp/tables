@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Spalten',
 
@@ -98,7 +98,7 @@ return [
             'label' => 'Aktionen öffnen',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Spalten auswählen',
         ],
 

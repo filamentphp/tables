@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Colonnes',
 
@@ -99,7 +99,7 @@ return [
             'label' => 'Ouvrir les actions',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Basculer les colonnes',
         ],
 

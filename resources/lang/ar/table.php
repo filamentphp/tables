@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'الأعمدة',
 
@@ -99,7 +99,7 @@ return [
             'label' => 'الإجراءات',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'تبديل الأعمدة',
         ],
 

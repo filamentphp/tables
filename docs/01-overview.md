@@ -79,6 +79,34 @@ In this case, Filament will search for an `author` relationship on the `Post` mo
 
 For more information about column relationships, visit the [Relationships section](columns/overview#displaying-data-from-relationships).
 
+#### Adding new columns alongside existing columns
+
+While the `columns()` method redefines all columns for a table, you may sometimes want to add columns to an existing configuration without overriding it completely. This is particularly useful when you have global column configurations that should appear across multiple tables.
+
+Filament provides the `pushColumns()` method for this purpose. Unlike `columns()`, which replaces the entire column configuration, `pushColumns()` appends new columns to any existing ones.
+
+This is especially powerful when combined with [global table settings](#global-settings) in the `boot()` method of a service provider, such as `AppServiceProvider`:
+
+```php
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+
+Table::configureUsing(function (Table $table) {
+    $table
+        ->pushColumns([
+            TextColumn::make('created_at')
+                ->label('Created')
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+
+            TextColumn::make('updated_at')
+                ->label('Updated')
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+        ]);
+});
+```
+
 ### Defining table filters
 
 As well as making columns `searchable()`, which allows the user to filter the table by searching the content of columns, you can also allow the users to filter rows in the table in other ways. [Filters](filters) can be defined in the `$table->filters()` method:
@@ -548,6 +576,7 @@ use Filament\Tables\Table;
 
 Table::configureUsing(function (Table $table): void {
     $table
+        ->reorderableColumns()
         ->filtersLayout(FiltersLayout::AboveContentCollapsible)
         ->paginationPageOptions([10, 25, 50]);
 });

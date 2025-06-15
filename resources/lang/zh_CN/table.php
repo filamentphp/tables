@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => '显示字段',
 
@@ -94,7 +94,7 @@ return [
             'label' => '批量操作',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => '切换显示字段',
         ],
 

@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Столбцы',
 
@@ -95,7 +95,7 @@ return [
             'label' => 'Открыть действия',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Переключить столбцы',
         ],
 

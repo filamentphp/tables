@@ -2,7 +2,7 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
         'heading' => 'עמודות',
     ],
 
@@ -62,7 +62,7 @@ return [
         'open_bulk_actions' => [
             'label' => 'פתח פעולות מרובות',
         ],
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'הצג עמודות',
         ],
     ],

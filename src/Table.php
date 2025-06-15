@@ -19,9 +19,9 @@ class Table extends ViewComponent
     use Table\Concerns\CanSearchRecords;
     use Table\Concerns\CanSortRecords;
     use Table\Concerns\CanSummarizeRecords;
-    use Table\Concerns\CanToggleColumns;
     use Table\Concerns\HasActions;
     use Table\Concerns\HasBulkActions;
+    use Table\Concerns\HasColumnManager;
     use Table\Concerns\HasColumns;
     use Table\Concerns\HasContent;
     use Table\Concerns\HasEmptyState;
