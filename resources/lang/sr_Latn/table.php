@@ -2,9 +2,17 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Kolone',
+
+        'actions' => [
+
+            'apply' => [
+                'label' => 'Primeni kolone',
+            ],
+
+        ],
 
     ],
 
@@ -99,7 +107,7 @@ return [
             'label' => 'Grupne radnje',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Prikaži/sakrij kolone',
         ],
 

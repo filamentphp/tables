@@ -860,6 +860,7 @@ public function table(Table $table): Table
         ->reorderableColumns()
         ->deferColumnManager(false);
 }
+```
 
 #### Customizing the column manager dropdown trigger action
 

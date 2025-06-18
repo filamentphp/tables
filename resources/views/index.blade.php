@@ -794,9 +794,7 @@
                                     $recordActions = array_reduce(
                                         $defaultRecordActions,
                                         function (array $carry, $action) use ($record): array {
-                                            if (! $action instanceof \Filament\Actions\ActionGroup) {
-                                                $action = clone $action;
-                                            }
+                                            $action = $action->getClone();
 
                                             if (! $action instanceof \Filament\Actions\BulkAction) {
                                                 $action->record($record);
@@ -1453,9 +1451,7 @@
                                             $recordActions = array_reduce(
                                                 $defaultRecordActions,
                                                 function (array $carry, $action) use ($record): array {
-                                                    if (! $action instanceof \Filament\Actions\ActionGroup) {
-                                                        $action = clone $action;
-                                                    }
+                                                    $action = $action->getClone();
 
                                                     if (! $action instanceof \Filament\Actions\BulkAction) {
                                                         $action->record($record);

@@ -2,9 +2,17 @@
 
 return [
 
-    'column_toggle' => [
+    'column_manager' => [
 
         'heading' => 'Колоне',
+
+        'actions' => [
+
+            'apply' => [
+                'label' => 'Примени колоне',
+            ],
+
+        ],
 
     ],
 
@@ -99,7 +107,7 @@ return [
             'label' => 'Групне радње',
         ],
 
-        'toggle_columns' => [
+        'column_manager' => [
             'label' => 'Прикажи/сакриј колоне',
         ],
 

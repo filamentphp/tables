@@ -186,8 +186,8 @@ trait HasColumnManager
     {
         return [
             'type' => self::TABLE_COLUMN_MANAGER_GROUP_TYPE,
-            'name' => $group->getLabel(),
-            'label' => $group->getLabel(),
+            'name' => (string) $group->getLabel(),
+            'label' => (string) $group->getLabel(),
             'isToggled' => true,
             'isToggleable' => true,
             'columns' => collect($group->getColumns())
@@ -205,7 +205,7 @@ trait HasColumnManager
         return [
             'type' => self::TABLE_COLUMN_MANAGER_COLUMN_TYPE,
             'name' => $column->getName(),
-            'label' => $column->getLabel(),
+            'label' => (string) $column->getLabel(),
             'isToggled' => ! $column->isToggleable() || ! $column->isToggledHiddenByDefault(),
             'isToggleable' => $column->isToggleable(),
         ];

@@ -6,6 +6,14 @@ return [
 
         'heading' => 'Oszlopok',
 
+        'actions' => [
+
+            'apply' => [
+                'label' => 'Alkalmazás',
+            ],
+
+        ],
+
     ],
 
     'columns' => [
@@ -145,7 +153,13 @@ return [
         ],
 
         'select' => [
+
             'placeholder' => 'Mind',
+
+            'relationship' => [
+                'empty_option_label' => 'Nincs',
+            ],
+
         ],
 
         'trashed' => [
@@ -228,5 +242,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'objektum',
 
 ];
