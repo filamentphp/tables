@@ -4,6 +4,7 @@ namespace Filament\Tables\Concerns;
 
 use Filament\Schemas\Schema;
 use Filament\Tables\Filters\BaseFilter;
+use Filament\Tables\Filters\QueryBuilder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
@@ -76,20 +77,25 @@ trait HasFilters
         $filterResetState = $filter->getResetState();
 
         $filterFormGroup = $this->getTableFiltersForm()->getComponent($filterName);
-        $filterFields = $filterFormGroup?->getChildSchema()->getFlatFields();
 
-        if (filled($field) && array_key_exists($field, $filterFields)) {
-            $filterFields = [$field => $filterFields[$field]];
-        }
+        if (($filter instanceof QueryBuilder) && blank($field)) {
+            $filterFormGroup->getChildSchema()->fill();
+        } else {
+            $filterFields = $filterFormGroup?->getChildSchema()->getFlatFields();
 
-        foreach ($filterFields as $fieldName => $field) {
-            $state = $field->getState();
+            if (filled($field) && array_key_exists($field, $filterFields)) {
+                $filterFields = [$field => $filterFields[$field]];
+            }
 
-            $field->state($filterResetState[$fieldName] ?? match (true) {
-                is_array($state) => [],
-                is_bool($state) => $field->hasNullableBooleanState() ? null : false,
-                default => null,
-            });
+            foreach ($filterFields as $fieldName => $field) {
+                $state = $field->getState();
+
+                $field->state($filterResetState[$fieldName] ?? match (true) {
+                    is_array($state) => [],
+                    is_bool($state) => $field->hasNullableBooleanState() ? null : false,
+                    default => null,
+                });
+            }
         }
 
         if ($isRemovingAllFilters) {

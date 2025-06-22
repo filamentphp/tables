@@ -6,6 +6,14 @@ return [
 
         'heading' => 'الأعمدة',
 
+        'actions' => [
+
+            'apply' => [
+                'label' => 'تطبيق الأعمدة',
+            ],
+
+        ],
+
     ],
 
     'columns' => [
@@ -145,7 +153,13 @@ return [
         ],
 
         'select' => [
+
             'placeholder' => 'الكل',
+
+            'relationship' => [
+                'empty_option_label' => 'لا يوجد اختيار',
+            ],
+
         ],
 
         'trashed' => [
@@ -228,5 +242,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'سِجِلّ',
 
 ];

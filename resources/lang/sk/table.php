@@ -6,6 +6,14 @@ return [
 
         'heading' => 'Stĺpce',
 
+        'actions' => [
+
+            'apply' => [
+                'label' => 'Použiť stĺpce',
+            ],
+
+        ],
+
     ],
 
     'columns' => [
@@ -145,7 +153,13 @@ return [
         ],
 
         'select' => [
+
             'placeholder' => 'Všetko',
+
+            'relationship' => [
+                'empty_option_label' => 'Žiadna',
+            ],
+
         ],
 
         'trashed' => [
@@ -228,5 +242,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'záznam',
 
 ];

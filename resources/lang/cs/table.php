@@ -6,6 +6,14 @@ return [
 
         'heading' => 'Sloupce',
 
+        'actions' => [
+
+            'apply' => [
+                'label' => 'Použít sloupce',
+            ],
+
+        ],
+
     ],
 
     'columns' => [
@@ -144,7 +152,13 @@ return [
         ],
 
         'select' => [
+
             'placeholder' => 'Vše',
+
+            'relationship' => [
+                'empty_option_label' => 'Žádná',
+            ],
+
         ],
 
         'trashed' => [
@@ -227,5 +241,7 @@ return [
         ],
 
     ],
+
+    'default_model_label' => 'záznam',
 
 ];

@@ -84,13 +84,11 @@ export default ({
             this.deselectRecords(
                 await $wire.getGroupedSelectableTableRecordKeys(group),
             )
-
-            return
+        } else {
+            this.selectRecords(
+                await $wire.getGroupedSelectableTableRecordKeys(group),
+            )
         }
-
-        this.selectRecords(
-            await $wire.getGroupedSelectableTableRecordKeys(group),
-        )
 
         this.isLoading = false
     },
