@@ -87,10 +87,6 @@ trait HasColumns
         }
 
         foreach ($this->columns as $column) {
-            if ($column->hasSummary()) {
-                $this->hasSummary = true;
-            }
-
             $action = $column->getAction();
 
             if (($action === null) || ($action instanceof Closure)) {

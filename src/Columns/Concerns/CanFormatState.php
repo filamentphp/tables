@@ -359,6 +359,10 @@ trait CanFormatState
         }
 
         if ($isHtml) {
+            if ($this->isMarkdown()) {
+                $state = Str::markdown($state, $this->getCommonMarkOptions(), $this->getCommonMarkExtensions());
+            }
+
             $state = Str::sanitizeHtml($state);
         }
 
@@ -377,10 +381,6 @@ trait CanFormatState
 
         if ($wordLimit = $this->getWordLimit()) {
             $state = Str::words($state, $wordLimit, $this->getWordLimitEnd());
-        }
-
-        if ($isHtml && $this->isMarkdown()) {
-            $state = Str::markdown($state, $this->getCommonMarkOptions(), $this->getCommonMarkExtensions());
         }
 
         $prefix = $this->getPrefix();
