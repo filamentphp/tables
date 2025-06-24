@@ -70,9 +70,9 @@ interface HasTable
 
     public function getTableSortDirection(): ?string;
 
-    public function getAllTableSummaryQuery(): Builder;
+    public function getAllTableSummaryQuery(): ?Builder;
 
-    public function getPageTableSummaryQuery(): Builder;
+    public function getPageTableSummaryQuery(): ?Builder;
 
     public function isTableColumnToggledHidden(string $name): bool;
 

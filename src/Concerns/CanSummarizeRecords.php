@@ -12,14 +12,14 @@ use stdClass;
 
 trait CanSummarizeRecords
 {
-    public function getAllTableSummaryQuery(): Builder
+    public function getAllTableSummaryQuery(): ?Builder
     {
         return $this->getFilteredTableQuery();
     }
 
-    public function getPageTableSummaryQuery(): Builder
+    public function getPageTableSummaryQuery(): ?Builder
     {
-        return $this->getFilteredSortedTableQuery()->forPage(
+        return $this->getFilteredSortedTableQuery()?->forPage(
             page: $this->getTableRecords()->currentPage(),
             perPage: $this->getTableRecords()->perPage(),
         );
