@@ -92,6 +92,8 @@ trait CanSortRecords
 
         $column->applySort($query, $sortDirection);
 
+        $this->applyDefaultKeySortToTableQuery($query);
+
         return $query;
     }
 
@@ -105,23 +107,50 @@ trait CanSortRecords
             ($sortColumn = $this->getTable()->getSortableVisibleColumn($defaultSort))
         ) {
             $sortColumn->applySort($query, $sortDirection);
-
-            return $query;
-        }
-
-        if (is_string($defaultSort)) {
-            return $query->orderBy($defaultSort, $sortDirection);
+        } elseif (is_string($defaultSort)) {
+            $query->orderBy($defaultSort, $sortDirection);
         }
 
         if ($defaultSort instanceof Builder) {
-            return $defaultSort;
+            $query = $defaultSort;
         }
 
         if (filled($query->toBase()->orders)) {
+            $this->applyDefaultKeySortToTableQuery($query);
+
             return $query;
         }
 
         return $query->orderBy($query->getModel()->getQualifiedKeyName());
+    }
+
+    protected function applyDefaultKeySortToTableQuery(Builder $query): Builder
+    {
+        if (! $this->getTable()->hasDefaultKeySort()) {
+            return $query;
+        }
+
+        $qualifiedKeyName = $query->getModel()->getQualifiedKeyName();
+
+        foreach ($query->toBase()->orders ?? [] as $order) { /** @phpstan-ignore nullCoalesce.property */
+            if (($order['column'] ?? null) === $qualifiedKeyName) {
+                return $query;
+            }
+
+            if (
+                is_string($order['column'] ?? null) &&
+                str($order['column'] ?? null)->contains('.') &&
+                str($order['column'] ?? null)->afterLast('.')->is(
+                    str($qualifiedKeyName)->afterLast('.')
+                )
+            ) {
+                return $query;
+            }
+        }
+
+        $query->orderBy($qualifiedKeyName);
+
+        return $query;
     }
 
     /**
