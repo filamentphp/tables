@@ -104,6 +104,10 @@ trait CanSortRecords
             $query = $defaultSort;
         }
 
+        if (filled($query->getQuery()->orders) && (! $this->getTable()->hasDefaultKeySort())) {
+            return $query;
+        }
+
         $qualifiedKeyName = $query->getModel()->getQualifiedKeyName();
 
         foreach ($query->getQuery()->orders ?? [] as $order) {

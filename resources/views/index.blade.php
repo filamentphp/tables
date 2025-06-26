@@ -876,7 +876,7 @@
                                                 wire:key="{{ $this->getId() }}.table.bulk_select_group.checkbox.{{ $page }}"
                                                 wire:loading.attr="disabled"
                                                 wire:target="{{ implode(',', \Filament\Tables\Table::LOADING_TARGETS) }}"
-                                                class="fi-ta-record-checkbox fi-ta-group-checkbox fi-checkbox-input"
+                                                class="fi-ta-group-checkbox fi-checkbox-input"
                                             />
                                         @endif
 
@@ -1541,7 +1541,7 @@
                                                                     wire:key="{{ $this->getId() }}.table.bulk_select_group.checkbox.{{ $page }}"
                                                                     wire:loading.attr="disabled"
                                                                     wire:target="{{ implode(',', \Filament\Tables\Table::LOADING_TARGETS) }}"
-                                                                    class="fi-ta-record-checkbox fi-ta-group-checkbox fi-checkbox-input"
+                                                                    class="fi-ta-group-checkbox fi-checkbox-input"
                                                                 />
                                                             @endif
                                                         </td>
@@ -1620,7 +1620,7 @@
                                                                     wire:key="{{ $this->getId() }}.table.bulk_select_group.checkbox.{{ $page }}"
                                                                     wire:loading.attr="disabled"
                                                                     wire:target="{{ implode(',', \Filament\Tables\Table::LOADING_TARGETS) }}"
-                                                                    class="fi-ta-record-checkbox fi-ta-group-checkbox fi-checkbox-input"
+                                                                    class="fi-ta-group-checkbox fi-checkbox-input"
                                                                 />
                                                             @endif
                                                         </td>

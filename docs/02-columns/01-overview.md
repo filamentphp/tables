@@ -35,7 +35,7 @@ TextColumn::make('author.name')
 
 ## Column content (state)
 
-Columns may feel a bit magic at first, but they are designed to be simple to use and optimized to display data from an Eloquent record. Despite this, they are flexible and you can display data from any source, not just an Eloquent record attribute.
+Columns may feel a bit magic at first, but they’re designed to be simple to use and optimized to display data from an Eloquent record. Despite this, they’re flexible and you can display data from any source, not just an Eloquent record attribute.
 
 The data that a column displays is called its "state". When using a [panel resource](../resources), the table is aware of the records it is displaying. This means that the state of the column is set based on the value of the attribute on the record. For example, if the column is used in the table of a `PostResource`, then the `title` attribute value of the current post will be displayed.
 
@@ -225,7 +225,7 @@ TextColumn::make('full_name')
     ->sortable(['first_name', 'last_name'])
 ```
 
-In this instance, the `full_name` column is not a real column in the database, but the `first_name` and `last_name` columns are. When the `full_name` column is sorted, Filament will sort the table by the `first_name` and `last_name` columns. The reason why two columns are passed is that if two records have the same `first_name`, the `last_name` will be used to sort them. If your use case does not require this, you can pass only one column in the array if you wish.
+In this instance, the `full_name` column is not a real column in the database, but the `first_name` and `last_name` columns are. When the `full_name` column is sorted, Filament will sort the table by the `first_name` and `last_name` columns. The reason why two columns are passed is that if two records have the same `first_name`, the `last_name` will be used to sort them. If your use case doesn’t require this, you can pass only one column in the array if you wish.
 
 You may also directly interact with the Eloquent query to customize how sorting is applied for that column:
 
@@ -262,7 +262,7 @@ public function table(Table $table): Table
 
 The second parameter is optional and defaults to `'asc'`.
 
-If you pass the name of a table column as the first parameter, Filament will use that column's sorting behavior (custom sorting columns or query function). However, if you need to sort by a column that does not exist in the table or in the database, you should pass a query function instead:
+If you pass the name of a table column as the first parameter, Filament will use that column's sorting behavior (custom sorting columns or query function). However, if you need to sort by a column that doesn’t exist in the table or in the database, you should pass a query function instead:
 
 ```php
 use Filament\Tables\Table;
@@ -314,6 +314,23 @@ public function table(Table $table): Table
 }
 ```
 
+## Disabling default primary key sorting
+
+By default, Filament will automatically add a primary key sort to the table query to ensure that the order of records is consistent. If your table doesn't have a primary key, or you wish to disable this behavior, you can use the `defaultKeySort(false)` method:
+
+```php
+use Filament\Tables\Table;
+
+public function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            // ...
+        ])
+        ->defaultKeySort(false);
+}
+```
+
 ## Searching
 
 Columns may be searchable by using the text input field in the top right of the table. To make a column searchable, you must use the `searchable()` method:
@@ -360,7 +377,7 @@ TextColumn::make('full_name')
 
 ### Adding extra searchable columns to the table
 
-You may allow the table to search with extra columns that are not present in the table by passing an array of column names to the `searchable()` method:
+You may allow the table to search with extra columns that aren’t present in the table by passing an array of column names to the `searchable()` method:
 
 ```php
 use Filament\Tables\Table;
@@ -1023,7 +1040,7 @@ function (Table $table) {
 
 ### Injecting multiple utilities
 
-The parameters are injected dynamically using reflection, so you are able to combine multiple parameters in any order:
+The parameters are injected dynamically using reflection, so you’re able to combine multiple parameters in any order:
 
 ```php
 use App\Models\User;
@@ -1059,7 +1076,7 @@ TextColumn::configureUsing(function (TextColumn $column): void {
 });
 ```
 
-Of course, you are still able to overwrite this on each column individually:
+Of course, you’re still able to overwrite this on each column individually:
 
 ```php
 use Filament\Tables\Columns\TextColumn;
