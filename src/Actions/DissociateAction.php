@@ -21,6 +21,8 @@ class DissociateAction extends Action
     {
         parent::setUp();
 
+        $this->requiresConfirmation();
+
         $this->label(__('filament-actions::dissociate.single.label'));
 
         $this->modalHeading(fn (): string => __('filament-actions::dissociate.single.modal.heading', ['label' => $this->getRecordTitle()]));
@@ -32,8 +34,6 @@ class DissociateAction extends Action
         $this->defaultColor('danger');
 
         $this->icon(FilamentIcon::resolve('actions::dissociate-action') ?? 'heroicon-m-x-mark');
-
-        $this->requiresConfirmation();
 
         $this->modalIcon(FilamentIcon::resolve('actions::dissociate-action.modal') ?? 'heroicon-o-x-mark');
 

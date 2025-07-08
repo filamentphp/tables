@@ -19,6 +19,8 @@ class DeleteAction extends Action
     {
         parent::setUp();
 
+        $this->requiresConfirmation();
+
         $this->label(__('filament-actions::delete.single.label'));
 
         $this->modalHeading(fn (): string => __('filament-actions::delete.single.modal.heading', ['label' => $this->getRecordTitle()]));
@@ -30,8 +32,6 @@ class DeleteAction extends Action
         $this->defaultColor('danger');
 
         $this->icon(FilamentIcon::resolve('actions::delete-action') ?? 'heroicon-m-trash');
-
-        $this->requiresConfirmation();
 
         $this->modalIcon(FilamentIcon::resolve('actions::delete-action.modal') ?? 'heroicon-o-trash');
 

@@ -22,6 +22,8 @@ class RestoreBulkAction extends BulkAction
     {
         parent::setUp();
 
+        $this->requiresConfirmation();
+
         $this->label(__('filament-actions::restore.multiple.label'));
 
         $this->modalHeading(fn (): string => __('filament-actions::restore.multiple.modal.heading', ['label' => $this->getPluralModelLabel()]));
@@ -33,8 +35,6 @@ class RestoreBulkAction extends BulkAction
         $this->defaultColor('gray');
 
         $this->icon(FilamentIcon::resolve('actions::restore-action') ?? 'heroicon-m-arrow-uturn-left');
-
-        $this->requiresConfirmation();
 
         $this->modalIcon(FilamentIcon::resolve('actions::restore-action.modal') ?? 'heroicon-o-arrow-uturn-left');
 

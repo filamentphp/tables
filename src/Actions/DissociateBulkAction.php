@@ -22,6 +22,8 @@ class DissociateBulkAction extends BulkAction
     {
         parent::setUp();
 
+        $this->requiresConfirmation();
+
         $this->label(__('filament-actions::dissociate.multiple.label'));
 
         $this->modalHeading(fn (): string => __('filament-actions::dissociate.multiple.modal.heading', ['label' => $this->getPluralModelLabel()]));
@@ -33,8 +35,6 @@ class DissociateBulkAction extends BulkAction
         $this->defaultColor('danger');
 
         $this->icon(FilamentIcon::resolve('actions::dissociate-action') ?? 'heroicon-m-x-mark');
-
-        $this->requiresConfirmation();
 
         $this->modalIcon(FilamentIcon::resolve('actions::dissociate-action.modal') ?? 'heroicon-o-x-mark');
 
