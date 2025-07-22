@@ -640,7 +640,6 @@
                     wire:poll.{{ $pollingInterval }}
                 @endif
                 class="fi-ta-content-ctn"
-                data-overlayscrollbars-initialize
             >
                 @if (($content || $hasColumnsLayout) && ($records !== null) && count($records))
                     @if (! $isReordering)
