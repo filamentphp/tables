@@ -10,7 +10,7 @@ use Filament\Tables\Grouping\Group;
 
 trait CanGroupRecords
 {
-    protected string | Group | null $defaultGroup = null;
+    protected string | Closure | Group | null $defaultGroup = null;
 
     /**
      * @var array<string, Group>
@@ -70,7 +70,7 @@ trait CanGroupRecords
         return $this;
     }
 
-    public function defaultGroup(string | Group | null $group): static
+    public function defaultGroup(string | Closure | Group | null $group): static
     {
         $this->defaultGroup = $group;
 
@@ -145,6 +145,10 @@ trait CanGroupRecords
 
     public function getDefaultGroup(): ?Group
     {
+        if ($this->defaultGroup instanceof Closure) {
+            $this->defaultGroup = $this->evaluate($this->defaultGroup);
+        }
+        
         if ($this->defaultGroup === null) {
             return null;
         }
