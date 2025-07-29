@@ -49,6 +49,31 @@
         $getToolbarActions(),
         fn (\Filament\Actions\Action | \Filament\Actions\ActionGroup $action): bool => $action->isVisible(),
     );
+
+    $hasNonBulkToolbarAction = false;
+
+    foreach ($toolbarActions as $toolbarAction) {
+        if ($toolbarAction instanceof \Filament\Actions\BulkActionGroup) {
+            continue;
+        }
+
+        if ($toolbarAction instanceof \Filament\Actions\ActionGroup) {
+            if ($toolbarAction->hasNonBulkAction()) {
+                $hasNonBulkToolbarAction = true;
+
+                break;
+            }
+
+            continue;
+        }
+
+        if (! $toolbarAction->isBulk()) {
+            $hasNonBulkToolbarAction = true;
+
+            break;
+        }
+    }
+
     $groups = $getGroups();
     $description = $getDescription();
     $isGroupsOnly = $isGroupsOnly() && $group;
@@ -135,7 +160,7 @@
     >
         <div
             @if (! $hasHeader) x-cloak @endif
-            x-show="@js($hasHeader) || (getSelectedRecordsCount() && @js(count($toolbarActions)))"
+            x-show="@js($hasHeader) || @js($hasNonBulkToolbarAction) || (getSelectedRecordsCount() && @js(count($toolbarActions)))"
             class="fi-ta-header-ctn"
         >
             {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::HEADER_BEFORE, scopes: static::class) }}
@@ -210,7 +235,7 @@
 
             <div
                 @if (! $hasHeaderToolbar) x-cloak @endif
-                x-show="@js($hasHeaderToolbar) || (getSelectedRecordsCount() && @js(count($toolbarActions)))"
+                x-show="@js($hasHeaderToolbar) || @js($hasNonBulkToolbarAction) || (getSelectedRecordsCount() && @js(count($toolbarActions)))"
                 class="fi-ta-header-toolbar"
             >
                 {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_START, scopes: static::class) }}
