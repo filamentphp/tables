@@ -2,12 +2,14 @@
     use Filament\Support\Enums\Alignment;
     use Filament\Support\Enums\VerticalAlignment;
     use Filament\Support\Enums\Width;
+    use Filament\Support\Facades\FilamentView;
     use Filament\Tables\Actions\HeaderActionsPosition;
     use Filament\Tables\Columns\Column;
     use Filament\Tables\Columns\ColumnGroup;
     use Filament\Tables\Enums\FiltersLayout;
     use Filament\Tables\Enums\RecordActionsPosition;
     use Filament\Tables\Enums\RecordCheckboxPosition;
+    use Filament\Tables\View\TablesRenderHook;
     use Illuminate\Support\Str;
     use Illuminate\View\ComponentAttributeBag;
 
@@ -163,7 +165,7 @@
             x-show="@js($hasHeader) || @js($hasNonBulkToolbarAction) || (getSelectedRecordsCount() && @js(count($toolbarActions)))"
             class="fi-ta-header-ctn"
         >
-            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::HEADER_BEFORE, scopes: static::class) }}
+            {{ FilamentView::renderHook(TablesRenderHook::HEADER_BEFORE, scopes: static::class) }}
 
             @if ($header)
                 {{ $header }}
@@ -202,7 +204,7 @@
                 </div>
             @endif
 
-            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::HEADER_AFTER, scopes: static::class) }}
+            {{ FilamentView::renderHook(TablesRenderHook::HEADER_AFTER, scopes: static::class) }}
 
             @if ($hasFiltersAboveContent)
                 <div
@@ -231,23 +233,23 @@
                 </div>
             @endif
 
-            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_BEFORE, scopes: static::class) }}
+            {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_BEFORE, scopes: static::class) }}
 
             <div
                 @if (! $hasHeaderToolbar) x-cloak @endif
                 x-show="@js($hasHeaderToolbar) || @js($hasNonBulkToolbarAction) || (getSelectedRecordsCount() && @js(count($toolbarActions)))"
                 class="fi-ta-header-toolbar"
             >
-                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_START, scopes: static::class) }}
+                {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_START, scopes: static::class) }}
 
                 <div class="fi-ta-actions fi-align-start fi-wrapped">
-                    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE, scopes: static::class) }}
+                    {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_REORDER_TRIGGER_BEFORE, scopes: static::class) }}
 
                     @if ($isReorderable)
                         {{ $reorderRecordsTriggerAction }}
                     @endif
 
-                    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_REORDER_TRIGGER_AFTER, scopes: static::class) }}
+                    {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_REORDER_TRIGGER_AFTER, scopes: static::class) }}
 
                     @if ((! $isReordering) && count($toolbarActions))
                         @foreach ($toolbarActions as $action)
@@ -255,7 +257,7 @@
                         @endforeach
                     @endif
 
-                    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_GROUPING_SELECTOR_BEFORE, scopes: static::class) }}
+                    {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_GROUPING_SELECTOR_BEFORE, scopes: static::class) }}
 
                     @if ($areGroupingSettingsVisible)
                         <div
@@ -398,12 +400,12 @@
                         </div>
                     @endif
 
-                    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_GROUPING_SELECTOR_AFTER, scopes: static::class) }}
+                    {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_GROUPING_SELECTOR_AFTER, scopes: static::class) }}
                 </div>
 
                 @if ($isGlobalSearchVisible || $hasFiltersDialog || $hasColumnManagerDropdown)
                     <div>
-                        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_SEARCH_BEFORE, scopes: static::class) }}
+                        {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_SEARCH_BEFORE, scopes: static::class) }}
 
                         @if ($isGlobalSearchVisible)
                             @php
@@ -417,7 +419,7 @@
                             />
                         @endif
 
-                        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_SEARCH_AFTER, scopes: static::class) }}
+                        {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_SEARCH_AFTER, scopes: static::class) }}
 
                         @if ($hasFiltersDialog || $hasColumnManagerDropdown)
                             @if ($hasFiltersDialog)
@@ -494,7 +496,7 @@
                                 @endif
                             @endif
 
-                            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_COLUMN_MANAGER_TRIGGER_BEFORE, scopes: static::class) }}
+                            {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_COLUMN_MANAGER_TRIGGER_BEFORE, scopes: static::class) }}
 
                             @if ($hasColumnManagerDropdown)
                                 @php
@@ -526,15 +528,15 @@
                                 </x-filament::dropdown>
                             @endif
 
-                            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_COLUMN_MANAGER_TRIGGER_AFTER, scopes: static::class) }}
+                            {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_COLUMN_MANAGER_TRIGGER_AFTER, scopes: static::class) }}
                         @endif
                     </div>
                 @endif
 
-                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_END) }}
+                {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_END) }}
             </div>
 
-            {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::TOOLBAR_AFTER) }}
+            {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_AFTER) }}
         </div>
 
         @if ($isReordering)
@@ -578,7 +580,7 @@
 
                 @if (! $isSelectionDisabled)
                     <div>
-                        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE, scopes: static::class) }}
+                        {{ FilamentView::renderHook(TablesRenderHook::SELECTION_INDICATOR_ACTIONS_BEFORE, scopes: static::class) }}
 
                         <div class="fi-ta-selection-indicator-actions-ctn">
                             <x-filament::link
@@ -601,62 +603,66 @@
                             </x-filament::link>
                         </div>
 
-                        {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\Tables\View\TablesRenderHook::SELECTION_INDICATOR_ACTIONS_AFTER, scopes: static::class) }}
+                        {{ FilamentView::renderHook(TablesRenderHook::SELECTION_INDICATOR_ACTIONS_AFTER, scopes: static::class) }}
                     </div>
                 @endif
             </div>
         @endif
 
         @if ($filterIndicators)
-            <div class="fi-ta-filter-indicators">
-                <div>
-                    <span class="fi-ta-filter-indicators-label">
-                        {{ __('filament-tables::table.filters.indicator') }}
-                    </span>
+            @if (filled($filterIndicatorsView = FilamentView::renderHook(TablesRenderHook::FILTER_INDICATORS, scopes: static::class, data: ['filterIndicators' => $filterIndicators])))
+                {{ $filterIndicatorsView }}
+            @else
+                <div class="fi-ta-filter-indicators">
+                    <div>
+                        <span class="fi-ta-filter-indicators-label">
+                            {{ __('filament-tables::table.filters.indicator') }}
+                        </span>
 
-                    <div class="fi-ta-filter-indicators-badges-ctn">
-                        @foreach ($filterIndicators as $indicator)
-                            @php
-                                $indicatorColor = $indicator->getColor();
-                            @endphp
+                        <div class="fi-ta-filter-indicators-badges-ctn">
+                            @foreach ($filterIndicators as $indicator)
+                                @php
+                                    $indicatorColor = $indicator->getColor();
+                                @endphp
 
-                            <x-filament::badge :color="$indicatorColor">
-                                {{ $indicator->getLabel() }}
+                                <x-filament::badge :color="$indicatorColor">
+                                    {{ $indicator->getLabel() }}
 
-                                @if ($indicator->isRemovable())
-                                    @php
-                                        $indicatorRemoveLivewireClickHandler = $indicator->getRemoveLivewireClickHandler();
-                                    @endphp
+                                    @if ($indicator->isRemovable())
+                                        @php
+                                            $indicatorRemoveLivewireClickHandler = $indicator->getRemoveLivewireClickHandler();
+                                        @endphp
 
-                                    <x-slot
-                                        name="deleteButton"
-                                        :label="__('filament-tables::table.filters.actions.remove.label')"
-                                        :wire:click="$indicatorRemoveLivewireClickHandler"
-                                        wire:loading.attr="disabled"
-                                        wire:target="removeTableFilter"
-                                    ></x-slot>
-                                @endif
-                            </x-filament::badge>
-                        @endforeach
+                                        <x-slot
+                                            name="deleteButton"
+                                            :label="__('filament-tables::table.filters.actions.remove.label')"
+                                            :wire:click="$indicatorRemoveLivewireClickHandler"
+                                            wire:loading.attr="disabled"
+                                            wire:target="removeTableFilter"
+                                        ></x-slot>
+                                    @endif
+                                </x-filament::badge>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
 
-                @if (collect($filterIndicators)->contains(fn (\Filament\Tables\Filters\Indicator $indicator): bool => $indicator->isRemovable()))
-                    <button
-                        type="button"
-                        x-tooltip="{
-                            content: @js(__('filament-tables::table.filters.actions.remove_all.tooltip')),
-                            theme: $store.theme,
-                        }"
-                        wire:click="removeTableFilters"
-                        wire:loading.attr="disabled"
-                        wire:target="removeTableFilters,removeTableFilter"
-                        class="fi-icon-btn fi-size-sm"
-                    >
-                        {{ \Filament\Support\generate_icon_html(\Filament\Support\Icons\Heroicon::XMark, alias: \Filament\Tables\View\TablesIconAlias::FILTERS_REMOVE_ALL_BUTTON, size: \Filament\Support\Enums\IconSize::Small) }}
-                    </button>
-                @endif
-            </div>
+                    @if (collect($filterIndicators)->contains(fn (\Filament\Tables\Filters\Indicator $indicator): bool => $indicator->isRemovable()))
+                        <button
+                            type="button"
+                            x-tooltip="{
+                                content: @js(__('filament-tables::table.filters.actions.remove_all.tooltip')),
+                                theme: $store.theme,
+                            }"
+                            wire:click="removeTableFilters"
+                            wire:loading.attr="disabled"
+                            wire:target="removeTableFilters,removeTableFilter"
+                            class="fi-icon-btn fi-size-sm"
+                        >
+                            {{ \Filament\Support\generate_icon_html(\Filament\Support\Icons\Heroicon::XMark, alias: \Filament\Tables\View\TablesIconAlias::FILTERS_REMOVE_ALL_BUTTON, size: \Filament\Support\Enums\IconSize::Small) }}
+                        </button>
+                    @endif
+                </div>
+            @endif
         @endif
 
         @if (((! $content) && (! $hasColumnsLayout)) || ($records === null) || count($records))
@@ -715,22 +721,43 @@
                                 @if (count($sortableColumns))
                                     <div
                                         x-data="{
-                                            column: $wire.$entangle('tableSortColumn', true),
-                                            direction: $wire.$entangle('tableSortDirection', true),
+                                            sort: $wire.$entangle('tableSort', true),
+                                            column: null,
+                                            direction: null,
                                         }"
                                         x-init="
+                                            if (sort) {
+                                                ;[column, direction] = sort.split(':')
+                                            }
+
+                                            $watch('sort', function () {
+                                                if (! sort) {
+                                                    return
+                                                }
+
+                                                ;[column, direction] = sort.split(':')
+                                            })
+
+                                            $watch('direction', function () {
+                                                sort = column ? `${column}:${direction}` : null
+                                            })
+
                                             $watch('column', function (newColumn, oldColumn) {
                                                 if (! newColumn) {
                                                     direction = null
+                                                    sort = column ? `${column}:${direction}` : null
 
                                                     return
                                                 }
 
                                                 if (oldColumn) {
+                                                    sort = column ? `${column}:${direction}` : null
+
                                                     return
                                                 }
 
                                                 direction = 'asc'
+                                                sort = column ? `${column}:${direction}` : null
                                             })
                                         "
                                         class="fi-ta-sorting-settings"
