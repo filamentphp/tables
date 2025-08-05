@@ -2,6 +2,7 @@ export default ({
     canTrackDeselectedRecords,
     currentSelectionLivewireProperty,
     maxSelectableRecords,
+    selectsCurrentPageOnly,
     $wire,
 }) => ({
     checkboxClickController: null,
@@ -167,7 +168,7 @@ export default ({
     },
 
     async selectAllRecords() {
-        if (!canTrackDeselectedRecords) {
+        if (!canTrackDeselectedRecords || selectsCurrentPageOnly) {
             this.isLoading = true
 
             this.selectedRecords = new Set(
@@ -188,7 +189,7 @@ export default ({
         this.updatedSelectedRecords()
     },
 
-    canSelectAllRecords(selectsCurrentPageOnly) {
+    canSelectAllRecords() {
         if (selectsCurrentPageOnly) {
             const recordsOnPage = this.getRecordsOnPage()
 

@@ -139,6 +139,7 @@
                 canTrackDeselectedRecords: @js($canTrackDeselectedRecords()),
                 currentSelectionLivewireProperty: @js($getCurrentSelectionLivewireProperty()),
                 maxSelectableRecords: @js($maxSelectableRecords),
+                selectsCurrentPageOnly: @js($selectsCurrentPageOnly),
                 $wire,
             })"
     {{
@@ -587,7 +588,7 @@
                                 color="primary"
                                 tag="button"
                                 x-on:click="selectAllRecords"
-                                :x-show="'canSelectAllRecords(' . \Illuminate\Support\Js::from($selectsCurrentPageOnly) . ')'"
+                                x-show="canSelectAllRecords()"
                                 {{-- Make sure the Alpine attributes get re-evaluated after a Livewire request: --}}
                                 :wire:key="$this->getId() . 'table.selection.indicator.actions.select-all.' . $allSelectableRecordsCount . '.' . $page"
                             >
