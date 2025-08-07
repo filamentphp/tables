@@ -29,7 +29,7 @@ export default ({
 
     init() {
         this.livewireId =
-            this.$root.closest('[wire\\:id]').attributes['wire:id'].value
+            this.$root.closest('[wire\\:id]')?.attributes['wire:id'].value
 
         $wire.$on('deselectAllTableRecords', () => this.deselectAllRecords())
 

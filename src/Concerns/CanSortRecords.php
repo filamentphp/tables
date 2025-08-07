@@ -27,7 +27,7 @@ trait CanSortRecords
 
     public function getTableSortColumn(): ?string
     {
-        if (! str($this->tableSort)->contains(':')) {
+        if (blank($this->tableSort)) {
             return null;
         }
 
@@ -36,11 +36,19 @@ trait CanSortRecords
 
     public function getTableSortDirection(): ?string
     {
-        if (! str($this->tableSort)->contains(':')) {
+        if (blank($this->tableSort)) {
             return null;
         }
 
-        return (string) str($this->tableSort)->after(':');
+        if (! str($this->tableSort)->contains(':')) {
+            return 'asc';
+        }
+
+        return match ((string) str($this->tableSort)->after(':')) {
+            'asc' => 'asc',
+            'desc' => 'desc',
+            default => null,
+        };
     }
 
     public function updatedTableSort(): void

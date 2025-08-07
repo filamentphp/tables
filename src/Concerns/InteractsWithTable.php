@@ -89,7 +89,7 @@ trait InteractsWithTable
         }
 
         if ($this->getTable()->isDefaultGroupSelectable()) {
-            $this->tableGrouping = $this->getTable()->getDefaultGroup()->getId();
+            $this->tableGrouping = "{$this->getTable()->getDefaultGroup()->getId()}:asc";
         }
 
         $shouldPersistSearchInSession = $this->getTable()->persistsSearchInSession();
