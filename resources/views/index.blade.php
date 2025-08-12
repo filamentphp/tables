@@ -275,6 +275,9 @@
 
                                 $watch('grouping', function () {
                                     if (! grouping) {
+                                        group = null
+                                        direction = null
+
                                         return
                                     }
 
@@ -300,7 +303,7 @@
                                         return
                                     }
 
-                                    direction = 'asc'
+                                    direction ??= 'asc'
                                     grouping = group ? `${group}:${direction}` : null
                                 })
                             "

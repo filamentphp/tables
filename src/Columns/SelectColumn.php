@@ -961,7 +961,7 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                             theme: $store.theme,
                         }
                 "
-                x-on:click.prevent.stop=""
+                x-on:click.prevent.stop
                 <?php if (! $isNative) { ?>
                     wire:ignore
                     x-on:keydown.esc="select.dropdown.isActive && $event.stopPropagation()"
