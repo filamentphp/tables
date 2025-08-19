@@ -32,7 +32,7 @@ return [
 
             'no_search_results_message' => 'I search hi a awmlo.',
 
-            'placeholder' => 'Select an option',
+            'placeholder' => 'Option thlang rawh',
 
             'searching_message' => 'Searching...',
 
@@ -68,9 +68,9 @@ return [
         ],
 
         'search' => [
-            'label' => 'Search',
-            'placeholder' => 'Search',
-            'indicator' => 'Search',
+            'label' => 'Zawnna',
+            'placeholder' => 'Zawnna',
+            'indicator' => 'Zawnna',
         ],
 
     ],
@@ -122,7 +122,7 @@ return [
         ],
 
         'open_bulk_actions' => [
-            'label' => 'Bulk actions',
+            'label' => 'Tamtak tihna',
         ],
 
         'column_manager' => [
@@ -133,7 +133,7 @@ return [
 
     'empty' => [
 
-        'heading' => 'No :model',
+        'heading' => ':Model an awm lo',
 
         'description' => 'A bultan nan :model siam rawh.',
 
@@ -226,11 +226,11 @@ return [
         'actions' => [
 
             'select_all' => [
-                'label' => 'Select all :count',
+                'label' => 'Avaia :count thlanna',
             ],
 
             'deselect_all' => [
-                'label' => 'Deselect all',
+                'label' => 'Thlan sa paih na',
             ],
 
         ],
