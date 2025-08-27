@@ -423,6 +423,12 @@ class ImageColumn extends Column implements HasEmbeddedView
                 'fi-inline' => $this->isInline(),
             ]);
 
+        $defaultImageUrl = $this->getDefaultImageUrl();
+
+        if (blank($state) && filled($defaultImageUrl)) {
+            $state = [null];
+        }
+
         if (blank($state)) {
             $attributes = $attributes
                 ->merge([
@@ -470,8 +476,6 @@ class ImageColumn extends Column implements HasEmbeddedView
         $limitedRemainingTextSize = $this->getLimitedRemainingTextSize();
         $height = $this->getImageHeight() ?? ($isStacked ? '2rem' : '2.5rem');
         $width = $this->getImageWidth() ?? (($isCircular || $isSquare) ? $height : null);
-
-        $defaultImageUrl = $this->getDefaultImageUrl();
 
         $attributes = $attributes
             ->class([

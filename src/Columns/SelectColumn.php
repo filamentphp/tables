@@ -31,6 +31,7 @@ use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Renderless;
+use Stringable;
 use Znck\Eloquent\Relations\BelongsToThrough;
 
 use function Filament\Support\generate_search_column_expression;
@@ -373,6 +374,8 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
 
             if ($state instanceof BackedEnum) {
                 $state = $state->value;
+            } elseif ($state instanceof Stringable) {
+                $state = (string) $state;
             }
 
             foreach ($options as $groupedOptions) {
