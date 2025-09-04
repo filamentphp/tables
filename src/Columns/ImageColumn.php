@@ -412,10 +412,13 @@ class ImageColumn extends Column implements HasEmbeddedView
             $state = $state->all();
         }
 
+        $alignment = $this->getAlignment();
+
         $attributes = $this->getExtraAttributeBag()
             ->class([
                 'fi-ta-image',
                 'fi-inline' => $this->isInline(),
+                ($alignment instanceof Alignment) ? "fi-align-{$alignment->value}" : (is_string($alignment) ? $alignment : ''),
             ]);
 
         $defaultImageUrl = $this->getDefaultImageUrl();
@@ -463,7 +466,6 @@ class ImageColumn extends Column implements HasEmbeddedView
             $state = array_slice($state, 0, $limit);
         }
 
-        $alignment = $this->getAlignment();
         $isCircular = $this->isCircular();
         $isSquare = $this->isSquare();
         $isStacked = $this->isStacked();
@@ -479,7 +481,6 @@ class ImageColumn extends Column implements HasEmbeddedView
                 'fi-stacked' => $isStacked,
                 ($isStacked && is_int($ring = $this->getRing())) ? "fi-ta-image-ring fi-ta-image-ring-{$ring}" : '',
                 ($isStacked && ($overlap = ($this->getOverlap() ?? 2))) ? "fi-ta-image-overlap-{$overlap}" : '',
-                ($alignment instanceof Alignment) ? "fi-align-{$alignment->value}" : (is_string($alignment) ? $alignment : ''),
             ]);
 
         $shouldOpenUrlInNewTab = $this->shouldOpenUrlInNewTab();
