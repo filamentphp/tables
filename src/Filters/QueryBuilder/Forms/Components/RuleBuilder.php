@@ -90,7 +90,7 @@ class RuleBuilder extends Builder
                                                 throw new LogicException('No block component found.');
                                             }
 
-                                            return $block->getLabel($schema->getRawState(), $blockUuid);
+                                            return $block->getLabel($schema->getStateSnapshot(), $blockUuid);
                                         });
 
                                     if ($blockLabels->isEmpty()) {
