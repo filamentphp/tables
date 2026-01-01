@@ -72,7 +72,7 @@ public function table(Table $table): Table
 }
 ```
 
-You may use the [trigger action API](getting-started#customizing-the-filters-trigger-action) to [customize the modal](../actions/modals), including [using a `slideOver()`](../actions/modals#using-a-slide-over-instead-of-a-modal).
+You may use the [trigger action API](getting-started#customizing-the-filters-trigger-action) to [customize the modal](../../actions/modals), including [using a `slideOver()`](../../actions/modals#using-a-slide-over-instead-of-a-modal).
 
 ## Displaying filters above the table content
 

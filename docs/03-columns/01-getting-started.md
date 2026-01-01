@@ -427,7 +427,7 @@ TextColumn::make('id')
 
 #### Customizing the toggle columns dropdown trigger action
 
-To customize the toggle dropdown trigger button, you may use the `toggleColumnsTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../actions/trigger-button) can be used:
+To customize the toggle dropdown trigger button, you may use the `toggleColumnsTriggerAction()` method, passing a closure that returns an action. All methods that are available to [customize action trigger buttons](../../actions/trigger-button) can be used:
 
 ```php
 use Filament\Tables\Actions\Action;
