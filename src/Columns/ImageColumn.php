@@ -7,7 +7,6 @@ use Filament\Support\Components\Contracts\HasEmbeddedView;
 use Filament\Support\Concerns\CanWrap;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\TextSize;
-use Filament\Support\View\ComponentAttributeBag as FilamentComponentAttributeBag;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -300,7 +299,7 @@ class ImageColumn extends Column implements HasEmbeddedView
      */
     public function getExtraImgAttributes(): array
     {
-        $temporaryAttributeBag = new FilamentComponentAttributeBag;
+        $temporaryAttributeBag = new ComponentAttributeBag;
 
         foreach ($this->extraImgAttributes as $extraImgAttributes) {
             $temporaryAttributeBag = $temporaryAttributeBag->merge($this->evaluate($extraImgAttributes), escape: false);
@@ -311,7 +310,7 @@ class ImageColumn extends Column implements HasEmbeddedView
 
     public function getExtraImgAttributeBag(): ComponentAttributeBag
     {
-        return new FilamentComponentAttributeBag($this->getExtraImgAttributes());
+        return new ComponentAttributeBag($this->getExtraImgAttributes());
     }
 
     public function stacked(bool | Closure $condition = true): static
@@ -525,7 +524,7 @@ class ImageColumn extends Column implements HasEmbeddedView
             <?php } ?>
 
             <?php if ($hasLimitedRemainingText) { ?>
-                <div <?= (new FilamentComponentAttributeBag)
+                <div <?= (new ComponentAttributeBag)
                 ->class([
                     'fi-ta-image-limited-remaining-text',
                     (($limitedRemainingTextSize instanceof TextSize) ? "fi-size-{$limitedRemainingTextSize->value}" : $limitedRemainingTextSize) => $limitedRemainingTextSize,

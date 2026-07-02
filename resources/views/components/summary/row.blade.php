@@ -24,21 +24,6 @@
             ->reject(fn (Column $column): bool => $column->getName() === $groupColumn)
             ->all();
     }
-
-    // `$query` is constant for this render, so each column's resolved summarizers are
-    // too. Resolve them once here instead of re-running `getSummarizers($query)` (and
-    // `hasSummary($query)`, which wraps it) in every loop guard below. Keyed by the
-    // `$columns` array key so the heading-span loop and the cell loop share the lookup.
-    $columnsWithSummary = [];
-
-    foreach ($columns as $summaryColumnKey => $summaryColumn) {
-        $summaryColumnSummarizers = $summaryColumn->getSummarizers($query);
-
-        $columnsWithSummary[$summaryColumnKey] = [
-            'summarizers' => $summaryColumnSummarizers,
-            'hasSummary' => (bool) count($summaryColumnSummarizers),
-        ];
-    }
 @endphp
 
 <tr {{ $attributes->class(['fi-ta-row fi-ta-summary-row']) }}>
@@ -63,7 +48,7 @@
                     continue;
                 }
 
-                if ($columnsWithSummary[$index]['hasSummary']) {
+                if ($column->hasSummary($query)) {
                     break;
                 }
 
@@ -72,8 +57,8 @@
         @endphp
     @endif
 
-    @foreach ($columns as $columnKey => $column)
-        @if (($loop->first || $extraHeadingColumn || $groupsOnly || ($loop->iteration > $headingColumnSpan)) && ($placeholderColumns || $columnsWithSummary[$columnKey]['hasSummary']))
+    @foreach ($columns as $column)
+        @if (($loop->first || $extraHeadingColumn || $groupsOnly || ($loop->iteration > $headingColumnSpan)) && ($placeholderColumns || $column->hasSummary($query)))
             @php
                 $alignment = $column->getAlignment() ?? Alignment::Start;
 
@@ -92,8 +77,8 @@
             >
                 @if ($loop->first && (! $extraHeadingColumn) && (! $groupsOnly))
                     {{ $heading }}
-                @elseif ((! $placeholderColumns) || $columnsWithSummary[$columnKey]['hasSummary'])
-                    @foreach ($columnsWithSummary[$columnKey]['summarizers'] as $summarizer)
+                @elseif ((! $placeholderColumns) || $column->hasSummary($query))
+                    @foreach ($column->getSummarizers($query) as $summarizer)
                         {{ $summarizer->query($query)->selectedState($selectedState) }}
                     @endforeach
                 @endif

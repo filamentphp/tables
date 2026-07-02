@@ -8,7 +8,6 @@ use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Pagination\CursorPaginator;
 use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -29,12 +28,6 @@ trait HasRecords
 
     protected ?Closure $dataSource = null;
 
-    protected ?string $cachedModel = null;
-
-    protected bool $hasCachedModel = false;
-
-    protected ?bool $cachedHasPivotRecordKeys = null;
-
     protected ?Closure $resolveSelectedRecordsUsing = null;
 
     public function records(?Closure $dataSource): static
@@ -54,7 +47,6 @@ trait HasRecords
     public function allowDuplicates(bool | Closure $condition = true): static
     {
         $this->allowsDuplicates = $condition;
-        $this->cachedHasPivotRecordKeys = null;
 
         return $this;
     }
@@ -120,35 +112,20 @@ trait HasRecords
      */
     public function getModel(): ?string
     {
-        if ($this->hasCachedModel) {
-            return $this->cachedModel;
+        $query = $this->getQuery();
+
+        $model = $query?->getModel();
+
+        if (blank($model)) {
+            return null;
         }
 
-        $this->hasCachedModel = true;
-
-        if ($baseQuery = $this->evaluate($this->query)) {
-            return $this->cachedModel = $baseQuery->getModel()::class;
-        }
-
-        if ($relationshipQuery = $this->getRelationshipQuery()) {
-            return $this->cachedModel = $relationshipQuery->getModel()::class;
-        }
-
-        return $this->cachedModel = null;
+        return $model::class;
     }
 
     public function allowsDuplicates(): bool
     {
         return (bool) $this->evaluate($this->allowsDuplicates);
-    }
-
-    /** Cached because both underlying calls evaluate Closures and this is hit per row. */
-    public function hasPivotRecordKeys(): bool
-    {
-        return $this->cachedHasPivotRecordKeys ??= (
-            ($this->getRelationship() instanceof BelongsToMany)
-            && $this->allowsDuplicates()
-        );
     }
 
     public function getModelLabel(): string

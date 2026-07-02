@@ -3,7 +3,6 @@
 namespace Filament\Tables\Columns\Concerns;
 
 use Closure;
-use Filament\Support\View\ComponentAttributeBag as FilamentComponentAttributeBag;
 use Illuminate\View\ComponentAttributeBag;
 
 trait HasExtraHeaderAttributes
@@ -35,7 +34,7 @@ trait HasExtraHeaderAttributes
      */
     public function getExtraHeaderAttributes(): array
     {
-        $temporaryAttributeBag = new FilamentComponentAttributeBag;
+        $temporaryAttributeBag = new ComponentAttributeBag;
 
         foreach ($this->extraHeaderAttributes as $extraHeaderAttributes) {
             $temporaryAttributeBag = $temporaryAttributeBag->merge($this->evaluate($extraHeaderAttributes), escape: false);
@@ -46,6 +45,6 @@ trait HasExtraHeaderAttributes
 
     public function getExtraHeaderAttributeBag(): ComponentAttributeBag
     {
-        return new FilamentComponentAttributeBag($this->getExtraHeaderAttributes());
+        return new ComponentAttributeBag($this->getExtraHeaderAttributes());
     }
 }

@@ -174,7 +174,7 @@ trait HasFilters
             $filtersForm = $this->getTableFiltersForm()->statePath('tableFilters');
 
             $filtersForm->flushCachedAbsoluteStatePaths();
-            $filtersForm->clearCachedChildSchemas();
+            $filtersForm->clearCachedDefaultChildSchemas();
         }
 
         try {
@@ -202,7 +202,7 @@ trait HasFilters
                 $filtersForm = $this->getTableFiltersForm()->statePath('tableDeferredFilters');
 
                 $filtersForm->flushCachedAbsoluteStatePaths();
-                $filtersForm->clearCachedChildSchemas();
+                $filtersForm->clearCachedDefaultChildSchemas();
             }
         }
     }
