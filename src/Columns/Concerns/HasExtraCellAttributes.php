@@ -3,7 +3,6 @@
 namespace Filament\Tables\Columns\Concerns;
 
 use Closure;
-use Filament\Support\View\ComponentAttributeBag as FilamentComponentAttributeBag;
 use Illuminate\View\ComponentAttributeBag;
 
 trait HasExtraCellAttributes
@@ -35,7 +34,7 @@ trait HasExtraCellAttributes
      */
     public function getExtraCellAttributes(): array
     {
-        $temporaryAttributeBag = new FilamentComponentAttributeBag;
+        $temporaryAttributeBag = new ComponentAttributeBag;
 
         foreach ($this->extraCellAttributes as $extraCellAttributes) {
             $temporaryAttributeBag = $temporaryAttributeBag->merge($this->evaluate($extraCellAttributes), escape: false);
@@ -46,17 +45,6 @@ trait HasExtraCellAttributes
 
     public function getExtraCellAttributeBag(): ComponentAttributeBag
     {
-        return new FilamentComponentAttributeBag($this->getExtraCellAttributes());
-    }
-
-    public function hasDynamicExtraCellAttributes(): bool
-    {
-        foreach ($this->extraCellAttributes as $attributes) {
-            if ($attributes instanceof Closure) {
-                return true;
-            }
-        }
-
-        return false;
+        return new ComponentAttributeBag($this->getExtraCellAttributes());
     }
 }

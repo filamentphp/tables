@@ -27,11 +27,6 @@ trait HasColumnManager
      */
     protected ?array $cachedDefaultTableColumnState = null;
 
-    /**
-     * @var array<string, bool> | null
-     */
-    protected ?array $tableColumnsToggleStateByName = null;
-
     protected ?bool $hasReorderableTableColumns = null;
 
     public function initTableColumnManager(): void
@@ -41,7 +36,7 @@ trait HasColumnManager
         }
 
         if (blank($this->tableColumns)) {
-            $this->setTableColumns($this->loadTableColumnsFromSession());
+            $this->tableColumns = $this->loadTableColumnsFromSession();
         }
 
         $this->applyTableColumnManager();
@@ -77,7 +72,7 @@ trait HasColumnManager
     public function applyTableColumnManager(?array $state = null, bool $wasReordered = false): void
     {
         if (filled($state)) {
-            $this->setTableColumns($state);
+            $this->tableColumns = $state;
 
             if ($this->hasReorderableTableColumns()) {
                 $this->persistHasReorderedTableColumns($wasReordered);
@@ -93,7 +88,7 @@ trait HasColumnManager
 
     public function resetTableColumnManager(): void
     {
-        $this->setTableColumns($this->getDefaultTableColumnState());
+        $this->tableColumns = $this->getDefaultTableColumnState();
 
         if ($this->hasReorderableTableColumns()) {
             $this->updateTableColumns();
@@ -103,46 +98,23 @@ trait HasColumnManager
         $this->persistTableColumns();
     }
 
-    /**
-     * @param  array<int, array{type: string, name: string, label: string, isHidden: bool, isToggled: bool, isToggleable: bool, isToggledHiddenByDefault: ?bool, columns?: array<int, array{type: string, name: string, label: string, isHidden: bool, isToggled: bool, isToggleable: bool, isToggledHiddenByDefault: ?bool}>}>  $tableColumns
-     */
-    protected function setTableColumns(array $tableColumns): void
+    public function isTableColumnToggledHidden(string $name): bool
     {
-        $this->tableColumns = $tableColumns;
-        $this->tableColumnsToggleStateByName = null;
-    }
-
-    /**
-     * @return array<string, bool>
-     */
-    protected function getTableColumnsToggleStateByName(): array
-    {
-        if ($this->tableColumnsToggleStateByName !== null) {
-            return $this->tableColumnsToggleStateByName;
-        }
-
-        $map = [];
-
         foreach ($this->tableColumns as $item) {
-            if ($item['type'] === self::TABLE_COLUMN_MANAGER_COLUMN_TYPE) {
-                $map[$item['name']] = (bool) $item['isToggled'];
-
-                continue;
+            if ($item['type'] === self::TABLE_COLUMN_MANAGER_COLUMN_TYPE && $item['name'] === $name) {
+                return ! $item['isToggled'];
             }
 
             if ($item['type'] === self::TABLE_COLUMN_MANAGER_GROUP_TYPE && isset($item['columns'])) {
                 foreach ($item['columns'] as $column) {
-                    $map[$column['name']] = (bool) $column['isToggled'];
+                    if ($column['name'] === $name) {
+                        return ! $column['isToggled'];
+                    }
                 }
             }
         }
 
-        return $this->tableColumnsToggleStateByName = $map;
-    }
-
-    public function isTableColumnToggledHidden(string $name): bool
-    {
-        return ! ($this->getTableColumnsToggleStateByName()[$name] ?? false);
+        return true;
     }
 
     /**
@@ -272,12 +244,12 @@ trait HasColumnManager
     {
         $defaultColumnState = $this->getDefaultTableColumnState();
 
-        $this->setTableColumns(collect($this->tableColumns)
+        $this->tableColumns = collect($this->tableColumns)
             ->map(fn (array $item) => $this->syncItemFromDefaultTableColumnState($item, $defaultColumnState))
             ->filter()
             ->values()
             ->merge($this->getNewDefaultColumnStateItems($defaultColumnState))
-            ->all());
+            ->all();
 
         $this->updateTableColumns();
     }
@@ -315,9 +287,9 @@ trait HasColumnManager
 
     protected function syncStaticColumnsFromTableColumnState(): void
     {
-        $this->setTableColumns(collect($this->getDefaultTableColumnState())
+        $this->tableColumns = collect($this->getDefaultTableColumnState())
             ->map(fn (array $item) => $this->syncItemFromTableColumnState($item, $this->tableColumns))
-            ->all());
+            ->all();
     }
 
     /**

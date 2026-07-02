@@ -254,7 +254,7 @@ trait HasRecords
 
         $table = $this->getTable();
 
-        if (! $table->hasPivotRecordKeys()) {
+        if (! ($table->getRelationship() instanceof BelongsToMany && $table->allowsDuplicates())) {
             return $record->getKey();
         }
 

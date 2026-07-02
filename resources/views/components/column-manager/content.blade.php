@@ -1,6 +1,6 @@
 @php
     use Filament\Support\Enums\GridDirection;
-    use Filament\Support\View\ComponentAttributeBag as FilamentComponentAttributeBag;
+    use Illuminate\View\ComponentAttributeBag;
 @endphp
 
 @props([
@@ -17,7 +17,7 @@
         data-sortable-animation-duration="{{ $reorderAnimationDuration }}"
     @endif
     {{
-        (new FilamentComponentAttributeBag)
+        (new ComponentAttributeBag)
             ->grid($columns, GridDirection::Column)
             ->class(['fi-ta-col-manager-items'])
     }}

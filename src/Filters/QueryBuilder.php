@@ -27,13 +27,6 @@ class QueryBuilder extends BaseFilter
     /** @var array<Constraint> */
     protected array $constraints = [];
 
-    protected ?RuleBuilder $cachedRuleBuilder = null;
-
-    /**
-     * @var array<string, bool>
-     */
-    protected array $cachedRuleSchemaValidity = [];
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -158,7 +151,9 @@ class QueryBuilder extends BaseFilter
                 continue;
             }
 
-            if (! $this->ruleSchemaPassesValidation($ruleBuilderBlockContainer)) {
+            try {
+                $ruleBuilderBlockContainer->validate();
+            } catch (ValidationException) {
                 continue;
             }
 
@@ -306,17 +301,13 @@ class QueryBuilder extends BaseFilter
 
     protected function getRuleBuilder(): RuleBuilder
     {
-        if ($this->cachedRuleBuilder instanceof RuleBuilder) {
-            return $this->cachedRuleBuilder;
-        }
-
         $builder = $this->getSchema()->getComponent(fn (Component $component): bool => $component instanceof RuleBuilder);
 
         if (! ($builder instanceof RuleBuilder)) {
             throw new LogicException('No rule builder component found.');
         }
 
-        return $this->cachedRuleBuilder = $builder;
+        return $builder;
     }
 
     protected function getNestedRuleBuilder(Schema $schema, string $orGroupIndex): RuleBuilder
@@ -358,7 +349,9 @@ class QueryBuilder extends BaseFilter
             return;
         }
 
-        if (! $this->ruleSchemaPassesValidation($schema)) {
+        try {
+            $schema->validate();
+        } catch (ValidationException) {
             return;
         }
 
@@ -383,21 +376,6 @@ class QueryBuilder extends BaseFilter
             ->inverse(null);
     }
 
-    protected function ruleSchemaPassesValidation(Schema $schema): bool
-    {
-        $statePath = $schema->getStatePath();
-
-        return $this->cachedRuleSchemaValidity[$statePath] ??= (function () use ($schema): bool {
-            try {
-                $schema->validate();
-
-                return true;
-            } catch (ValidationException) {
-                return false;
-            }
-        })();
-    }
-
     /**
      * @param  array<Constraint>  $constraints
      */
@@ -420,6 +398,6 @@ class QueryBuilder extends BaseFilter
 
     public function getConstraint(string $name): ?Constraint
     {
-        return ($this->constraints[$name] ?? null)?->model($this->getTable()->getModel());
+        return $this->getConstraints()[$name] ?? null;
     }
 }

@@ -3,7 +3,6 @@
 namespace Filament\Tables\Table\Concerns;
 
 use Closure;
-use Filament\Support\View\ComponentAttributeBag as FilamentComponentAttributeBag;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\View\ComponentAttributeBag;
 
@@ -105,7 +104,7 @@ trait HasRecordUrl
      */
     public function getExtraRecordLinkAttributes(Model | array $record): array
     {
-        $temporaryAttributeBag = new FilamentComponentAttributeBag;
+        $temporaryAttributeBag = new ComponentAttributeBag;
 
         foreach ($this->extraRecordLinkAttributes as $extraAttributes) {
             $temporaryAttributeBag = $temporaryAttributeBag->merge(
@@ -131,6 +130,6 @@ trait HasRecordUrl
      */
     public function getExtraRecordLinkAttributeBag(Model | array $record): ComponentAttributeBag
     {
-        return new FilamentComponentAttributeBag($this->getExtraRecordLinkAttributes($record));
+        return new ComponentAttributeBag($this->getExtraRecordLinkAttributes($record));
     }
 }
