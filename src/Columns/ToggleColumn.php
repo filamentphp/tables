@@ -80,6 +80,16 @@ class ToggleColumn extends Column implements Editable, HasEmbeddedView
             ], escape: false)
             ->class(['fi-toggle']);
 
+        $onClasses = Js::from(Arr::toCssClasses([
+            'fi-toggle-on',
+            ...get_component_color_classes(ToggleComponent::class, $onColor),
+        ]));
+
+        $offClasses = Js::from(Arr::toCssClasses([
+            'fi-toggle-off',
+            ...get_component_color_classes(ToggleComponent::class, $offColor),
+        ]));
+
         ob_start(); ?>
 
         <div
@@ -94,19 +104,13 @@ class ToggleColumn extends Column implements Editable, HasEmbeddedView
                 <?php // `tabindex` is bound client-side rather than server-rendered on purpose: a `ToggleColumn`
                       // in a table with a record URL/action is rendered inside the record `<a>`/`<button>`, and a
                       // `tabindex` descendant is invalid inside an `<a>`. Applying it after Alpine boots keeps the
-                      // served markup valid while still making the switch keyboard-focusable. ?>
+                      // served markup valid while still making the switch keyboard-focusable.?>
                 x-bind:tabindex="$el.hasAttribute('disabled') ? '-1' : '0'"
                 x-bind:aria-disabled="$el.hasAttribute('disabled') ? 'true' : null"
                 x-on:click.prevent.stop="if (! $el.hasAttribute('disabled')) state = ! state"
                 x-on:keydown.enter.prevent.stop="if (! $el.hasAttribute('disabled')) state = ! state"
                 x-on:keydown.space.prevent.stop="if (! $el.hasAttribute('disabled')) state = ! state"
-                x-bind:class="state ? '<?= Arr::toCssClasses([
-                    'fi-toggle-on',
-                    ...get_component_color_classes(ToggleComponent::class, $onColor),
-                ]) ?>' : '<?= Arr::toCssClasses([
-                    'fi-toggle-off',
-                    ...get_component_color_classes(ToggleComponent::class, $offColor),
-                ]) ?>'"
+                x-bind:class="state ? <?= $onClasses ?> : <?= $offClasses ?>"
                 <?php if ($state) { ?> x-cloak <?php } ?>
                 x-tooltip="
                     error === undefined
