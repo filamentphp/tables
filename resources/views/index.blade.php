@@ -5,7 +5,6 @@
     use Filament\Actions\BulkActionGroup;
     use Filament\Support\Enums\Alignment;
     use Filament\Support\Enums\IconSize;
-    use Filament\Support\Enums\VerticalAlignment;
     use Filament\Support\Enums\Width;
     use Filament\Support\Facades\FilamentView;
     use Filament\Support\Icons\Heroicon;
@@ -14,9 +13,7 @@
     use Filament\Tables\Columns\Column;
     use Filament\Tables\Columns\ColumnGroup;
     use Filament\Tables\Enums\ColumnManagerLayout;
-    use Filament\Tables\Enums\ColumnManagerResetActionPosition;
     use Filament\Tables\Enums\FiltersLayout;
-    use Filament\Tables\Enums\FiltersResetActionPosition;
     use Filament\Tables\Enums\RecordActionsPosition;
     use Filament\Tables\Enums\RecordCheckboxPosition;
     use Filament\Tables\Filters\Indicator;
@@ -53,6 +50,7 @@
     $contentFooter = $getContentFooter();
     $filterIndicators = $getFilterIndicators();
     $filtersApplyAction = $getFiltersApplyAction();
+    $filtersResetAction = $getFiltersResetAction();
     $filtersForm = $getFiltersForm();
     $filtersFormWidth = $getFiltersFormWidth();
     $filtersResetActionPosition = $getFiltersResetActionPosition();
@@ -151,6 +149,11 @@
     $pluralModelLabel = $getPluralModelLabel();
     $records = $isLoaded ? $getRecords() : null;
     $hasPagination = (($records instanceof Paginator) || ($records instanceof CursorPaginator)) && (($records instanceof LengthAwarePaginator) ? $records->total() : $records->isNotEmpty());
+    $contentRenderHookData = [
+        'hasPagination' => $hasPagination,
+        'records' => $records,
+        'table' => $this->getTable(),
+    ];
     $hasEmptyState = ($records !== null) && ! count($records);
     $hasContentLayout = $content || $hasColumnsLayout;
     $searchDebounce = $getSearchDebounce();
@@ -271,6 +274,7 @@
                     :form="$filtersForm"
                     :heading-tag="$secondLevelHeadingTag"
                     class="fi-ta-filters-before-content"
+                    :reset-action="$filtersResetAction"
                     :reset-action-position="$filtersResetActionPosition"
                 />
             </div>
@@ -341,6 +345,7 @@
                             :heading-tag="$secondLevelHeadingTag"
                             x-cloak
                             :x-show="$hasCollapsibleFilters ? 'areFiltersOpen' : null"
+                            :reset-action="$filtersResetAction"
                             :reset-action-position="$filtersResetActionPosition"
                         />
 
@@ -635,6 +640,7 @@
                                                 :apply-action="$filtersApplyAction"
                                                 :form="$filtersForm"
                                                 :heading-tag="$secondLevelHeadingTag"
+                                                :reset-action="$filtersResetAction"
                                                 :reset-action-position="$filtersResetActionPosition"
                                             />
                                         </x-filament::dropdown>
@@ -893,6 +899,8 @@
                     </div>
                 @endif
             @endif
+
+            {{ FilamentView::renderHook(TablesRenderHook::CONTENT_BEFORE, scopes: static::class, data: $contentRenderHookData) }}
 
             @if (((! $content) && (! $hasColumnsLayout)) || ($records === null) || count($records))
                 <div
@@ -2643,6 +2651,8 @@
                 @endif
             @endif
 
+            {{ FilamentView::renderHook(TablesRenderHook::CONTENT_AFTER, scopes: static::class, data: $contentRenderHookData) }}
+
             @if ($hasPagination)
                 @php
                     $hasExtremePaginationLinks = $hasExtremePaginationLinks();
@@ -2662,6 +2672,7 @@
                     :form="$filtersForm"
                     :heading-tag="$secondLevelHeadingTag"
                     class="fi-ta-filters-below-content"
+                    :reset-action="$filtersResetAction"
                     :reset-action-position="$filtersResetActionPosition"
                 />
             @endif
@@ -2685,6 +2696,7 @@
                     :form="$filtersForm"
                     :heading-tag="$secondLevelHeadingTag"
                     class="fi-ta-filters-after-content"
+                    :reset-action="$filtersResetAction"
                     :reset-action-position="$filtersResetActionPosition"
                 />
             </div>
