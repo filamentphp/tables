@@ -34,7 +34,9 @@ use LogicException;
 use Stringable;
 use Znck\Eloquent\Relations\BelongsToThrough;
 
+use function Filament\Support\apply_search_constraint;
 use function Filament\Support\generate_search_column_expression;
+use function Filament\Support\generate_search_pattern;
 use function Filament\Support\generate_search_term_expression;
 
 class SelectColumn extends Column implements Editable, HasEmbeddedView
@@ -796,17 +798,19 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
         $databaseConnection = $query->getConnection();
 
         $isForcedCaseInsensitive = $this->isOptionsSearchForcedCaseInsensitive();
+        $searchPattern = generate_search_pattern($search, hasLeadingWildcard: true, hasTrailingWildcard: true);
 
-        $query->where(function (Builder $query) use ($databaseConnection, $isForcedCaseInsensitive, $search): Builder {
+        $query->where(function (Builder $query) use ($databaseConnection, $isForcedCaseInsensitive, $searchPattern): Builder {
             $isFirst = true;
 
             foreach ($this->getOptionsSearchColumns() ?? [] as $searchColumn) {
                 $whereClause = $isFirst ? 'where' : 'orWhere';
 
-                $query->{$whereClause}(
+                apply_search_constraint(
+                    $query,
                     generate_search_column_expression($searchColumn, $isForcedCaseInsensitive, $databaseConnection),
-                    'like',
-                    "%{$search}%",
+                    $searchPattern,
+                    ($whereClause === 'where') ? 'and' : 'or',
                 );
 
                 $isFirst = false;
@@ -938,6 +942,7 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
         $placeholder = $this->getPlaceholder();
         $recordKey = $this->getRecordKey();
         $state = $this->getState();
+        $relatedRecord = $this->getRelatedRecord();
 
         $attributes = $this->getExtraAttributeBag()
             ->merge([
@@ -1003,13 +1008,19 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                 'wire:loading.attr' => 'disabled',
                 'wire:target' => implode(',', Table::LOADING_TARGETS),
                 'x-bind:disabled' => $isDisabled ? null : 'isLoading',
-                'x-tooltip' => filled($tooltip = $this->getTooltip($state))
+                'x-tooltip' => 'error === undefined ? ' . (filled($tooltip = $this->getTooltip($state, $relatedRecord))
                     ? '{
                         content: ' . Js::from($tooltip) . ',
                         theme: $store.theme,
                         allowHTML: ' . Js::from($tooltip instanceof Htmlable) . ',
+                        ' . ($isNative ? '' : 'triggerTarget: select && $el.querySelector(\'[role=combobox]\'),') . '
                     }'
-                    : null,
+                    : 'false') . ' : {
+                        content: error,
+                        theme: $store.theme,
+                        allowHTML: false,
+                        ' . ($isNative ? '' : 'triggerTarget: select && $el.querySelector(\'[role=combobox]\'),') . '
+                    }',
             ], escape: false)
             ->class([
                 'fi-select-input',
@@ -1028,17 +1039,9 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                     'fi-disabled': isLoading || <?= Js::from($isDisabled) ?>,
                     'fi-invalid': error !== undefined,
                 }"
-                x-tooltip="
-                    error === undefined
-                        ? false
-                        : {
-                            content: error,
-                            theme: $store.theme,
-                        }
-                "
                 x-on:click.prevent.stop
                 <?php if (! $isNative) { ?>
-                    wire:ignore
+                    <?= $inputAttributes->only(['x-tooltip'])->toHtml() ?>
                     x-on:keydown.esc="select.dropdown.isActive && $event.stopPropagation()"
                 <?php } ?>
                 class="fi-input-wrp"
@@ -1062,7 +1065,7 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                         <?php } ?>
                     </select>
                 <?php } else { ?>
-                    <div class="fi-select-input">
+                    <div wire:ignore class="fi-select-input">
                         <div x-ref="select"></div>
                     </div>
                 <?php } ?>
