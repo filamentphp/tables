@@ -949,26 +949,29 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                 'x-load' => true,
                 'x-load-src' => FilamentAsset::getAlpineComponentSrc('columns/select', 'filament/tables'),
                 'x-data' => 'selectTableColumn({
+                    accessibilityAttributes: ' . Js::from($this->getExtraInputAttributeBag()->only(['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-invalid', 'aria-busy', 'aria-required'])->getAttributes()) . ',
                     ariaLabel: ' . Js::from(trim(strip_tags((string) $this->getLabel()))) . ',
                     canOptionLabelsWrap: ' . Js::from($this->canOptionLabelsWrap()) . ',
                     canSelectPlaceholder: ' . Js::from($canSelectPlaceholder) . ',
                     clearButtonLabel: ' . Js::from(__('filament-forms::components.select.actions.clear.label')) . ',
+                    errorMessage: ' . Js::from(__('filament-forms::components.select.error_message')) . ',
                     getOptionLabelUsing: async () => {
                         return await $wire.callTableColumnMethod(' . Js::from($name) . ', ' . Js::from($recordKey) . ', \'getOptionLabel\')
                     },
                     getOptionsUsing: async () => {
-                        return await $wire.callTableColumnMethod(
-                            ' . Js::from($name) . ',
-                            ' . Js::from($recordKey) . ',
-                            \'getOptionsForJs\',
+                        return await Livewire.fireAction(
+                            $wire.__instance,
+                            \'callTableColumnMethod\',
+                            [' . Js::from($name) . ', ' . Js::from($recordKey) . ', \'getOptionsForJs\'],
+                            { async: true },
                         )
                     },
                     getSearchResultsUsing: async (search) => {
-                        return await $wire.callTableColumnMethod(
-                            ' . Js::from($name) . ',
-                            ' . Js::from($recordKey) . ',
-                            \'getOptionsSearchResultsForJs\',
-                            { search },
+                        return await Livewire.fireAction(
+                            $wire.__instance,
+                            \'callTableColumnMethod\',
+                            [' . Js::from($name) . ', ' . Js::from($recordKey) . ', \'getOptionsSearchResultsForJs\', { search }],
+                            { async: true },
                         )
                     },
                     hasDynamicOptions: ' . Js::from($this->hasDynamicOptions()) . ',
@@ -980,6 +983,7 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                     isNative: ' . Js::from($isNative) . ',
                     isSearchable: ' . Js::from($this->areOptionsSearchable()) . ',
                     loadingMessage: ' . Js::from($this->getOptionsLoadingMessage()) . ',
+                    messages: ' . Js::from($this->getUpdateStateMessages()) . ',
                     name: ' . Js::from($name) . ',
                     noOptionsMessage: ' . Js::from($this->getNoOptionsMessage()) . ',
                     noSearchResultsMessage: ' . Js::from($this->getNoOptionsSearchResultsMessage()) . ',
@@ -995,6 +999,9 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                     searchPrompt: ' . Js::from($this->getOptionsSearchPrompt()) . ',
                     state: ' . Js::from($state) . ',
                 })',
+                'x-id' => "['table-column-error']",
+                'x-on:click.capture' => 'blockEdit($event)',
+                'x-on:keydown.capture' => 'blockEdit($event)',
             ], escape: false)
             ->class([
                 'fi-ta-select',
@@ -1007,19 +1014,25 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                 'disabled' => $isDisabled,
                 'wire:loading.attr' => 'disabled',
                 'wire:target' => implode(',', Table::LOADING_TARGETS),
+                'x-bind:aria-invalid' => "error ? 'true' : " . Js::from($this->getExtraInputAttributeBag()->get('aria-invalid')),
+                'x-bind:aria-busy' => "isLoading ? 'true' : " . Js::from($this->getExtraInputAttributeBag()->get('aria-busy')),
+                'x-bind:aria-describedby' => 'getAccessibilityAttributes(' . Js::from($this->getExtraInputAttributeBag()->only('aria-describedby')->getAttributes()) . ")[ 'aria-describedby' ]",
                 'x-bind:disabled' => $isDisabled ? null : 'isLoading',
+                'x-on:change' => 'clearError()',
                 'x-tooltip' => 'error === undefined ? ' . (filled($tooltip = $this->getTooltip($state, $relatedRecord))
                     ? '{
                         content: ' . Js::from($tooltip) . ',
                         theme: $store.theme,
                         allowHTML: ' . Js::from($tooltip instanceof Htmlable) . ',
-                        ' . ($isNative ? '' : 'triggerTarget: select && $el.querySelector(\'[role=combobox]\'),') . '
+                        aria: { content: \'auto\' },
+                        ' . ($isNative ? '' : 'triggerTarget: $el.isConnected && select ? select.selectButton : null,') . '
                     }'
                     : 'false') . ' : {
                         content: error,
                         theme: $store.theme,
                         allowHTML: false,
-                        ' . ($isNative ? '' : 'triggerTarget: select && $el.querySelector(\'[role=combobox]\'),') . '
+                        aria: { content: null },
+                        ' . ($isNative ? '' : 'triggerTarget: $el.isConnected && select ? select.selectButton : null,') . '
                     }',
             ], escape: false)
             ->class([
@@ -1032,7 +1045,7 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
             wire:ignore.self
             <?= $attributes->toHtml() ?>
         >
-            <input type="hidden" value="<?= e(($state instanceof BackedEnum) ? $state->value : $state) ?>" x-ref="serverState" />
+            <input type="hidden" value="<?= e(($state instanceof BackedEnum) ? $state->value : $state) ?>" data-disabled="<?= $isDisabled ? 'true' : 'false' ?>" x-ref="serverState" />
 
             <div
                 x-bind:class="{
@@ -1042,7 +1055,6 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                 x-on:click.prevent.stop
                 <?php if (! $isNative) { ?>
                     <?= $inputAttributes->only(['x-tooltip'])->toHtml() ?>
-                    x-on:keydown.esc="select.dropdown.isActive && $event.stopPropagation()"
                 <?php } ?>
                 class="fi-input-wrp"
             >
@@ -1070,6 +1082,23 @@ class SelectColumn extends Column implements Editable, HasEmbeddedView
                     </div>
                 <?php } ?>
             </div>
+
+            <p
+                x-cloak
+                x-show="error"
+                x-bind:id="$id('table-column-error')"
+                x-ref="error"
+                x-text="error"
+                class="fi-sr-only"
+            ></p>
+
+            <p
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                x-text="status"
+                class="fi-sr-only"
+            ></p>
         </div>
 
         <?php return ob_get_clean();
