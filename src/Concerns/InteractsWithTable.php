@@ -3,6 +3,8 @@
 namespace Filament\Tables\Concerns;
 
 use Filament\Facades\Filament;
+use Filament\Support\Components\Attributes\Exposed;
+use Filament\Support\Components\Attributes\Unexposed;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
@@ -46,6 +48,7 @@ trait InteractsWithTable
 
     protected bool $shouldMountInteractsWithTable = false;
 
+    #[Unexposed]
     public function bootedInteractsWithTable(): void
     {
         $this->table = $this->table($this->makeTable());
@@ -61,6 +64,8 @@ trait InteractsWithTable
         if (! $this->shouldMountInteractsWithTable) {
             return;
         }
+
+        $this->initialTableRecordsPerPage ??= $this->tableRecordsPerPage ?? 10;
 
         $shouldPersistFiltersInSession = $this->getTable()->persistsFiltersInSession();
         $filtersSessionKey = $this->getTableFiltersSessionKey();
@@ -181,19 +186,26 @@ trait InteractsWithTable
 
         if ($this->getTable()->isPaginated()) {
             $this->tableRecordsPerPage ??= $this->getDefaultTableRecordsPerPageSelectOption();
+
+            if ($this->getTable()->enforcesPaginationPageOptions()) {
+                $this->tableRecordsPerPage = $this->getTableRecordsPerPage();
+            }
         }
     }
 
+    #[Unexposed]
     public function mountInteractsWithTable(): void
     {
         $this->shouldMountInteractsWithTable = true;
     }
 
+    #[Unexposed]
     public function table(Table $table): Table
     {
         return $table;
     }
 
+    #[Unexposed]
     public function getTable(): Table
     {
         return $this->table;
@@ -213,7 +225,7 @@ trait InteractsWithTable
             ->when($this->getTableContentFooter(), fn (Table $table, View $contentFooter): Table => $table->contentFooter($contentFooter))
             ->when($this->getTableContentGrid(), fn (Table $table, array $contentGrid): Table => $table->contentGrid($contentGrid))
             ->when($this->getDefaultTableSortColumn(), fn (Table $table, string $defaultSortColumn): Table => $table->defaultSort($defaultSortColumn, $this->getDefaultTableSortDirection()))
-            ->when($this->isTableLoadingDeferred(), fn (Table $table): Table => $table->deferLoading())
+            ->when($this->isTableLoadingDeferred(), fn (Table $table): Table => $table->lazyLoaded())
             ->when($this->getTableDescription(), fn (Table $table, string | Htmlable $description): Table => $table->description($description))
             ->when(! $this->shouldDeselectAllRecordsWhenTableFiltered(), fn (Table $table): Table => $table->deselectAllRecordsWhenFiltered(false))
             ->when($this->getTableEmptyState(), fn (Table $table, View $emptyState): Table => $table->emptyState($emptyState))
@@ -252,6 +264,7 @@ trait InteractsWithTable
         return null;
     }
 
+    #[Unexposed]
     public function getIdentifiedTableQueryStringPropertyNameFor(string $property): string
     {
         if (filled($identifier = $this->getTable()->getQueryStringIdentifier())) {
@@ -261,6 +274,7 @@ trait InteractsWithTable
         return $property;
     }
 
+    #[Unexposed]
     public function getTableSessionKey(string $key, bool $isTenantScoped = false): string
     {
         $namespace = $this::class;
@@ -278,16 +292,19 @@ trait InteractsWithTable
         return "filament.tables.{$table}.{$key}";
     }
 
+    #[Unexposed]
     public function getActiveTableLocale(): ?string
     {
         return null;
     }
 
+    #[Unexposed]
     public function resetPage(?string $pageName = null): void
     {
         $this->resetLivewirePage($pageName ?? $this->getTablePaginationPageName());
     }
 
+    #[Exposed]
     public function setPage(int | string $page, ?string $pageName = null): void
     {
         $defaultPageName = $this->getTablePaginationPageName();
@@ -327,6 +344,7 @@ trait InteractsWithTable
         }
     }
 
+    #[Unexposed]
     public function resetTable(): void
     {
         $this->bootedInteractsWithTable();

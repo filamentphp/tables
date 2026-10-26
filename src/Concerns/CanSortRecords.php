@@ -2,12 +2,16 @@
 
 namespace Filament\Tables\Concerns;
 
+use Filament\Support\Components\Attributes\Exposed;
+use Filament\Support\Components\Attributes\Unexposed;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Grammars\SqlServerGrammar;
 
 trait CanSortRecords
 {
     public ?string $tableSort = null;
 
+    #[Exposed]
     public function sortTable(?string $column = null, ?string $direction = null): void
     {
         if ($column === $this->getTableSortColumn()) {
@@ -25,6 +29,7 @@ trait CanSortRecords
         $this->updatedTableSort();
     }
 
+    #[Unexposed]
     public function getTableSortColumn(): ?string
     {
         if (blank($this->tableSort)) {
@@ -34,6 +39,7 @@ trait CanSortRecords
         return (string) str($this->tableSort)->before(':');
     }
 
+    #[Unexposed]
     public function getTableSortDirection(): ?string
     {
         if (blank($this->tableSort)) {
@@ -51,6 +57,7 @@ trait CanSortRecords
         };
     }
 
+    #[Unexposed]
     public function updatedTableSort(): void
     {
         if ($this->getTable()->persistsSortInSession()) {
@@ -63,6 +70,7 @@ trait CanSortRecords
         $this->resetPage();
     }
 
+    #[Unexposed]
     public function updatedTableSortDirection(): void
     {
         if ($this->getTable()->persistsSortInSession()) {
@@ -109,7 +117,9 @@ trait CanSortRecords
             ($sortColumn = $this->getTable()->getSortableVisibleColumn($defaultSort))
         ) {
             if ($sortColumn->isToggledHidden()) {
-                $sortColumn->applyRelationshipAggregates($query);
+                if ($this->shouldApplyTableColumnRelationshipAggregates) {
+                    $sortColumn->applyRelationshipAggregates($query);
+                }
 
                 if ($defaultSort === $this->getTableSortColumn()) {
                     $sortDirection = $this->getTableSortDirection() === 'desc' ? 'desc' : 'asc';
@@ -126,6 +136,17 @@ trait CanSortRecords
 
         if ($defaultSort instanceof Builder) {
             $query = $defaultSort;
+        }
+
+        if ($query->getQuery()->getGrammar() instanceof SqlServerGrammar) {
+            $query->getQuery()->orders = collect($query->getQuery()->orders)
+                ->unique(static function (array $order, int $index) use ($query): string {
+                    $column = $order['column'] ?? null;
+
+                    return is_string($column) ? $query->qualifyColumn($column) : "expression:{$index}";
+                })
+                ->values()
+                ->all();
         }
 
         if (! $this->getTable()->hasDefaultKeySort()) {
@@ -168,6 +189,7 @@ trait CanSortRecords
         return null;
     }
 
+    #[Unexposed]
     public function getTableSortSessionKey(): string
     {
         return $this->getTableSessionKey('sort');
