@@ -162,6 +162,10 @@ The function allows you to access the current table `$records` that are selected
 
 Custom bulk actions need explicit authorization. See [authorizing bulk actions](#authorizing-bulk-actions) to check each selected record's policy before processing it.
 
+<Aside variant="info">
+    Bulk-action queries must return one row per selectable record key. Joins that repeat the same model key are not supported: use `whereHas()` or `whereExists()` when filtering by related records instead. Many-to-many relationships using [`allowDuplicates()`](../resources/managing-relationships#handling-duplicates) remain supported because each pivot row has its own primary key.
+</Aside>
+
 <AutoScreenshot name="tables/actions/bulk" alt="Table with bulk action" />
 
 ### Authorizing bulk actions
@@ -398,7 +402,7 @@ public function table(Table $table): Table
 
 ### Preventing bulk-selection of all pages
 
-The `selectCurrentPageOnly()` method can be used to prevent the user from easily bulk-selecting all records in the table at once, and instead only allows them to select one page at a time:
+The `selectCurrentPageOnly()` method limits the table's selection controls to the current page, preventing the user from easily bulk-selecting all pages at once:
 
 ```php
 use Filament\Tables\Table;
@@ -412,6 +416,10 @@ public function table(Table $table): Table
         ->selectCurrentPageOnly();
 }
 ```
+
+<Aside variant="info">
+    This only changes the selection controls, not which records a bulk-action request can select. Use [`maxSelectableRecords()`](#limiting-the-number-of-selectable-records) to enforce a maximum selection size. Selection controls do not replace [authorization](#authorizing-bulk-actions).
+</Aside>
 
 ### Restricting bulk selection to groups only
 
@@ -432,9 +440,9 @@ public function table(Table $table): Table
 
 ### Improving the performance of bulk actions
 
-By default, a bulk action will load all Eloquent records into memory before passing them to the `action()` function.
+By default, a bulk action will load all selected Eloquent records into memory before passing them to the `action()` function. For large selections, this can exceed your PHP memory limit.
 
-If you are processing a large number of records, you may want to use the `chunkSelectedRecords()` method to fetch a smaller number of records at a time. This will reduce the memory usage of your application:
+If you are processing a large number of records, use the `chunkSelectedRecords()` method to fetch a smaller number of records at a time. This reduces the memory needed to load the selected models:
 
 ```php
 use Filament\Actions\BulkAction;
@@ -449,6 +457,10 @@ BulkAction::make()
 
 You can still loop through the `$records` collection as normal, but the collection will be a `LazyCollection` instead of a normal collection.
 
+Chunking does not limit the total number of records processed. You can combine it with [`maxSelectableRecords()`](#limiting-the-number-of-selectable-records) to limit the selection size. Avoid collecting the entire lazy collection into memory, as this removes the memory benefit of chunking.
+
+For bounded selections, Filament loads the selected keys into memory before fetching the models in chunks. Sorting determines which records fall within the limit, but chunked traversal uses primary-key or pivot-key order. If you use `checkIfRecordIsSelectableUsing()`, Filament must also load models to evaluate that callback when calculating the initial selection total.
+
 You can also prevent Filament from fetching the Eloquent models in the first place, and instead just pass the IDs of the selected records to the `action()` function. This is useful if you are processing a large number of records, and you don't need to load them into memory:
 
 ```php
@@ -461,6 +473,10 @@ BulkAction::make()
         // Process the records...
     })
 ```
+
+The IDs are still loaded into a collection in memory, so this uses less memory than fetching models but does not make an unlimited selection memory-safe.
+
+For bounded selections, sorting determines which records fall within the limit, but the returned IDs and selected-records query results are not guaranteed to retain that order. If your action reads from `$action->getSelectedRecordsQuery()` and depends on ordering, apply `orderBy()` to that query before reading it.
 
 ## Header actions
 
