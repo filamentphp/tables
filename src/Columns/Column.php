@@ -50,7 +50,7 @@ class Column extends ViewComponent
     use Concerns\HasLabel;
     use Concerns\HasName;
     use Concerns\HasRecord;
-    use Concerns\HasRowLoopObject;
+    use Concerns\HasRowLoop;
     use Concerns\InteractsWithTableQuery;
     use HasAlignment;
     use HasCellState;
@@ -173,7 +173,7 @@ class Column extends ViewComponent
                 'type' => ($wrapperTag === 'button') ? 'button' : null,
                 'wire:click.prevent.stop' => $wireClickAction = match (true) {
                     ($wrapperTag !== 'button') => null,
-                    $action instanceof Action => "mountTableAction('{$action->getName()}', " . Js::from($this->getRecordKey()) . ')',
+                    $action instanceof Action => "mountAction('{$action->getName()}', {}, " . Js::from(['table' => true, 'recordKey' => $this->getRecordKey()]) . ')',
                     filled($action) => "callTableColumnAction('{$this->getName()}', " . Js::from($this->getRecordKey()) . ')',
                     default => null,
                 },
