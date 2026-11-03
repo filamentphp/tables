@@ -795,10 +795,10 @@
                         </div>
                     @endif
 
-                    {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_END) }}
+                    {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_END, scopes: static::class) }}
                 </div>
 
-                {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_AFTER) }}
+                {{ FilamentView::renderHook(TablesRenderHook::TOOLBAR_AFTER, scopes: static::class) }}
             </div>
 
             @if ($isReordering)
@@ -912,7 +912,6 @@
                                                 name="deleteButton"
                                                 :label="__('filament-tables::table.filters.actions.remove.label')"
                                                 :wire:click="$indicatorRemoveLivewireClickHandler"
-                                                wire:loading.attr="disabled"
                                                 wire:target="removeTableFilter"
                                             ></x-slot>
                                         @endif
@@ -1393,7 +1392,7 @@
                                                 @elseif ($recordAction)
                                                     @php
                                                         $recordWireClickAction = $getRecordAction($record)
-                                                            ? "mountTableAction('{$recordAction}', " . Js::from($recordKey) . ')'
+                                                            ? "mountAction('{$recordAction}', {}, " . Js::from(['table' => true, 'recordKey' => $recordKey]) . ')'
                                                             : $recordWireClickAction = "{$recordAction}(" . Js::from($recordKey) . ')';
                                                     @endphp
 
@@ -1902,11 +1901,14 @@
                                                         @else
                                                             role="button"
                                                             tabindex="0"
-                                                            x-on:keydown.enter.prevent.stop="$wire.sortTable('{{ $columnName }}')"
-                                                            x-on:keydown.space.prevent.stop="$wire.sortTable('{{ $columnName }}')"
+                                                            x-on:keydown.enter.self.prevent.stop="$el.click()"
+                                                            x-on:keydown.space.self.prevent.stop="$el.click()"
                                                         @endif
+                                                        data-prevent-disabled-clicks
                                                         wire:click="sortTable('{{ $columnName }}')"
-                                                        wire:target="sortTable('{{ $columnName }}')"
+                                                        wire:loading.attr="aria-disabled"
+                                                        wire:loading.class="fi-disabled"
+                                                        wire:target="{{ $loadingTargetsWireTarget }}"
                                                         class="fi-ta-header-cell-sort-btn"
                                                     >
                                                         @if (filled($columnHeaderTooltip))
@@ -2532,12 +2534,12 @@
 
                                                         if ($columnWrapperTag === 'button') {
                                                             if ($columnAction instanceof Action) {
-                                                                $columnWireClickAction = "mountTableAction('{$columnAction->getName()}', " . Js::from($recordKey) . ')';
+                                                                $columnWireClickAction = "mountAction('{$columnAction->getName()}', {}, " . Js::from(['table' => true, 'recordKey' => $recordKey]) . ')';
                                                             } elseif ($columnAction) {
                                                                 $columnWireClickAction = "callTableColumnAction('{$column->getName()}', " . Js::from($recordKey) . ')';
                                                             } else {
                                                                 if ($this->getTable()->getAction($recordAction)) {
-                                                                    $columnWireClickAction = "mountTableAction('{$recordAction}', " . Js::from($recordKey) . ')';
+                                                                    $columnWireClickAction = "mountAction('{$recordAction}', {}, " . Js::from(['table' => true, 'recordKey' => $recordKey]) . ')';
                                                                 } else {
                                                                     $columnWireClickAction = "{$recordAction}(" . Js::from($recordKey) . ')';
                                                                 }
@@ -2783,6 +2785,7 @@
 
                 <x-filament::pagination
                     :extreme-links="$hasExtremePaginationLinks"
+                    :loading-targets="Table::LOADING_TARGETS"
                     :page-options="$paginationPageOptions"
                     :paginator="$records"
                 />
