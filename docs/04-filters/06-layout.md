@@ -1,7 +1,6 @@
 ---
 title: Filter layout
 ---
-import AutoScreenshot from "@components/AutoScreenshot.astro"
 
 ## Positioning filters into grid columns
 
@@ -91,7 +90,7 @@ public function table(Table $table): Table
 }
 ```
 
-<AutoScreenshot name="tables/filters/above-content" alt="Table with filters above content" version="3.x" />
+<AutoScreenshot name="tables/filters/above-content" alt="Table with filters above content" />
 
 ### Allowing filters above the table content to be collapsed
 
@@ -126,7 +125,7 @@ public function table(Table $table): Table
 }
 ```
 
-<AutoScreenshot name="tables/filters/below-content" alt="Table with filters below content" version="3.x" />
+<AutoScreenshot name="tables/filters/below-content" alt="Table with filters below content" />
 
 ## Hiding the filter indicators
 

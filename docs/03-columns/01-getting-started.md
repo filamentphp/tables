@@ -1,17 +1,8 @@
 ---
 title: Getting started
 ---
-import AutoScreenshot from "@components/AutoScreenshot.astro"
-import LaracastsBanner from "@components/LaracastsBanner.astro"
 
 ## Overview
-
-<LaracastsBanner
-    title="Table Columns"
-    description="Watch the Rapid Laravel Development with Filament series on Laracasts - it will teach you the basics of adding columns to Filament resource tables."
-    url="https://laracasts.com/series/rapid-laravel-development-with-filament/episodes/9"
-    series="rapid-laravel-development"
-/>
 
 Column classes can be found in the `Filament\Tables\Columns` namespace. You can put them inside the `$table->columns()` method:
 
@@ -88,7 +79,7 @@ TextColumn::make('name')
     ->sortable()
 ```
 
-<AutoScreenshot name="tables/columns/sortable" alt="Table with sortable column" version="3.x" />
+<AutoScreenshot name="tables/columns/sortable" alt="Table with sortable column" />
 
 If you're using an accessor column, you may pass `sortable()` an array of database columns to sort by:
 
@@ -175,7 +166,7 @@ TextColumn::make('name')
     ->searchable()
 ```
 
-<AutoScreenshot name="tables/columns/searchable" alt="Table with searchable column" version="3.x" />
+<AutoScreenshot name="tables/columns/searchable" alt="Table with searchable column" />
 
 If you're using an accessor column, you may pass `searchable()` an array of database columns to search within:
 
@@ -228,7 +219,7 @@ TextColumn::make('name')
     ->searchable(isIndividual: true)
 ```
 
-<AutoScreenshot name="tables/columns/individually-searchable" alt="Table with individually searchable column" version="3.x" />
+<AutoScreenshot name="tables/columns/individually-searchable" alt="Table with individually searchable column" />
 
 If you use the `isIndividual` parameter, you may still search that column using the main "global" search input field for the entire table.
 
@@ -324,7 +315,7 @@ TextColumn::make('title')
 
 #### Action modals
 
-You may open [action modals](../actions#modals) by passing in an `Action` object to the `action()` method:
+You may open [action modals](../../actions/modals) by passing in an `Action` object to the `action()` method:
 
 ```php
 use Filament\Tables\Actions\Action;
@@ -385,7 +376,7 @@ TextColumn::make('description')
     ->placeholder('No description.')
 ```
 
-<AutoScreenshot name="tables/columns/placeholder" alt="Column with a placeholder for empty state" version="3.x" />
+<AutoScreenshot name="tables/columns/placeholder" alt="Column with a placeholder for empty state" />
 
 ## Hiding columns
 
@@ -412,7 +403,7 @@ TextColumn::make('email')
     ->toggleable()
 ```
 
-<AutoScreenshot name="tables/columns/toggleable" alt="Table with toggleable column" version="3.x" />
+<AutoScreenshot name="tables/columns/toggleable" alt="Table with toggleable column" />
 
 #### Making toggleable columns hidden by default
 
@@ -474,7 +465,7 @@ TextColumn::make('title')
     ->tooltip('Title')
 ```
 
-<AutoScreenshot name="tables/columns/tooltips" alt="Table with column triggering a tooltip" version="3.x" />
+<AutoScreenshot name="tables/columns/tooltips" alt="Table with column triggering a tooltip" />
 
 This method also accepts a closure that can access the current table record:
 
@@ -498,7 +489,7 @@ TextColumn::make('email')
     ->alignment(Alignment::End)
 ```
 
-<AutoScreenshot name="tables/columns/alignment" alt="Table with column aligned to the end" version="3.x" />
+<AutoScreenshot name="tables/columns/alignment" alt="Table with column aligned to the end" />
 
 Alternatively, you may use shorthand methods like `alignEnd()`:
 
@@ -521,7 +512,7 @@ TextColumn::make('name')
     ->verticalAlignment(VerticalAlignment::Start)
 ```
 
-<AutoScreenshot name="tables/columns/vertical-alignment" alt="Table with column vertically aligned to the start" version="3.x" />
+<AutoScreenshot name="tables/columns/vertical-alignment" alt="Table with column vertically aligned to the start" />
 
 Alternatively, you may use shorthand methods like `verticallyAlignStart()`:
 
@@ -593,7 +584,7 @@ public function table(Table $table): Table
 
 The first argument is the label of the group, and the second is an array of column objects that belong to that group.
 
-<AutoScreenshot name="tables/columns/grouping" alt="Table with grouped columns" version="3.x" />
+<AutoScreenshot name="tables/columns/grouping" alt="Table with grouped columns" />
 
 You can also control the group header [alignment](#horizontally-aligning-column-content) and [wrapping](#allowing-column-headers-to-wrap) on the `ColumnGroup` object. To improve the multi-line fluency of the API, you can chain the `columns()` onto the object instead of passing it as the second argument:
 

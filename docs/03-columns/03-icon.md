@@ -1,7 +1,6 @@
 ---
 title: Icon column
 ---
-import AutoScreenshot from "@components/AutoScreenshot.astro"
 
 ## Overview
 
@@ -20,7 +19,7 @@ IconColumn::make('status')
 
 In the function, `$state` is the value of the column, and `$record` can be used to access the underlying Eloquent record.
 
-<AutoScreenshot name="tables/columns/icon/simple" alt="Icon column" version="3.x" />
+<AutoScreenshot name="tables/columns/icon/simple" alt="Icon column" />
 
 ## Customizing the color
 
@@ -40,7 +39,7 @@ IconColumn::make('status')
 
 In the function, `$state` is the value of the column, and `$record` can be used to access the underlying Eloquent record.
 
-<AutoScreenshot name="tables/columns/icon/color" alt="Icon column with color" version="3.x" />
+<AutoScreenshot name="tables/columns/icon/color" alt="Icon column with color" />
 
 ## Customizing the size
 
@@ -53,7 +52,7 @@ IconColumn::make('status')
     ->size(IconColumn\IconColumnSize::Medium)
 ```
 
-<AutoScreenshot name="tables/columns/icon/medium" alt="Medium-sized icon column" version="3.x" />
+<AutoScreenshot name="tables/columns/icon/medium" alt="Medium-sized icon column" />
 
 ## Handling booleans
 
@@ -68,7 +67,7 @@ IconColumn::make('is_featured')
 
 > If this column in the model class is already cast as a `bool` or `boolean`, Filament is able to detect this, and you do not need to use `boolean()` manually.
 
-<AutoScreenshot name="tables/columns/icon/boolean" alt="Icon column to display a boolean" version="3.x" />
+<AutoScreenshot name="tables/columns/icon/boolean" alt="Icon column to display a boolean" />
 
 ### Customizing the boolean icons
 
@@ -83,7 +82,7 @@ IconColumn::make('is_featured')
     ->falseIcon('heroicon-o-x-mark')
 ```
 
-<AutoScreenshot name="tables/columns/icon/boolean-icon" alt="Icon column to display a boolean with custom icons" version="3.x" />
+<AutoScreenshot name="tables/columns/icon/boolean-icon" alt="Icon column to display a boolean with custom icons" />
 
 ### Customizing the boolean colors
 
@@ -98,7 +97,7 @@ IconColumn::make('is_featured')
     ->falseColor('warning')
 ```
 
-<AutoScreenshot name="tables/columns/icon/boolean-color" alt="Icon column to display a boolean with custom colors" version="3.x" />
+<AutoScreenshot name="tables/columns/icon/boolean-color" alt="Icon column to display a boolean with custom colors" />
 
 ## Wrapping multiple icons
 
@@ -112,4 +111,3 @@ IconColumn::make('icon')
 ```
 
 Note: the "width" for wrapping is affected by the column label, so you may need to use a shorter or hidden label to wrap more tightly.
-

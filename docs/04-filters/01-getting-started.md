@@ -1,17 +1,8 @@
 ---
 title: Getting started
 ---
-import AutoScreenshot from "@components/AutoScreenshot.astro"
-import LaracastsBanner from "@components/LaracastsBanner.astro"
 
 ## Overview
-
-<LaracastsBanner
-    title="Table Filters"
-    description="Watch the Rapid Laravel Development with Filament series on Laracasts - it will teach you the basics of adding filters to Filament resource tables."
-    url="https://laracasts.com/series/rapid-laravel-development-with-filament/episodes/10"
-    series="rapid-laravel-development"
-/>
 
 Filters allow you to define certain constraints on your data, and allow users to scope it to find the information they need. You put them in the `$table->filters()` method:
 
@@ -27,7 +18,7 @@ public function table(Table $table): Table
 }
 ```
 
-<AutoScreenshot name="tables/filters/simple" alt="Table with filter" version="3.x" />
+<AutoScreenshot name="tables/filters/simple" alt="Table with filter" />
 
 Filters may be created using the static `make()` method, passing its unique name. You should then pass a callback to `query()` which applies your filter's scope:
 
@@ -87,7 +78,7 @@ Filter::make('is_featured')
     ->toggle()
 ```
 
-<AutoScreenshot name="tables/filters/toggle" alt="Table with toggle filter" version="3.x" />
+<AutoScreenshot name="tables/filters/toggle" alt="Table with toggle filter" />
 
 ### Applying the filter by default
 
@@ -227,7 +218,7 @@ public function table(Table $table): Table
 }
 ```
 
-<AutoScreenshot name="tables/filters/custom-trigger-action" alt="Table with custom filters trigger action" version="3.x" />
+<AutoScreenshot name="tables/filters/custom-trigger-action" alt="Table with custom filters trigger action" />
 
 ## Table filter utility injection
 
