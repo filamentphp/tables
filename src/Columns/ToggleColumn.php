@@ -21,10 +21,9 @@ use function Filament\Support\get_component_color_classes;
 
 class ToggleColumn extends Column implements Editable, HasEmbeddedView
 {
-    // Security: This column saves directly without checking Laravel
-    // Model Policies. Use `disabled()` to restrict editing
-    // based on your own authorization logic.
+    // Security: Authorization is opt-in. Use `authorize()` to restrict editing.
 
+    use Concerns\CanBeAuthorized;
     use Concerns\CanBeValidated;
     use Concerns\CanUpdateState;
     use HasToggleColors;
@@ -121,9 +120,9 @@ class ToggleColumn extends Column implements Editable, HasEmbeddedView
                       // served markup valid while still making the switch keyboard-focusable.?>
                 x-bind:tabindex="$el.hasAttribute('disabled') ? '-1' : '0'"
                 x-bind:aria-disabled="isLoading || $el.hasAttribute('disabled') ? 'true' : null"
-                x-on:click.prevent.stop="if (! $el.hasAttribute('disabled')) { clearError(); state = ! state }"
-                x-on:keydown.enter.prevent.stop="if (! $el.hasAttribute('disabled')) { clearError(); state = ! state }"
-                x-on:keydown.space.prevent.stop="if (! $el.hasAttribute('disabled')) { clearError(); state = ! state }"
+                x-on:click.prevent.stop="toggleState($el)"
+                x-on:keydown.enter.prevent.stop="toggleState($el)"
+                x-on:keydown.space.prevent.stop="toggleState($el)"
                 x-bind:class="state ? <?= $onClasses ?> : <?= $offClasses ?>"
                 <?php if ($state) { ?> x-cloak <?php } ?>
                 role="switch"
