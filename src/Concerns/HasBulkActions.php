@@ -32,7 +32,23 @@ trait HasBulkActions
 
     public bool $isTrackingDeselectedTableRecords = false;
 
-    protected EloquentCollection | Collection | LazyCollection $cachedSelectedTableRecords;
+    protected EloquentCollection | Collection | LazyCollection | null $cachedSelectedTableRecords = null;
+
+    /**
+     * @var array{
+     *     selectedRecords: array<int | string>,
+     *     deselectedRecords: array<int | string>,
+     *     isTrackingDeselectedRecords: bool,
+     *     shouldFetchSelectedRecords: bool,
+     *     chunkSize: ?int,
+     * } | null
+     */
+    protected ?array $cachedSelectedTableRecordsState = null;
+
+    /**
+     * @var array<string, bool>
+     */
+    protected array $cachedTableRecordSelectabilityUsingQuery = [];
 
     /**
      * @deprecated Use the `callMountedAction()` method instead.
@@ -107,11 +123,15 @@ trait HasBulkActions
     {
         $query = $this->getFilteredTableQuery();
 
+        if ($query) {
+            $query = $this->getTable()->modifySelectableRecordsQuery($query);
+        }
+
         if ($query && $this->getTable()->hasPivotRecordKeys() && (! $this->getTable()->selectsCurrentPageOnly())) {
             $query = $this->applyPivotRecordKeyToTableQuery($query);
         }
 
-        if (! $this->getTable()->checksIfRecordIsSelectable()) {
+        if (! $this->shouldCheckIndividualTableRecordSelectability()) {
             if (! $this->getTable()->hasQuery()) {
                 /** @phpstan-ignore-next-line */
                 return $this->getTableRecords()->keys()->all();
@@ -136,7 +156,7 @@ trait HasBulkActions
 
         return $records->reduce(
             function (array $carry, Model | array $record, string $key): array {
-                if (! $this->getTable()->isRecordSelectable($record)) {
+                if (! $this->isTableRecordSelectable($record)) {
                     return $carry;
                 }
 
@@ -192,11 +212,13 @@ trait HasBulkActions
 
         $tableGrouping->scopeQueryByKey($query, $group);
 
+        $query = $this->getTable()->modifySelectableRecordsQuery($query);
+
         if ($this->getTable()->hasPivotRecordKeys() && (! $this->getTable()->selectsCurrentPageOnly())) {
             $query = $this->applyPivotRecordKeyToTableQuery($query);
         }
 
-        if (! $this->getTable()->checksIfRecordIsSelectable()) {
+        if (! $this->shouldCheckIndividualTableRecordSelectability()) {
             if ($this->getTable()->selectsCurrentPageOnly()) {
                 $records = $this->getTableRecords()
                     ->filter(fn (Model $record): bool => $tableGrouping->getStringKey($record) === $group); /** @phpstan-ignore method.notFound */
@@ -220,7 +242,7 @@ trait HasBulkActions
 
         return $records->reduce(
             function (array $carry, Model $record): array {
-                if (! $this->getTable()->isRecordSelectable($record)) {
+                if (! $this->isTableRecordSelectable($record)) {
                     return $carry;
                 }
 
@@ -235,21 +257,25 @@ trait HasBulkActions
     #[Unexposed]
     public function getAllSelectableTableRecordsCount(): int
     {
-        if ($this->getTable()->checksIfRecordIsSelectable()) {
+        if ($this->shouldCheckIndividualTableRecordSelectability()) {
             /** @var Collection $records */
             $records = $this->getTable()->selectsCurrentPageOnly() ?
                 $this->getTableRecords() :
                 $this->hydratePivotRelationForTableRecords(($this->getTable()->hasPivotRecordKeys() ?
-                    $this->applyPivotRecordKeyToTableQuery($this->getFilteredTableQuery()) :
-                    $this->getFilteredTableQuery())->get());
+                    $this->applyPivotRecordKeyToTableQuery($this->getTable()->modifySelectableRecordsQuery($this->getFilteredTableQuery())) :
+                    $this->getTable()->modifySelectableRecordsQuery($this->getFilteredTableQuery()))->get());
 
             return $records
-                ->filter(fn (Model | array $record): bool => $this->getTable()->isRecordSelectable($record))
+                ->filter(fn (Model | array $record): bool => $this->isTableRecordSelectable($record))
                 ->count();
         }
 
         if ($this->getTable()->selectsCurrentPageOnly()) {
             return $this->cachedTableRecords->count();
+        }
+
+        if ($this->getTable()->hasSelectableRecordsQuery()) {
+            return $this->getTable()->modifySelectableRecordsQuery($this->getFilteredTableQuery())->toBase()->getCountForPagination();
         }
 
         if ($this->cachedTableRecords instanceof LengthAwarePaginator) {
@@ -262,9 +288,24 @@ trait HasBulkActions
     #[Unexposed]
     public function getSelectedTableRecords(bool $shouldFetchSelectedRecords = true, ?int $chunkSize = null): EloquentCollection | Collection | LazyCollection
     {
-        if (isset($this->cachedSelectedTableRecords)) {
+        $state = [
+            'selectedRecords' => $this->selectedTableRecords,
+            'deselectedRecords' => $this->deselectedTableRecords,
+            'isTrackingDeselectedRecords' => $this->isTrackingDeselectedTableRecords,
+            'shouldFetchSelectedRecords' => $shouldFetchSelectedRecords,
+            'chunkSize' => $chunkSize,
+        ];
+
+        if (
+            isset($this->cachedSelectedTableRecords) &&
+            ($this->cachedSelectedTableRecordsState === $state)
+        ) {
             return $this->cachedSelectedTableRecords;
         }
+
+        $this->cachedSelectedTableRecords = null;
+
+        $this->cachedSelectedTableRecordsState = $state;
 
         $table = $this->getTable();
 
@@ -342,7 +383,7 @@ trait HasBulkActions
 
         if ($table->checksIfRecordIsSelectable()) {
             $resolvedSelectedRecords = $resolvedSelectedRecords->filter(
-                fn (Model | array $record): bool => $table->isRecordSelectable($record)
+                fn (Model | array $record): bool => $table->isRecordSelectableUsingCallback($record)
             );
         }
 
@@ -388,6 +429,8 @@ trait HasBulkActions
         } finally {
             $this->shouldApplyTableColumnRelationshipAggregates = $shouldApplyTableColumnRelationshipAggregates;
         }
+
+        $query = $table->modifySelectableRecordsQuery($query);
 
         // Bulk actions may use hidden aggregates too. Apply each column once,
         // independently of the aggregates normally added by sorting/filtering.
@@ -481,7 +524,7 @@ trait HasBulkActions
         $selectableKeys = [];
 
         $this->lazyTableRecordsByKey(clone $query, 1000)->each(function (Model $record) use (&$selectableKeys, $table): void {
-            if ($table->isRecordSelectable($record)) {
+            if ($table->isRecordSelectableUsingCallback($record)) {
                 $selectableKeys[] = $table->hasPivotRecordKeys() ? $record->getAttribute('filament_pivot_key') : $record->getKey();
             }
         });
@@ -491,6 +534,88 @@ trait HasBulkActions
         }
 
         $this->constrainTableQueryToResolvedRecordKeys($query, $selectableKeys);
+    }
+
+    #[Unexposed]
+    public function isTableRecordSelectableUsingQuery(Model $record): bool
+    {
+        $table = $this->getTable();
+
+        if ((! $table->hasQuery()) || (! $table->hasSelectableRecordsQuery())) {
+            return true;
+        }
+
+        $key = (string) $this->getTableRecordKey($record);
+
+        if (array_key_exists($key, $this->cachedTableRecordSelectabilityUsingQuery)) {
+            return $this->cachedTableRecordSelectabilityUsingQuery[$key];
+        }
+
+        $keys = $this->cachedTableRecords?->map(fn (Model $record): string => (string) $this->getTableRecordKey($record))->values()->all() ?? [];
+
+        if (! in_array($key, $keys, strict: true)) {
+            $keys = [$key];
+        }
+
+        $query = $table->withAppliedFiltersFormState(function () use ($table): Builder {
+            $query = $table->getQuery();
+
+            foreach ($table->getFilters() as $filter) {
+                $filter->applyToBaseQuery($query, $this->getTableFilterState($filter->getName()) ?? []);
+            }
+
+            return $query;
+        });
+
+        $qualifiedKeyName = $table->hasPivotRecordKeys() ?
+            $this->getQualifiedTablePivotKeyName() :
+            $query->getModel()->getQualifiedKeyName();
+
+        $query->whereIn($qualifiedKeyName, $keys);
+
+        $query = $table->modifySelectableRecordsQuery($query)->applyScopes()->withoutGlobalScopes();
+        $query->getQuery()->limit = null;
+        $query->getQuery()->offset = null;
+        $query->addSelect("{$qualifiedKeyName} as filament_selectable_record_key");
+
+        $selectableKeys = array_flip($query
+            ->toBase()
+            ->pluck('filament_selectable_record_key')
+            ->map(fn ($key): string => (string) $key)
+            ->all());
+
+        foreach ($keys as $resolvedKey) {
+            $this->cachedTableRecordSelectabilityUsingQuery[$resolvedKey] = array_key_exists($resolvedKey, $selectableKeys);
+        }
+
+        return $this->cachedTableRecordSelectabilityUsingQuery[$key];
+    }
+
+    protected function shouldCheckIndividualTableRecordSelectability(): bool
+    {
+        $table = $this->getTable();
+
+        if ($table->checksIfRecordIsSelectable()) {
+            return true;
+        }
+
+        return $table->hasQuery() && $table->hasSelectableRecordsQuery() && $table->selectsCurrentPageOnly();
+    }
+
+    /**
+     * @param  Model | array<string, mixed>  $record
+     */
+    protected function isTableRecordSelectable(Model | array $record): bool
+    {
+        $table = $this->getTable();
+
+        // Records fetched from outside the current page have already been
+        // constrained by the selectable records query.
+        if (! $table->selectsCurrentPageOnly()) {
+            return $table->isRecordSelectableUsingCallback($record);
+        }
+
+        return $table->isRecordSelectable($record);
     }
 
     protected function lazyTableRecordsByKey(Builder $query, int $chunkSize): LazyCollection

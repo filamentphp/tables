@@ -1017,6 +1017,91 @@ public function table(Table $table): Table
 
 <AutoScreenshot name="tables/columns/column-manager-columns" alt="Table with a 2-column column manager" />
 
+## Loading column state lazily
+
+If calculating a column's state is expensive, you can use `lazyLoadedState()` to load it after the initial render, without delaying the rest of the table:
+
+```php
+use App\Services\ScoreService;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+
+TextColumn::make('score')
+    ->state(fn (Model $record): int => app(ScoreService::class)->forRecord($record))
+    ->lazyLoadedState()
+```
+
+In this example, `ScoreService` represents your application's expensive calculation. Filament displays a loading indicator until the state is ready. Loading starts when the cell enters the viewport. When the table rerenders, such as after filtering or changing pages, the lazy-loaded state loads again. Only rendered cells are loaded, so a paginated table loads values for the current page, not every record.
+
+Each ungrouped cell loads using a separate Livewire async action. [Grouped loaders](#grouping-lazy-loaded-column-state) use one async action per group. These actions run concurrently rather than queuing behind other actions on the same Livewire component. Livewire may still bundle messages across different components, including components with reactive or modelable children.
+
+Lazy-loaded state requests use Livewire's normal request lifecycle, including its interceptors and pending property updates. If the parent changes while a value is loading, Filament cancels the obsolete response and reloads any remaining placeholders using the latest state, waiting for the cell or its group to enter the viewport.
+
+> [!WARNING]
+> Treat lazy-loaded state loaders as read-only. Return the state to display instead of mutating the Livewire component or persisting UI state inside a loader. Concurrent async actions do not provide ordering guarantees for component mutations.
+
+Lazy-loaded state is resolved for rendering only. Other server-side callbacks see `null` when accessing the column's state outside its lazy render. Use record data instead of `$state` for visibility, lazy loading conditions, group names, keys, cell URLs, and cell actions.
+
+You can pass `false` to `lazyLoadedState()` to disable lazy loading, or a function to enable it conditionally:
+
+```php
+use App\Services\ScoreService;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+
+TextColumn::make('score')
+    ->state(fn (Model $record): int => app(ScoreService::class)->forRecord($record))
+    ->lazyLoadedState(fn (Model $record): bool => $record->is_active)
+```
+
+### Grouping lazy-loaded column state
+
+To fetch multiple values in one request, create a named `LazyLoadedStateGroup` and attach it to each column using the `group` argument of `lazyLoadedState()`. The group's `state()` function runs once per group request and returns an array of raw states keyed by the `key` argument:
+
+```php
+use App\Services\ScoreService;
+use Filament\Support\State\LazyLoadedStateGroup;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+
+$group = LazyLoadedStateGroup::make('scores')
+    ->state(fn (array $records): array => app(ScoreService::class)->forRecords($records));
+
+TextColumn::make('score')
+    ->lazyLoadedState(
+        group: $group,
+        key: fn (Model $record): string => (string) $record->getKey(),
+    )
+```
+
+Here, your `ScoreService::forRecords()` method should return scores keyed by the record keys, matching the keys in `$records`. Without an explicit `key`, Filament uses the column name, so this example needs a record-specific key to distinguish cells in different rows.
+
+The group function can receive `$records` and `$components`, both arrays keyed by the lazy-loaded state keys. It also supports the normal [column utilities](#column-utility-injection), including `$record`, evaluated using the first column in the group request. Use `$records` when processing multiple records rather than assuming `$record` represents every cell.
+
+The first member to enter the viewport starts one request for all currently rendered members of its group, including members outside the viewport. Only rendered targets are included in the group request. Each target must have a unique key within its group, and the returned array must contain every requested key. Duplicate target keys and missing result keys are rejected. A `null` value is valid. Return raw values: Filament still applies the column's normal separator, default state, and formatting configuration. Individual columns' `state()` functions are not called for grouped values.
+
+### Loading multiple columns for each row
+
+You can pass a function as the group name to create a separate group for each record. Filament evaluates this function using the originating column's utilities. Attach the same group to multiple columns and leave their keys as the default column names:
+
+```php
+use App\Services\MetricsService;
+use Filament\Support\State\LazyLoadedStateGroup;
+use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
+
+$group = LazyLoadedStateGroup::make(fn (Model $record): string => "metrics-{$record->getKey()}")
+    ->state(fn (Model $record): array => app(MetricsService::class)->forRecord($record));
+
+TextColumn::make('score')
+    ->lazyLoadedState(group: $group)
+
+TextColumn::make('rank')
+    ->lazyLoadedState(group: $group)
+```
+
+Your `MetricsService::forRecord()` method should return an array such as `['score' => 42, 'rank' => 3]`. The loader runs once for each row's group request, rather than once per column, and each row loads independently. Only the rendered columns in that row are requested.
+
 ## Adding extra HTML attributes to a column content
 
 You can pass extra HTML attributes to the column content via the `extraAttributes()` method, which will be merged onto its outer HTML element. The attributes should be represented by an array, where the key is the attribute name and the value is the attribute value:
@@ -1031,6 +1116,8 @@ TextColumn::make('slug')
 <UtilityInjection set="tableColumns">As well as allowing a static value, the `extraAttributes()` method also accepts a function to dynamically calculate it. You can inject various utilities into the function as parameters.</UtilityInjection>
 
 By default, calling `extraAttributes()` multiple times will overwrite the previous attributes. If you wish to merge the attributes instead, you can pass `merge: true` to the method.
+
+When merging attributes, each callback registration is evaluated separately, even if the same callback is registered more than once.
 
 ### Adding extra HTML attributes to the cell
 
@@ -1061,6 +1148,79 @@ TextColumn::make('slug')
 <UtilityInjection set="tableColumns">As well as allowing a static value, the `extraHeaderAttributes()` method also accepts a function to dynamically calculate it. You can inject various utilities into the function as parameters.</UtilityInjection>
 
 By default, calling `extraHeaderAttributes()` multiple times will overwrite the previous attributes. If you wish to merge the attributes instead, you can pass `merge: true` to the method.
+
+## Authorizing editable columns
+
+Editable columns do not check model policies by default, even in [strict authorization mode](../../panel-configuration#strict-authorization-mode). Use `authorize()` to check the record's `update()` policy. Denied columns are disabled, and changes are rejected on the server:
+
+```php
+use Filament\Tables\Columns\TextInputColumn;
+
+TextInputColumn::make('title')
+    ->authorize()
+```
+
+Pass a different ability name, such as `authorize('updateTitle')`, to customize the policy check. These checks use Laravel's Gate, including its authorization callbacks. Missing policies or abilities deny access unless a Gate callback grants it; strict mode does not turn these denials into exceptions.
+
+For custom authorization logic, pass a callback that returns a boolean or an `Illuminate\Auth\Access\Response`:
+
+```php
+use Filament\Tables\Columns\TextInputColumn;
+
+TextInputColumn::make('title')
+    ->authorize(fn ($record): bool => $record->user_id === auth()->id())
+```
+
+<UtilityInjection set="tableColumns">The function passed to `authorize()` can inject various utilities as parameters.</UtilityInjection>
+
+### Authorizing editable columns globally
+
+To enable policy checks globally, call `configureUsing()` in a service provider's `boot()` method for each editable column type you use:
+
+```php
+use Filament\Tables\Columns\CheckboxColumn;
+use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Columns\ToggleColumn;
+
+CheckboxColumn::configureUsing(fn (CheckboxColumn $column) => $column->authorize());
+SelectColumn::configureUsing(fn (SelectColumn $column) => $column->authorize());
+TextInputColumn::configureUsing(fn (TextInputColumn $column) => $column->authorize());
+ToggleColumn::configureUsing(fn (ToggleColumn $column) => $column->authorize());
+```
+
+Individual columns can override this configuration with their own `authorize()` call. Use `authorize(true)` or `authorize(null)` to skip authorization. An authorized column can still be disabled by `disabled()`.
+
+## Rendering only the updated cells of editable columns
+
+By default, when a user updates an [editable column](#introduction), the whole Livewire component re-renders, and the browser updates the entire table. On large tables, you may use the `partiallyRenderAfterStateUpdated()` method to re-render only the cell that was updated:
+
+```php
+use Filament\Tables\Columns\TextInputColumn;
+
+TextInputColumn::make('purchase_price')
+    ->partiallyRenderAfterStateUpdated()
+```
+
+<UtilityInjection set="tableColumns">As well as allowing a static value, the `partiallyRenderAfterStateUpdated()` method also accepts a function to dynamically calculate it. You can inject various utilities into the function as parameters.</UtilityInjection>
+
+If saving the column also changes other columns of the same record, you may pass their names to `partiallyRenderColumnsAfterStateUpdated()`. The updated cell is always re-rendered too:
+
+```php
+use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Columns\TextInputColumn;
+
+TextInputColumn::make('purchase_price')
+    ->partiallyRenderColumnsAfterStateUpdated(['purchase_currency'])
+
+SelectColumn::make('purchase_currency')
+    ->options([
+        'EUR' => 'EUR',
+        'USD' => 'USD',
+    ])
+```
+
+Anything else that depends on the updated record, such as other rows or content outside the table, is not updated until the component next renders. Columns that are not visible in the table are skipped. If the table has [summaries](../summaries) or a [content layout](../layout), the whole component is rendered instead.
 
 ## Column utility injection
 
